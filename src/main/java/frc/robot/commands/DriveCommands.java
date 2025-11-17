@@ -1,15 +1,12 @@
-// Copyright 2021-2025 FRC 6328
+// 版权 2021-2025 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
+// 本程序是自由软件；您可以根据自由软件基金会发布的 GNU 通用公共许可证
+// 第 3 版的条款进行再发布和/或修改，或在本项目根目录中查阅该许可证。
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+// 本程序的发布目的是希望它有用，但不提供任何担保；
+// 甚至没有适销性或特定用途适用性的默示担保。
+// 详细信息请参阅 GNU 通用公共许可证。
 
 package frc.robot.commands;
 
@@ -42,30 +39,28 @@ public class DriveCommands {
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
-  private static final double FF_START_DELAY = 2.0; // Secs
-  private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
-  private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
-  private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+  private static final double FF_START_DELAY = 2.0; // 秒
+  private static final double FF_RAMP_RATE = 0.1; // 伏/秒
+  private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // 弧度/秒
+  private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // 弧度/秒^2
 
   private DriveCommands() {}
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
-    // Apply deadband
+    // 应用死区
     double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
     Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
-    // Square magnitude for more precise control
+    // 将幅值平方以获得更精细的控制
     linearMagnitude = linearMagnitude * linearMagnitude;
 
-    // Return new linear velocity
+    // 返回新的线速度向量
     return new Pose2d(new Translation2d(), linearDirection)
         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
         .getTranslation();
   }
 
-  /**
-   * Field relative drive command using two joysticks (controlling linear and angular velocities).
-   */
+  /** 使用两个摇杆（分别控制线速度和角速度）的场相对驾驶指令。 */
   public static Command joystickDrive(
       Drive drive,
       DoubleSupplier xSupplier,
@@ -73,17 +68,17 @@ public class DriveCommands {
       DoubleSupplier omegaSupplier) {
     return Commands.run(
         () -> {
-          // Get linear velocity
+          // 获取线速度
           Translation2d linearVelocity =
               getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          // Apply rotation deadband
+          // 对旋转输入应用死区
           double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
-          // Square rotation value for more precise control
+          // 将旋转输入平方以获得更精细的控制
           omega = Math.copySign(omega * omega, omega);
 
-          // Convert to field relative speeds & send command
+          // 转换为场相对速度并发送指令
           ChassisSpeeds speeds =
               new ChassisSpeeds(
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
@@ -102,18 +97,14 @@ public class DriveCommands {
         drive);
   }
 
-  /**
-   * Field relative drive command using joystick for linear control and PID for angular control.
-   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-   * absolute rotation with a joystick.
-   */
+  /** 使用摇杆进行线速度控制、用 PID 进行角速度控制的场相对驾驶指令。 适用场景包括自动对准某个角度、瞄准视觉目标或通过摇杆控制绝对朝向。 */
   public static Command joystickDriveAtAngle(
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       Supplier<Rotation2d> rotationSupplier) {
 
-    // Create PID controller
+    // 创建 PID 控制器
     ProfiledPIDController angleController =
         new ProfiledPIDController(
             ANGLE_KP,
@@ -122,19 +113,19 @@ public class DriveCommands {
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    // Construct command
+    // 构造指令
     return Commands.run(
             () -> {
-              // Get linear velocity
+              // 获取线速度
               Translation2d linearVelocity =
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-              // Calculate angular speed
+              // 计算角速度
               double omega =
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
 
-              // Convert to field relative speeds & send command
+              // 转换为场相对速度并发送指令
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
@@ -152,14 +143,14 @@ public class DriveCommands {
             },
             drive)
 
-        // Reset PID controller when command starts
+        // 指令开始时重置 PID 控制器
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
 
   /**
-   * Measures the velocity feedforward constants for the drive motors.
+   * 测量驱动电机的速度前馈常数。
    *
-   * <p>This command should only be used in voltage control mode.
+   * <p>此指令仅应在电压控制模式下使用。
    */
   public static Command feedforwardCharacterization(Drive drive) {
     List<Double> velocitySamples = new LinkedList<>();
@@ -167,14 +158,14 @@ public class DriveCommands {
     Timer timer = new Timer();
 
     return Commands.sequence(
-        // Reset data
+        // 重置数据
         Commands.runOnce(
             () -> {
               velocitySamples.clear();
               voltageSamples.clear();
             }),
 
-        // Allow modules to orient
+        // 允许各模块转向到位
         Commands.run(
                 () -> {
                   drive.runCharacterization(0.0);
@@ -182,10 +173,10 @@ public class DriveCommands {
                 drive)
             .withTimeout(FF_START_DELAY),
 
-        // Start timer
+        // 启动计时器
         Commands.runOnce(timer::restart),
 
-        // Accelerate and gather data
+        // 加速并采集数据
         Commands.run(
                 () -> {
                   double voltage = timer.get() * FF_RAMP_RATE;
@@ -195,7 +186,7 @@ public class DriveCommands {
                 },
                 drive)
 
-            // When cancelled, calculate and print results
+            // 指令结束时计算并输出结果
             .finallyDo(
                 () -> {
                   int n = velocitySamples.size();
@@ -219,21 +210,21 @@ public class DriveCommands {
                 }));
   }
 
-  /** Measures the robot's wheel radius by spinning in a circle. */
+  /** 通过原地旋转测量机器人的轮半径。 */
   public static Command wheelRadiusCharacterization(Drive drive) {
     SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
     WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
 
     return Commands.parallel(
-        // Drive control sequence
+        // 驱动控制序列
         Commands.sequence(
-            // Reset acceleration limiter
+            // 重置加速度限制器
             Commands.runOnce(
                 () -> {
                   limiter.reset(0.0);
                 }),
 
-            // Turn in place, accelerating up to full speed
+            // 原地旋转并加速到最大速度
             Commands.run(
                 () -> {
                   double speed = limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY);
@@ -241,12 +232,12 @@ public class DriveCommands {
                 },
                 drive)),
 
-        // Measurement sequence
+        // 测量序列
         Commands.sequence(
-            // Wait for modules to fully orient before starting measurement
+            // 等待模块完全对齐后再开始测量
             Commands.waitSeconds(1.0),
 
-            // Record starting measurement
+            // 记录起始数据
             Commands.runOnce(
                 () -> {
                   state.positions = drive.getWheelRadiusCharacterizationPositions();
@@ -254,7 +245,7 @@ public class DriveCommands {
                   state.gyroDelta = 0.0;
                 }),
 
-            // Update gyro delta
+            // 更新陀螺仪增量
             Commands.run(
                     () -> {
                       var rotation = drive.getRotation();
@@ -262,7 +253,7 @@ public class DriveCommands {
                       state.lastAngle = rotation;
                     })
 
-                // When cancelled, calculate and print results
+                // 指令结束时计算并输出结果
                 .finallyDo(
                     () -> {
                       double[] positions = drive.getWheelRadiusCharacterizationPositions();
