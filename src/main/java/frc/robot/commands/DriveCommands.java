@@ -60,41 +60,51 @@ public class DriveCommands {
         .getTranslation();
   }
 
+  private static Rotation2d headRotation = new Rotation2d();
+
   /** 使用两个摇杆（分别控制线速度和角速度）的场相对驾驶指令。 */
   public static Command joystickDrive(
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
-    return Commands.run(
-        () -> {
-          // 获取线速度
-          Translation2d linearVelocity =
-              getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          // 对旋转输入应用死区
-          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+    // Timer timer = new Timer();
 
-          // 将旋转输入平方以获得更精细的控制
-          omega = Math.copySign(omega * omega, omega);
+    return Commands.either(
+        Commands.run(
+            () -> {
+              // 获取线速度
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          // 转换为场相对速度并发送指令
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                  omega * drive.getMaxAngularSpeedRadPerSec());
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
-          drive.runVelocity(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds,
-                  isFlipped
-                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
-        },
-        drive);
+              headRotation = drive.getRotation();
+              // 对旋转输入应用死区
+              double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+
+              // 将旋转输入平方以获得更精细的控制
+              omega = Math.copySign(omega * omega, omega);
+
+              // 转换为场相对速度并发送指令
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                      omega * drive.getMaxAngularSpeedRadPerSec());
+              boolean isFlipped =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds,
+                      isFlipped
+                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                          : drive.getRotation()));
+            },
+            drive),
+        joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> headRotation)
+            .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
+        () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0);
   }
 
   /** 使用摇杆进行线速度控制、用 PID 进行角速度控制的场相对驾驶指令。 适用场景包括自动对准某个角度、瞄准视觉目标或通过摇杆控制绝对朝向。 */

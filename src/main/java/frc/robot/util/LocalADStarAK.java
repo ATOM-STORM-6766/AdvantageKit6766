@@ -15,16 +15,16 @@ import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-// NOTE: This file is available at
+// 说明：此文件可在以下链接获取
 // https://gist.github.com/mjansen4857/a8024b55eb427184dbd10ae8923bd57d
 
 public class LocalADStarAK implements Pathfinder {
   private final ADStarIO io = new ADStarIO();
 
   /**
-   * Get if a new path has been calculated since the last time a path was retrieved
+   * 判断自上次获取路径以来，是否已计算出新的路径。
    *
-   * @return True if a new path is available
+   * @return 若有可用的新路径则返回 true
    */
   @Override
   public boolean isNewPathAvailable() {
@@ -38,11 +38,11 @@ public class LocalADStarAK implements Pathfinder {
   }
 
   /**
-   * Get the most recently calculated path
+   * 获取最近一次计算出的路径。
    *
-   * @param constraints The path constraints to use when creating the path
-   * @param goalEndState The goal end state to use when creating the path
-   * @return The PathPlannerPath created from the points calculated by the pathfinder
+   * @param constraints 构建路径时要使用的路径约束
+   * @param goalEndState 构建路径时的目标结束状态
+   * @return 根据寻路器计算出的点创建的 PathPlannerPath
    */
   @Override
   public PathPlannerPath getCurrentPath(PathConstraints constraints, GoalEndState goalEndState) {
@@ -60,10 +60,9 @@ public class LocalADStarAK implements Pathfinder {
   }
 
   /**
-   * Set the start position to pathfind from
+   * 设置寻路的起始位置。
    *
-   * @param startPosition Start position on the field. If this is within an obstacle it will be
-   *     moved to the nearest non-obstacle node.
+   * @param startPosition 场地上的起点；若位于障碍物内，将被移动到最近的非障碍节点。
    */
   @Override
   public void setStartPosition(Translation2d startPosition) {
@@ -73,10 +72,9 @@ public class LocalADStarAK implements Pathfinder {
   }
 
   /**
-   * Set the goal position to pathfind to
+   * 设置寻路的目标位置。
    *
-   * @param goalPosition Goal position on the field. f this is within an obstacle it will be moved
-   *     to the nearest non-obstacle node.
+   * @param goalPosition 场地上的目标点；若位于障碍物内，将被移动到最近的非障碍节点。
    */
   @Override
   public void setGoalPosition(Translation2d goalPosition) {
@@ -86,12 +84,10 @@ public class LocalADStarAK implements Pathfinder {
   }
 
   /**
-   * Set the dynamic obstacles that should be avoided while pathfinding.
+   * 设置寻路过程中需要避开的动态障碍。
    *
-   * @param obs A List of Translation2d pairs representing obstacles. Each Translation2d represents
-   *     opposite corners of a bounding box.
-   * @param currentRobotPos The current position of the robot. This is needed to change the start
-   *     position of the path to properly avoid obstacles
+   * @param obs 表示障碍物的 Translation2d 成对列表，每对点代表包围盒的对角。
+   * @param currentRobotPos 机器人当前位置，用于根据障碍调整路径初始位置。
    */
   @Override
   public void setDynamicObstacles(

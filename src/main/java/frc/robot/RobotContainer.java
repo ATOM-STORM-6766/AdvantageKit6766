@@ -42,6 +42,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // 子系统
   private final Drive drive;
+  @SuppressWarnings("unused")
   private final Vision vision;
 
   // 控制器
@@ -160,6 +161,8 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller.y().whileTrue(Commands.run(null, null));
   }
 
   /**
@@ -168,7 +171,6 @@ public class RobotContainer {
    * @return 自动阶段需要运行的指令
    */
   public Command getAutonomousCommand() {
-    vision.getName();
     return autoChooser.get();
   }
 }
