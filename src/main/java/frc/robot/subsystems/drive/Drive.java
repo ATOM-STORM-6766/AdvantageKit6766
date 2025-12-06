@@ -1,15 +1,12 @@
-// Copyright 2021-2025 FRC 6328
+// 版权 2021-2025 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
+// 本程序是自由软件；您可以根据自由软件基金会发布的 GNU 通用公共许可证
+// 第 3 版的条款进行再发布和/或修改，或在本项目根目录中查阅该许可证。
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+// 本程序的发布目的是希望它有用，但不提供任何担保；
+// 甚至没有适销性或特定用途适用性的默示担保。
+// 详细信息请参阅 GNU 通用公共许可证。
 
 package frc.robot.subsystems.drive;
 
@@ -56,7 +53,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
-  // TunerConstants doesn't include these constants, so they are declared locally
+  // TunerConstants 未包含这些常量，因此在此处本地声明
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
@@ -68,7 +65,7 @@ public class Drive extends SubsystemBase {
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
-  // PathPlanner config constants
+  // PathPlanner 配置常量
   private static final double ROBOT_MASS_KG = 74.088;
   private static final double ROBOT_MOI = 6.883;
   private static final double WHEEL_COF = 1.2;
@@ -89,14 +86,14 @@ public class Drive extends SubsystemBase {
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-  private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+  private final Module[] modules = new Module[4]; // 前左、前右、后左、后右
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d rawGyroRotation = new Rotation2d();
-  private SwerveModulePosition[] lastModulePositions = // For delta tracking
+  private SwerveModulePosition[] lastModulePositions = // 用于跟踪增量
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
@@ -118,20 +115,20 @@ public class Drive extends SubsystemBase {
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
 
-    // Usage reporting for swerve template
+    // 针对 swerve 模板的使用情况上报
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
 
-    // Start odometry thread
+    // 启动里程计线程
     PhoenixOdometryThread.getInstance().start();
 
-    // Configure AutoBuilder for PathPlanner
+    // 为 PathPlanner 配置 AutoBuilder
     AutoBuilder.configure(
         this::getPose,
         this::setPose,
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new PIDConstants(3.5, 0.0, 0.7), new PIDConstants(7.0, 0.0, 0.1)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -146,7 +143,7 @@ public class Drive extends SubsystemBase {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
         });
 
-    // Configure SysId
+    // 配置 SysId
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -160,7 +157,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    odometryLock.lock(); // Prevents odometry updates while reading data
+    odometryLock.lock(); // 防止在读取数据时更新里程计
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
@@ -168,25 +165,24 @@ public class Drive extends SubsystemBase {
     }
     odometryLock.unlock();
 
-    // Stop moving when disabled
+    // 在禁用状态下停止运动
     if (DriverStation.isDisabled()) {
       for (var module : modules) {
         module.stop();
       }
     }
 
-    // Log empty setpoint states when disabled
+    // 禁用时记录空的设定点状态
     if (DriverStation.isDisabled()) {
       Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
     }
 
-    // Update odometry
-    double[] sampleTimestamps =
-        modules[0].getOdometryTimestamps(); // All signals are sampled together
+    // 更新里程计
+    double[] sampleTimestamps = modules[0].getOdometryTimestamps(); // 所有信号同步采样
     int sampleCount = sampleTimestamps.length;
     for (int i = 0; i < sampleCount; i++) {
-      // Read wheel positions and deltas from each module
+      // 从每个模块读取轮位姿和增量
       SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
       SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
       for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
@@ -199,64 +195,61 @@ public class Drive extends SubsystemBase {
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 
-      // Update gyro angle
+      // 更新陀螺仪角度
       if (gyroInputs.connected) {
-        // Use the real gyro angle
+        // 使用真实陀螺仪角度
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
-        // Use the angle delta from the kinematics and module deltas
+        // 使用运动学与模块增量推算出的角度变化
         Twist2d twist = kinematics.toTwist2d(moduleDeltas);
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
 
-      // Apply update
+      // 应用更新
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
-    // Update gyro alert
+    // 更新陀螺仪告警
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
 
   /**
-   * Runs the drive at the desired velocity.
+   * 以期望的速度驱动底盘。
    *
-   * @param speeds Speeds in meters/sec
+   * @param speeds 以米/秒为单位的速度
    */
   public void runVelocity(ChassisSpeeds speeds) {
-    // Calculate module setpoints
+    // 计算各模块设定值
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
-    // Log unoptimized setpoints and setpoint speeds
+    // 记录未优化的设定值以及底盘设定速度
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
     Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
-    // Send setpoints to modules
+    // 将设定值下发至各模块
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(setpointStates[i]);
     }
 
-    // Log optimized setpoints (runSetpoint mutates each state)
+    // 记录优化后的设定值（runSetpoint 会修改每个状态）
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
-  /** Runs the drive in a straight line with the specified drive output. */
+  /** 以指定输出让底盘直线行驶。 */
   public void runCharacterization(double output) {
     for (int i = 0; i < 4; i++) {
       modules[i].runCharacterization(output);
     }
   }
 
-  /** Stops the drive. */
+  /** 停止底盘。 */
   public void stop() {
     runVelocity(new ChassisSpeeds());
   }
 
-  /**
-   * Stops the drive and turns the modules to an X arrangement to resist movement. The modules will
-   * return to their normal orientations the next time a nonzero velocity is requested.
-   */
+  /** 停止底盘并把各模块转向 X 形排列以抵抗移动；下一次请求非零速度时会恢复正常朝向。 */
   public void stopWithX() {
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
@@ -266,19 +259,19 @@ public class Drive extends SubsystemBase {
     stop();
   }
 
-  /** Returns a command to run a quasistatic test in the specified direction. */
+  /** 返回一个在指定方向运行准静态测试的指令。 */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0))
         .withTimeout(1.0)
         .andThen(sysId.quasistatic(direction));
   }
 
-  /** Returns a command to run a dynamic test in the specified direction. */
+  /** 返回一个在指定方向运行动态测试的指令。 */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
   }
 
-  /** Returns the module states (turn angles and drive velocities) for all of the modules. */
+  /** 返回所有模块的状态（转角与驱动速度）。 */
   @AutoLogOutput(key = "SwerveStates/Measured")
   private SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
@@ -288,7 +281,7 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** Returns the module positions (turn angles and drive positions) for all of the modules. */
+  /** 返回所有模块的位置（转角与驱动里程）。 */
   private SwerveModulePosition[] getModulePositions() {
     SwerveModulePosition[] states = new SwerveModulePosition[4];
     for (int i = 0; i < 4; i++) {
@@ -297,13 +290,13 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** Returns the measured chassis speeds of the robot. */
+  /** 返回测得的机器人底盘速度。 */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
   private ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
-  /** Returns the position of each module in radians. */
+  /** 返回每个模块的轮位姿（单位：弧度）。 */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];
     for (int i = 0; i < 4; i++) {
@@ -312,7 +305,7 @@ public class Drive extends SubsystemBase {
     return values;
   }
 
-  /** Returns the average velocity of the modules in rotations/sec (Phoenix native units). */
+  /** 返回各模块的平均速度（转/秒，Phoenix 原生单位）。 */
   public double getFFCharacterizationVelocity() {
     double output = 0.0;
     for (int i = 0; i < 4; i++) {
@@ -321,23 +314,23 @@ public class Drive extends SubsystemBase {
     return output;
   }
 
-  /** Returns the current odometry pose. */
+  /** 返回当前里程计位姿。 */
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
 
-  /** Returns the current odometry rotation. */
+  /** 返回当前里程计朝向。 */
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
 
-  /** Resets the current odometry pose. */
+  /** 重置当前里程计位姿。 */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
-  /** Adds a new timestamped vision measurement. */
+  /** 添加带时间戳的视觉测量。 */
   public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
@@ -346,17 +339,17 @@ public class Drive extends SubsystemBase {
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
-  /** Returns the maximum linear speed in meters per sec. */
+  /** 返回最大线速度（米/秒）。 */
   public double getMaxLinearSpeedMetersPerSec() {
     return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   }
 
-  /** Returns the maximum angular speed in radians per sec. */
+  /** 返回最大角速度（弧度/秒）。 */
   public double getMaxAngularSpeedRadPerSec() {
     return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
   }
 
-  /** Returns an array of module translations. */
+  /** 返回模块平移向量数组。 */
   public static Translation2d[] getModuleTranslations() {
     return new Translation2d[] {
       new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
