@@ -62,8 +62,8 @@ public class Module {
     io.updateInputs(inputs);
     Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
-    // Calculate positions for odometry
-    int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
+    // 计算里程计位置
+    int sampleCount = inputs.odometryTimestamps.length; // 所有信号一起采样
     odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
       double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
@@ -71,76 +71,88 @@ public class Module {
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
 
-    // Update alerts
+    // 更新警报
     driveDisconnectedAlert.set(!inputs.driveConnected);
     turnDisconnectedAlert.set(!inputs.turnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
   }
 
-  /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
+  /** 使用指定的设定点状态运行模块。修改状态以对其进行优化。 */
   public void runSetpoint(SwerveModuleState state) {
-    // Optimize velocity setpoint
+    // 优化速度设定点
     state.optimize(getAngle());
     state.cosineScale(inputs.turnPosition);
 
-    // Apply setpoints
+    // 应用设定点
     io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius);
     io.setTurnPosition(state.angle);
   }
 
-  /** Runs the module with the specified output while controlling to zero degrees. */
+  /** 使用指定的输出运行模块，同时控制角度为零度。 */
   public void runCharacterization(double output) {
     io.setDriveOpenLoop(output);
     io.setTurnPosition(new Rotation2d());
   }
 
-  /** Disables all outputs to motors. */
+  /** 转向电机sysid。 */
+  // public void runCharacterization(double output) {
+  //   io.setDriveOpenLoop(0.0);
+  //   io.setTurnOpenLoop(output);
+  // }
+
+  /** 底盘转动惯量sysid。 */
+  // public void runCharacterization(double output) {
+  //     io.setDriveOpenLoop(output);
+  //     io.setTurnPosition(new Rotation2d(constants.LocationX, constants.LocationY).plus(Rotation2d.kCCW_Pi_2));
+  // }
+
+  /** 禁用所有电机输出。 */
   public void stop() {
     io.setDriveOpenLoop(0.0);
     io.setTurnOpenLoop(0.0);
   }
 
-  /** Returns the current turn angle of the module. */
+  /** 返回模块的当前转向角度。 */
   public Rotation2d getAngle() {
     return inputs.turnPosition;
   }
 
-  /** Returns the current drive position of the module in meters. */
+  /** 返回模块的当前驱动位置（以米为单位）。 */
   public double getPositionMeters() {
     return inputs.drivePositionRad * constants.WheelRadius;
   }
 
-  /** Returns the current drive velocity of the module in meters per second. */
+  /** 返回模块的当前驱动速度（以米/秒为单位）。 */
   public double getVelocityMetersPerSec() {
     return inputs.driveVelocityRadPerSec * constants.WheelRadius;
   }
 
-  /** Returns the module position (turn angle and drive position). */
+  /** 返回模块位置（转向角度和驱动位置）。 */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(getPositionMeters(), getAngle());
   }
 
-  /** Returns the module state (turn angle and drive velocity). */
+  /** 返回模块状态（转向角度和驱动速度）。 */
   public SwerveModuleState getState() {
     return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
   }
 
-  /** Returns the module positions received this cycle. */
+  /** 返回本周期接收到的模块位置。 */
   public SwerveModulePosition[] getOdometryPositions() {
     return odometryPositions;
   }
 
-  /** Returns the timestamps of the samples received this cycle. */
+  /** 返回本周期接收到的样本时间戳。 */
   public double[] getOdometryTimestamps() {
     return inputs.odometryTimestamps;
   }
 
-  /** Returns the module position in radians. */
+  /** 返回模块位置（以弧度为单位）。 */
   public double getWheelRadiusCharacterizationPosition() {
     return inputs.drivePositionRad;
   }
 
-  /** Returns the module velocity in rotations/sec (Phoenix native units). */
+  /** 返回模块速度（以转/秒为单位，Phoenix 原生单位）。 */
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
   }
