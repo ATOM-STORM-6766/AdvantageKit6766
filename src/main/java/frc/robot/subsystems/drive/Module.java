@@ -88,6 +88,12 @@ public class Module {
     io.setTurnPosition(state.angle);
   }
 
+  /**
+   * 以下三个方法用于系统辨识。
+   * 同时只能使用其中一个。
+   * 另外两个方法应被注释掉。
+   */
+
   /** 使用指定的输出运行模块，同时控制角度为零度。 */
   public void runCharacterization(double output) {
     io.setDriveOpenLoop(output);
