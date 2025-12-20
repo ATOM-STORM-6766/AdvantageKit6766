@@ -88,28 +88,25 @@ public class Module {
     io.setTurnPosition(state.angle);
   }
 
-  /**
-   * 以下三个方法用于系统辨识。
-   * 同时只能使用其中一个。
-   * 另外两个方法应被注释掉。
-   */
+  /** 以下三个方法用于系统辨识。 同时只能使用其中一个。 另外两个方法应被注释掉。 */
 
   /** 使用指定的输出运行模块，同时控制角度为零度。 */
-  public void runCharacterization(double output) {
-    io.setDriveOpenLoop(output);
-    io.setTurnPosition(new Rotation2d());
-  }
+  // public void runCharacterization(double output) {
+  //   io.setDriveOpenLoop(output);
+  //   io.setTurnPosition(new Rotation2d());
+  // }
 
   /** 转向电机sysid。 */
-  // public void runCharacterization(double output) {
-  //   io.setDriveOpenLoop(0.0);
-  //   io.setTurnOpenLoop(output);
-  // }
+  public void runCharacterization(double output) {
+    io.setDriveOpenLoop(0.0);
+    io.setTurnOpenLoop(output);
+  }
 
   /** 底盘转动惯量sysid。 */
   // public void runCharacterization(double output) {
   //     io.setDriveOpenLoop(output);
-  //     io.setTurnPosition(new Rotation2d(constants.LocationX, constants.LocationY).plus(Rotation2d.kCCW_Pi_2));
+  //     io.setTurnPosition(new Rotation2d(constants.LocationX,
+  // constants.LocationY).plus(Rotation2d.kCCW_Pi_2));
   // }
 
   /** 禁用所有电机输出。 */

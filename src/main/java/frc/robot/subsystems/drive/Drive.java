@@ -128,7 +128,7 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(3.5, 0.0, 0.7), new PIDConstants(7.0, 0.0, 0.1)),
+            new PIDConstants(0.005, 0.0, 0), new PIDConstants(1.8, 0.0, 0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -147,9 +147,9 @@ public class Drive extends SubsystemBase {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null,
-                null,
-                null,
+                Volts.of(0.5).per(Seconds),
+                Volts.of(1.0),
+                Seconds.of(15.0),
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
