@@ -25,12 +25,13 @@ public class VisionConstants {
 
   // 机器人到摄像头的变换
   // （Limelight 不使用，在其 Web UI 中配置）
-  public static Transform3d robotToCamera0 = // x 0.284912 y 0.2688581 z 0.194716
+  public static Transform3d robotToCamera0 = // 35度，16度
       new Transform3d(
-          0.284912, 0.2688581, 0.194716, new Rotation3d(0.0, -0.244346, -0.593412)); // 面朝正方向左
-  public static Transform3d robotToCamera1 = // x 0.284912 y -0.2688581 z 0.194716
+          0.283021, 0.259707, 0.194947, new Rotation3d(0.0, -0.279253, -0.610865)); // 面朝正方向左
+
+  public static Transform3d robotToCamera1 = // 35度，16度
       new Transform3d(
-          0.284912, -0.2688581, 0.194716, new Rotation3d(0.0, -0.244346, 0.593412)); // 面朝正方向右
+          0.283021, -0.259707, 0.194947, new Rotation3d(0.0, -0.279253, 0.610865)); // 面朝正方向右
 
   // 基础过滤阈值
   public static double maxAmbiguity = 0.3;
