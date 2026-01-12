@@ -23,8 +23,8 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 /**
- * Physics sim implementation of turret IO. Simulation is always based on voltage control. Supports
- * continuous rotation.
+ * Physics sim implementation of turret IO. Simulation is always based on voltage control. Limited
+ * rotation range.
  */
 public class TurretIOSim implements TurretIO {
   private static final DCMotor TURRET_GEARBOX = DCMotor.getKrakenX60Foc(1);
@@ -44,8 +44,7 @@ public class TurretIOSim implements TurretIO {
             TURRET_GEARBOX);
 
     positionController = new PIDController(TURRET_KP, TURRET_KI, TURRET_KD);
-    // Enable continuous input for turret (wraps around -180 to 180 degrees)
-    positionController.enableContinuousInput(-Math.PI, Math.PI);
+    // No continuous input - limited rotation range
   }
 
   @Override
@@ -65,19 +64,16 @@ public class TurretIOSim implements TurretIO {
     double minRad = MIN_TURRET_ANGLE.getRadians();
     double maxRad = MAX_TURRET_ANGLE.getRadians();
 
-    // Normalize position to [-pi, pi] for limit checking
-    double normalizedPos = MathUtil.inputModulus(positionRad, -Math.PI, Math.PI);
-
-    // Check if at limits
-    boolean atMinLimit = normalizedPos <= minRad;
-    boolean atMaxLimit = normalizedPos >= maxRad;
+    // Check if at limits (no normalization needed for limited rotation range)
+    boolean atMinLimit = positionRad <= minRad;
+    boolean atMaxLimit = positionRad >= maxRad;
 
     // Simulate stall current when at limits
     if (atMinLimit || atMaxLimit) {
-      // Clamp position to limits (but allow continuous rotation in simulation)
-      if (normalizedPos < minRad) {
+      // Clamp position to limits
+      if (positionRad < minRad) {
         positionRad = minRad;
-      } else if (normalizedPos > maxRad) {
+      } else if (positionRad > maxRad) {
         positionRad = maxRad;
       }
 
@@ -118,9 +114,12 @@ public class TurretIOSim implements TurretIO {
   public void setPosition(Rotation2d angle) {
     closedLoop = true;
     resetting = false;
-    // Use continuous rotation - find shortest path
+    // Limited rotation range - clamp target to physical limits
     double targetRad = angle.getRadians();
-    positionController.setSetpoint(targetRad);
+    double minAngle = MIN_TURRET_ANGLE.getRadians();
+    double maxAngle = MAX_TURRET_ANGLE.getRadians();
+    double clampedTarget = MathUtil.clamp(targetRad, minAngle, maxAngle);
+    positionController.setSetpoint(clampedTarget);
   }
 
   @Override
@@ -141,13 +140,13 @@ public class TurretIOSim implements TurretIO {
     closedLoop = false;
     // Move towards reverse limit (minimum angle)
     double currentPos = turretSim.getAngularPositionRad();
-    double normalizedPos = MathUtil.inputModulus(currentPos, -Math.PI, Math.PI);
-    if (normalizedPos > MIN_TURRET_ANGLE.getRadians() + 0.01) {
+    double minAngle = MIN_TURRET_ANGLE.getRadians();
+    if (currentPos > minAngle + 0.01) {
       appliedVolts =
           -Math.signum(RESET_SPEED_RAD_PER_SEC) * 12.0 * Math.abs(RESET_SPEED_RAD_PER_SEC) / 10.0;
     } else {
       // At limit, set position to known limit
-      turretSim.setState(MIN_TURRET_ANGLE.getRadians(), 0.0);
+      turretSim.setState(minAngle, 0.0);
       appliedVolts = 0.0;
       resetting = false;
     }
