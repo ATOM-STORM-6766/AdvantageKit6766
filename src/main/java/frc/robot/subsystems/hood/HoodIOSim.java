@@ -10,10 +10,12 @@ import org.littletonrobotics.junction.Logger;
 
 public class HoodIOSim extends HoodIOTalonFX {
   private static final DCMotor HOOD_MOTOR = DCMotor.getKrakenX60Foc(1);
-  private static final double HOOD_MOMENT_OF_INERTIA = 0.01;
+  private static final double HOOD_MOMENT_OF_INERTIA = 0.1266;
+  private static final double CALIBRATION_DELAY_SECONDS = 2.0;
   protected final DCMotorSim mechanismSim;
   private final Notifier simNotifier;
   private double lastUpdateTimestamp;
+  private final Timer calibrationTimer = new Timer();
 
   public HoodIOSim() {
     super();
@@ -37,7 +39,31 @@ public class HoodIOSim extends HoodIOTalonFX {
   }
 
   @Override
+  public void startCalibration() {
+    double minPositionRad = HoodConstants.kHoodMinPositionRadians;
+
+    mechanismSim.setState(minPositionRad, 0.0);
+
+    double positionRotations = Units.radiansToRotations(minPositionRad);
+    double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
+    hoodMotor.getSimState().setRawRotorPosition(positionRotor);
+    hoodMotor.getSimState().setRotorVelocity(0.0);
+
+    // Start calibration timer and set state to CALIBRATING
+    calibrationTimer.restart();
+    calibrationState = CalibrationState.CALIBRATING;
+  }
+
+  @Override
   public void readInputs(HoodInputs inputs) {
+    // Check if calibration is complete after delay
+    if (calibrationState == CalibrationState.CALIBRATING
+        && calibrationTimer.hasElapsed(CALIBRATION_DELAY_SECONDS)) {
+      calibrationState = CalibrationState.CALIBRATED;
+      calibrationTimer.stop();
+    }
+
+    // Call parent implementation
     super.readInputs(inputs);
   }
 

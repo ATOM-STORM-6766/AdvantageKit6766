@@ -12,7 +12,8 @@ import frc.robot.Constants;
 public class FlywheelIOTalonFX implements FlywheelIO {
 
   private final TalonFX motor;
-  private final MotionMagicVelocityTorqueCurrentFOC velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0);
+  private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
+      new MotionMagicVelocityTorqueCurrentFOC(0);
 
   private final StatusSignal<AngularVelocity> velocitySignal;
   private final StatusSignal<Voltage> voltsSignal;

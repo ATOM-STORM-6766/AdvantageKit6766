@@ -14,7 +14,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
-
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;

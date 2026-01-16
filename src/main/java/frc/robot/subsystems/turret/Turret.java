@@ -61,6 +61,21 @@ public class Turret extends SubsystemBase {
         .withName("Turret wait for position");
   }
 
+  public Command resetToLimitCommand() {
+    return runOnce(() -> io.startCalibration())
+        .andThen(
+            run(() -> {})
+                .until(() -> inputs.calibrationState == TurretIO.CalibrationState.CALIBRATED))
+        .andThen(
+            runOnce(
+                () -> {
+                  turretPositionSetpointRadiansFromCenter =
+                      TurretConstants.kTurretMinPositionRadians;
+                  Logger.recordOutput("Turret/ResetComplete", true);
+                }))
+        .withName("Turret Reset to Limit");
+  }
+
   private double clampToRange(double radiansFromCenter) {
     return MathUtil.clamp(
         radiansFromCenter,

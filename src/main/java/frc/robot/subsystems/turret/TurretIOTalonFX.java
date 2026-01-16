@@ -14,7 +14,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-
 import org.littletonrobotics.junction.Logger;
 
 public class TurretIOTalonFX implements TurretIO {
@@ -26,6 +25,7 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Voltage> voltsSignal;
   private final StatusSignal<Current> currentStatorSignal;
   private final StatusSignal<Current> currentSupplySignal;
+  protected CalibrationState calibrationState = CalibrationState.NOT_CALIBRATED;
 
   public TurretIOTalonFX() {
     talon = new TalonFX(TurretConstants.kTurretMotorCanID, Constants.kCANBus);
@@ -50,15 +50,38 @@ public class TurretIOTalonFX implements TurretIO {
     BaseStatusSignal.refreshAll(
         positionSignal, velocitySignal, voltsSignal, currentStatorSignal, currentSupplySignal);
 
-    double talonPosition =
-        BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Rotations);
+    if (calibrationState == CalibrationState.CALIBRATING) {
+      double currentAmps = currentStatorSignal.getValueAsDouble();
+      if (currentAmps >= TurretConstants.kCalibrationCurrentThreshold) {
+        talon.setControl(openLoopVoltageControl.withOutput(0.0));
 
-    inputs.positionRad = Units.rotationsToRadians(talonPosition / TurretConstants.kTurretGearRatio);
-    inputs.velocityRadPerSec =
-        Units.rotationsToRadians(velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
-    inputs.appliedVolts = voltsSignal.getValueAsDouble();
-    inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-    inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+        double positionRotations =
+            Units.radiansToRotations(TurretConstants.kTurretMinPositionRadians);
+        double positionRotor = positionRotations * TurretConstants.kTurretGearRatio;
+        talon.setPosition(positionRotor);
+
+        calibrationState = CalibrationState.CALIBRATED;
+      }
+
+      inputs.appliedVolts = voltsSignal.getValueAsDouble();
+      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
+      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+    } else {
+      double talonPosition =
+          BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Rotations);
+
+      inputs.positionRad =
+          Units.rotationsToRadians(talonPosition / TurretConstants.kTurretGearRatio);
+      inputs.velocityRadPerSec =
+          Units.rotationsToRadians(
+              velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
+      inputs.appliedVolts = voltsSignal.getValueAsDouble();
+      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
+      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+    }
+
+    inputs.calibrationState = calibrationState;
+    Logger.recordOutput("Turret/IO/Calibration", calibrationState);
   }
 
   @Override
@@ -72,7 +95,11 @@ public class TurretIOTalonFX implements TurretIO {
     double setpointRotor = setpointRotations * TurretConstants.kTurretGearRatio;
     double ffVel = Units.radiansToRotations(radsPerSecond) * TurretConstants.kTurretGearRatio;
 
-    talon.setControl(motionMagicVoltageControl.withPosition(setpointRotor).withFeedForward(ffVel).withEnableFOC(true));
+    talon.setControl(
+        motionMagicVoltageControl
+            .withPosition(setpointRotor)
+            .withFeedForward(ffVel)
+            .withEnableFOC(true));
 
     Logger.recordOutput("Turret/IO/setPositionSetpoint/radiansFromCenter", radiansFromCenter);
     Logger.recordOutput("Turret/IO/setPositionSetpoint/radsPerSecond", radsPerSecond);
@@ -84,9 +111,8 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setOpenLoopVoltage(double voltage) {
-    talon.setControl(openLoopVoltageControl.withOutput(voltage));
-
-    Logger.recordOutput("Turret/IO/setOpenLoopVoltage/voltage", voltage);
+  public void startCalibration() {
+    calibrationState = CalibrationState.CALIBRATING;
+    talon.setControl(openLoopVoltageControl.withOutput(TurretConstants.kCalibrationVoltage));
   }
 }

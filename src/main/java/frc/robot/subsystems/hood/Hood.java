@@ -34,7 +34,6 @@ public class Hood extends SubsystemBase {
     double timestamp = Timer.getFPGATimestamp();
     io.readInputs(inputs);
     Logger.processInputs("Hood", inputs);
-    io.update(inputs);
 
     robotState.addHoodRotation(new Rotation2d(inputs.positionRad));
     Logger.recordOutput("Hood/WorldPose", robotState.getHoodWorldPose());
@@ -58,6 +57,20 @@ public class Hood extends SubsystemBase {
               return Math.abs(inputs.positionRad - target) < toleranceRadians;
             })
         .withName("Hood wait for position");
+  }
+
+  public Command resetToLimitCommand() {
+    return runOnce(() -> io.startCalibration())
+        .andThen(
+            run(() -> {})
+                .until(() -> inputs.calibrationState == HoodIO.CalibrationState.CALIBRATED))
+        .andThen(
+            runOnce(
+                () -> {
+                  hoodSetpointRadiansFromCenter = HoodConstants.kHoodMinPositionRadians;
+                  Logger.recordOutput("Hood/ResetComplete", true);
+                }))
+        .withName("Hood Reset to Limit");
   }
 
   private double clampToRange(double radiansFromCenter) {

@@ -10,10 +10,12 @@ import org.littletonrobotics.junction.Logger;
 
 public class TurretIOSim extends TurretIOTalonFX {
   private static final DCMotor TURRET_MOTOR = DCMotor.getKrakenX60Foc(1);
-  private static final double TURRET_MOMENT_OF_INERTIA = 0.01;
+  private static final double TURRET_MOMENT_OF_INERTIA = 0.2981858;
+  private static final double CALIBRATION_DELAY_SECONDS = 2.0;
   protected final DCMotorSim mechanismSim;
   protected double lastUpdateTimestamp;
   private final Notifier simNotifier;
+  private final Timer calibrationTimer = new Timer();
 
   public TurretIOSim() {
     super();
@@ -38,7 +40,35 @@ public class TurretIOSim extends TurretIOTalonFX {
   }
 
   @Override
+  public void startCalibration() {
+    // Simplified calibration for simulation
+    // Set position to min limit and start calibration timer
+    double minPositionRad = TurretConstants.kTurretMinPositionRadians;
+
+    // Update simulator state
+    mechanismSim.setState(minPositionRad, 0.0);
+
+    // Update TalonFX sim state
+    double positionRotations = Units.radiansToRotations(minPositionRad);
+    double positionRotor = positionRotations * TurretConstants.kTurretGearRatio;
+    talon.getSimState().setRawRotorPosition(positionRotor);
+    talon.getSimState().setRotorVelocity(0.0);
+
+    // Start calibration timer and set state to CALIBRATING
+    calibrationTimer.restart();
+    calibrationState = CalibrationState.CALIBRATING;
+  }
+
+  @Override
   public void readInputs(TurretInputs inputs) {
+    // Check if calibration is complete after delay
+    if (calibrationState == CalibrationState.CALIBRATING
+        && calibrationTimer.hasElapsed(CALIBRATION_DELAY_SECONDS)) {
+      calibrationState = CalibrationState.CALIBRATED;
+      calibrationTimer.stop();
+    }
+
+    // Call parent implementation
     super.readInputs(inputs);
   }
 

@@ -45,12 +45,14 @@ public class AimFactory {
     double periodSeconds = 6.0;
     double omega = (2.0 * Math.PI) / periodSeconds;
 
+    Timer timer = new Timer();
+
     return new ParallelCommandGroup(
             container
                 .getTurret()
                 .positionSetpointCommand(
                     () -> {
-                      double t = Timer.getFPGATimestamp();
+                      double t = timer.get();
                       double target = turretMid + turretAmp * Math.sin(omega * t);
                       return MathUtil.clamp(target, turretMin, turretMax);
                     },
@@ -59,11 +61,20 @@ public class AimFactory {
                 .getHood()
                 .positionSetpointCommand(
                     () -> {
-                      double t = Timer.getFPGATimestamp();
+                      double t = timer.get();
                       double target = hoodMid + hoodAmp * Math.sin(omega * t);
                       return MathUtil.clamp(target, hoodMin, hoodMax);
                     },
                     () -> 0.0))
+        .beforeStarting(timer::start)
+        .finallyDo(() -> timer.stop())
         .withName("Sweep Turret And Hood (teleop)");
+  }
+
+  public static Command resetToLimit(RobotContainer container) {
+    return new ParallelCommandGroup(
+            container.getHood().resetToLimitCommand(), container.getTurret().resetToLimitCommand())
+        .withTimeout(5.0)
+        .withName("Reset To Limit");
   }
 }

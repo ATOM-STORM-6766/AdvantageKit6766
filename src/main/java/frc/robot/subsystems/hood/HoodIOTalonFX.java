@@ -3,6 +3,7 @@ package frc.robot.subsystems.hood;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -11,17 +12,18 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-
 import org.littletonrobotics.junction.Logger;
 
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
   private final PositionVoltage positionControl = new PositionVoltage(0);
+  private final VoltageOut voltageControl = new VoltageOut(0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
   private final StatusSignal<Voltage> voltsSignal;
   private final StatusSignal<Current> currentStatorSignal;
   private final StatusSignal<Current> currentSupplySignal;
+  protected CalibrationState calibrationState = CalibrationState.NOT_CALIBRATED;
 
   public HoodIOTalonFX() {
     hoodMotor = new TalonFX(HoodConstants.kHoodMotorCanID, Constants.kCANBus);
@@ -46,14 +48,37 @@ public class HoodIOTalonFX implements HoodIO {
     BaseStatusSignal.refreshAll(
         positionSignal, velocitySignal, voltsSignal, currentStatorSignal, currentSupplySignal);
 
-    inputs.positionRad =
-        Units.rotationsToRadians(positionSignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
-    inputs.positionRotations = positionSignal.getValueAsDouble();
-    inputs.velocityRadPerSec =
-        Units.rotationsToRadians(velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
-    inputs.appliedVolts = voltsSignal.getValueAsDouble();
-    inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-    inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+    if (calibrationState == CalibrationState.CALIBRATING) {
+      double currentAmps = currentStatorSignal.getValueAsDouble();
+      if (currentAmps >= HoodConstants.kCalibrationCurrentThreshold) {
+        hoodMotor.setControl(voltageControl.withOutput(0.0));
+
+        double positionRotations = Units.radiansToRotations(HoodConstants.kHoodMinPositionRadians);
+        double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
+        hoodMotor.setPosition(positionRotor);
+
+        calibrationState = CalibrationState.CALIBRATED;
+      }
+
+      inputs.appliedVolts = voltsSignal.getValueAsDouble();
+      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
+      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+    } else {
+      inputs.positionRad =
+          Units.rotationsToRadians(
+              positionSignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
+      inputs.positionRotations = positionSignal.getValueAsDouble();
+      inputs.velocityRadPerSec =
+          Units.rotationsToRadians(
+              velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
+      inputs.appliedVolts = voltsSignal.getValueAsDouble();
+      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
+      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+    }
+
+    inputs.calibrationState = calibrationState;
+
+    Logger.recordOutput("Hood/IO/Calibration", calibrationState);
   }
 
   @Override
@@ -75,5 +100,11 @@ public class HoodIOTalonFX implements HoodIO {
     Logger.recordOutput("Hood/IO/setPositionSetpoint/setpointRotor", setpointRotor);
     Logger.recordOutput(
         "Hood/IO/setPositionSetpoint/radsPerSecRotor", radsPerSec * HoodConstants.kHoodGearRatio);
+  }
+
+  @Override
+  public void startCalibration() {
+    calibrationState = CalibrationState.CALIBRATING;
+    hoodMotor.setControl(voltageControl.withOutput(HoodConstants.kCalibrationVoltage));
   }
 }

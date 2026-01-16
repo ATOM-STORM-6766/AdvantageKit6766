@@ -21,9 +21,7 @@ public class FlywheelIOSim extends FlywheelIOTalonFX {
     sim =
         new FlywheelSim(
             LinearSystemId.createFlywheelSystem(
-                FLYWHEEL_MOTOR,
-                FLYWHEEL_MOMENT_OF_INERTIA,
-                FlywheelConstants.kFlywheelGearRatio),
+                FLYWHEEL_MOTOR, FLYWHEEL_MOMENT_OF_INERTIA, FlywheelConstants.kFlywheelGearRatio),
             FLYWHEEL_MOTOR,
             FLYWHEEL_MOMENT_OF_INERTIA);
 
