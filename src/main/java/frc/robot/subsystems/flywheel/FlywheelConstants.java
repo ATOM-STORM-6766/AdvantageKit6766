@@ -2,12 +2,16 @@ package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class FlywheelConstants {
   // CAN IDs (placeholder values - update with actual hardware IDs)
   public static final int kFlywheelMotorCanID = 0;
 
-  // Gear ratio: motor rotations per flywheel rotation
+  // Gear ratio: motor rotations per output rotation
+  // Example: For a 2:1 gearbox, set this to 2.0
   public static final double kFlywheelGearRatio = 1.0; // TODO: Update with actual ratio
 
   // Velocity targets (in RPM)
@@ -39,6 +43,33 @@ public class FlywheelConstants {
   public static OpenLoopRampsConfigs makeOpenLoopRampConfig() {
     var config = new OpenLoopRampsConfigs();
     config.VoltageOpenLoopRampPeriod = 0.05;
+    return config;
+  }
+
+  public static TalonFXConfiguration getTalonFXConfig() {
+    var config = new TalonFXConfiguration();
+
+    // Motor output
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    // PID + Feedforward configuration
+    config.Slot0.kS = kS;
+    config.Slot0.kP = kP;
+    config.Slot0.kI = kI;
+    config.Slot0.kD = kD;
+    config.Slot0.kV = kV;
+    config.Slot0.kA = kA;
+
+    // Current limits (real robot only)
+    if (RobotBase.isReal()) {
+      config.CurrentLimits.StatorCurrentLimit = kStatorCurrentLimit;
+      config.CurrentLimits.StatorCurrentLimitEnable = kStatorCurrentLimitEnable;
+      config.CurrentLimits.SupplyCurrentLimit = kSupplyCurrentLimit;
+      config.CurrentLimits.SupplyCurrentLimitEnable = kSupplyCurrentLimitEnable;
+      config.ClosedLoopRamps = makeClosedLoopRampConfig();
+      config.OpenLoopRamps = makeOpenLoopRampConfig();
+    }
+
     return config;
   }
 }

@@ -2,13 +2,18 @@ package frc.robot.subsystems.hood;
 
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class HoodConstants {
   // CAN IDs (placeholder values - update with actual hardware IDs)
   public static final int kHoodMotorCanID = 2;
   public static final String kHoodCanBus = "rio";
 
-  // Gear ratio: motor rotations per hood mechanism rotation
+  // Gear ratio: motor rotations per output rotation
+  // Example: For a 100:1 gearbox, set this to 100.0
   public static final double kHoodGearRatio = 1; // TODO: Update with actual ratio
 
   // Rotation limits (in radians from center)
@@ -40,6 +45,42 @@ public class HoodConstants {
   public static OpenLoopRampsConfigs makeOpenLoopRampConfig() {
     var config = new OpenLoopRampsConfigs();
     config.VoltageOpenLoopRampPeriod = 0.02;
+    return config;
+  }
+
+  public static TalonFXConfiguration getTalonFXConfig() {
+    var config = new TalonFXConfiguration();
+
+    // Motor output
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    // Software limits
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+        Units.radiansToRotations(kHoodMaxPositionRadians) * kHoodGearRatio;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+        Units.radiansToRotations(kHoodMinPositionRadians) * kHoodGearRatio;
+
+    // PID + Feedforward
+    config.Slot0.kS = kS;
+    config.Slot0.kP = kP;
+    config.Slot0.kD = kD;
+    config.Slot0.kV = kV;
+    config.Slot0.kA = kA;
+
+    // Current limits (real robot only)
+    if (RobotBase.isReal()) {
+      config.CurrentLimits.StatorCurrentLimit = kStatorCurrentLimit;
+      config.CurrentLimits.StatorCurrentLimitEnable = kStatorCurrentLimitEnable;
+      config.ClosedLoopRamps = makeClosedLoopRampConfig();
+      config.OpenLoopRamps = makeOpenLoopRampConfig();
+    }
+
+    // Motion Magic
+    config.MotionMagic.MotionMagicAcceleration = kMotionMagicAcceleration;
+    config.MotionMagic.MotionMagicCruiseVelocity = kMotionMagicCruiseVelocity;
+
     return config;
   }
 }

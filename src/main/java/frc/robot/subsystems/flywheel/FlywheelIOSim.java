@@ -23,7 +23,7 @@ public class FlywheelIOSim extends FlywheelIOTalonFX {
             LinearSystemId.createFlywheelSystem(
                 FLYWHEEL_MOTOR,
                 FLYWHEEL_MOMENT_OF_INERTIA,
-                1.0 / FlywheelConstants.kFlywheelGearRatio),
+                FlywheelConstants.kFlywheelGearRatio),
             FLYWHEEL_MOTOR,
             FLYWHEEL_MOMENT_OF_INERTIA);
 
@@ -44,18 +44,6 @@ public class FlywheelIOSim extends FlywheelIOTalonFX {
   public void setVelocity(double velocityRPM, double ffVolts) {
     appliedVolts = ffVolts; // Simplified - just use FF voltage
     sim.setInputVoltage(appliedVolts);
-  }
-
-  @Override
-  public void setVoltage(double volts) {
-    appliedVolts = volts;
-    sim.setInputVoltage(volts);
-  }
-
-  @Override
-  public void stop() {
-    appliedVolts = 0.0;
-    sim.setInputVoltage(0);
   }
 
   private void updateSim() {

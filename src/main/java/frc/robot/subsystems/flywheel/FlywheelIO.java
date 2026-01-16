@@ -14,8 +14,4 @@ public interface FlywheelIO {
   default void readInputs(FlywheelInputs inputs) {}
 
   default void setVelocity(double velocityRPM, double ffVolts) {}
-
-  default void setVoltage(double volts) {}
-
-  default void stop() {}
 }

@@ -1,27 +1,26 @@
 package frc.robot.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.Constants;
+
 import org.littletonrobotics.junction.Logger;
 
 public class TurretIOTalonFX implements TurretIO {
   protected final TalonFX talon;
-  private final PositionVoltage positionVoltageControl = new PositionVoltage(0.0).withSlot(0);
+  private final MotionMagicVoltage motionMagicVoltageControl = new MotionMagicVoltage(0.0);
+  private final VoltageOut openLoopVoltageControl = new VoltageOut(0.0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
   private final StatusSignal<Voltage> voltsSignal;
@@ -29,7 +28,7 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Current> currentSupplySignal;
 
   public TurretIOTalonFX() {
-    talon = new TalonFX(TurretConstants.kTurretMotorCanID, new CANBus("rio"));
+    talon = new TalonFX(TurretConstants.kTurretMotorCanID, Constants.kCANBus);
 
     positionSignal = talon.getPosition();
     velocitySignal = talon.getVelocity();
@@ -38,35 +37,7 @@ public class TurretIOTalonFX implements TurretIO {
     currentSupplySignal = talon.getSupplyCurrent();
 
     // Configure TalonFX
-    var config = new TalonFXConfiguration();
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.radiansToRotations(TurretConstants.kTurretMaxPositionRadians)
-            / TurretConstants.kTurretGearRatio;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.radiansToRotations(TurretConstants.kTurretMinPositionRadians)
-            / TurretConstants.kTurretGearRatio;
-
-    if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = TurretConstants.kStatorCurrentLimit;
-      config.CurrentLimits.StatorCurrentLimitEnable = TurretConstants.kStatorCurrentLimitEnable;
-      config.ClosedLoopRamps = TurretConstants.makeClosedLoopRampConfig();
-      config.OpenLoopRamps = TurretConstants.makeOpenLoopRampConfig();
-    }
-
-    config.Slot0.kS = TurretConstants.kS;
-    config.Slot0.kP = TurretConstants.kP;
-    config.Slot0.kD = TurretConstants.kD;
-    config.Slot0.kV = TurretConstants.kV;
-    config.Slot0.kA = TurretConstants.kA;
-
-    config.MotionMagic.MotionMagicJerk = TurretConstants.kMotionMagicJerk;
-    config.MotionMagic.MotionMagicAcceleration = TurretConstants.kMotionMagicAcceleration;
-    config.MotionMagic.MotionMagicCruiseVelocity = TurretConstants.kMotionMagicCruiseVelocity;
-
-    talon.getConfigurator().apply(config);
+    talon.getConfigurator().apply(TurretConstants.getTalonFXConfig());
     talon.setPosition(0.0);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -81,11 +52,10 @@ public class TurretIOTalonFX implements TurretIO {
 
     double talonPosition =
         BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Rotations);
-    double kGearRatio = TurretConstants.kTurretGearRatio;
 
-    inputs.positionRad = Units.rotationsToRadians(talonPosition * kGearRatio);
+    inputs.positionRad = Units.rotationsToRadians(talonPosition / TurretConstants.kTurretGearRatio);
     inputs.velocityRadPerSec =
-        Units.rotationsToRadians(velocitySignal.getValueAsDouble() * kGearRatio);
+        Units.rotationsToRadians(velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
     inputs.appliedVolts = voltsSignal.getValueAsDouble();
     inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
     inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
@@ -99,10 +69,10 @@ public class TurretIOTalonFX implements TurretIO {
             TurretConstants.kTurretMinPositionRadians,
             TurretConstants.kTurretMaxPositionRadians);
     double setpointRotations = Units.radiansToRotations(setpointRadians);
-    double setpointRotor = setpointRotations / TurretConstants.kTurretGearRatio;
-    double ffVel = Units.radiansToRotations(radsPerSecond) / TurretConstants.kTurretGearRatio;
+    double setpointRotor = setpointRotations * TurretConstants.kTurretGearRatio;
+    double ffVel = Units.radiansToRotations(radsPerSecond) * TurretConstants.kTurretGearRatio;
 
-    talon.setControl(positionVoltageControl.withPosition(setpointRotor).withVelocity(ffVel));
+    talon.setControl(motionMagicVoltageControl.withPosition(setpointRotor).withFeedForward(ffVel).withEnableFOC(true));
 
     Logger.recordOutput("Turret/IO/setPositionSetpoint/radiansFromCenter", radiansFromCenter);
     Logger.recordOutput("Turret/IO/setPositionSetpoint/radsPerSecond", radsPerSecond);
@@ -110,6 +80,13 @@ public class TurretIOTalonFX implements TurretIO {
     Logger.recordOutput("Turret/IO/setPositionSetpoint/setpointRotor", setpointRotor);
     Logger.recordOutput(
         "Turret/IO/setPositionSetpoint/radsPerSecondRotor",
-        radsPerSecond / TurretConstants.kTurretGearRatio);
+        radsPerSecond * TurretConstants.kTurretGearRatio);
+  }
+
+  @Override
+  public void setOpenLoopVoltage(double voltage) {
+    talon.setControl(openLoopVoltageControl.withOutput(voltage));
+
+    Logger.recordOutput("Turret/IO/setOpenLoopVoltage/voltage", voltage);
   }
 }

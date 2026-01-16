@@ -2,22 +2,22 @@ package frc.robot.subsystems.turret;
 
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class TurretConstants {
   // CAN IDs (placeholder values - update with actual hardware IDs)
   public static final int kTurretMotorCanID = 1;
-  public static final int kTurretCanCoderID = 22;
-  public static final String kTurretCanBus = "rio";
 
-  // Gear ratio: motor rotations per turret rotation
+  // Gear ratio: motor rotations per output rotation
+  // Example: For a 100:1 gearbox, set this to 100.0
   public static final double kTurretGearRatio = 1; // TODO: Update with actual ratio
 
-  // CANcoder offset (in rotations)
-  public static final double kTurretCancoderOffset = 0.0; // TODO: Calibrate on actual hardware
-
   // Rotation limits (in radians from center)
-  public static final double kTurretMinPositionRadians = 0.0; // 0 degrees
-  public static final double kTurretMaxPositionRadians = Math.toRadians(270.0); // 270 degrees
+  public static final double kTurretMinPositionRadians = Math.toRadians(0.0);
+  public static final double kTurretMaxPositionRadians = Math.toRadians(270.0);
 
   // PID + Feedforward gains
   public static final double kS = 0.18; // Static friction voltage
@@ -45,6 +45,43 @@ public class TurretConstants {
   public static OpenLoopRampsConfigs makeOpenLoopRampConfig() {
     var config = new OpenLoopRampsConfigs();
     config.VoltageOpenLoopRampPeriod = 0.02;
+    return config;
+  }
+
+  public static TalonFXConfiguration getTalonFXConfig() {
+    var config = new TalonFXConfiguration();
+
+    // Motor output
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    // Software limits
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+        Units.radiansToRotations(kTurretMaxPositionRadians) * kTurretGearRatio;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+        Units.radiansToRotations(kTurretMinPositionRadians) * kTurretGearRatio;
+
+    // Current limits (real robot only)
+    if (RobotBase.isReal()) {
+      config.CurrentLimits.StatorCurrentLimit = kStatorCurrentLimit;
+      config.CurrentLimits.StatorCurrentLimitEnable = kStatorCurrentLimitEnable;
+      config.ClosedLoopRamps = makeClosedLoopRampConfig();
+      config.OpenLoopRamps = makeOpenLoopRampConfig();
+    }
+
+    // PID + Feedforward
+    config.Slot0.kS = kS;
+    config.Slot0.kP = kP;
+    config.Slot0.kD = kD;
+    config.Slot0.kV = kV;
+    config.Slot0.kA = kA;
+
+    // Motion Magic
+    config.MotionMagic.MotionMagicJerk = kMotionMagicJerk;
+    config.MotionMagic.MotionMagicAcceleration = kMotionMagicAcceleration;
+    config.MotionMagic.MotionMagicCruiseVelocity = kMotionMagicCruiseVelocity;
+
     return config;
   }
 }

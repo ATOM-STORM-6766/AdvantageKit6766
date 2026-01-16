@@ -21,7 +21,7 @@ public class HoodIOSim extends HoodIOTalonFX {
     mechanismSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                HOOD_MOTOR, HOOD_MOMENT_OF_INERTIA, 1.0 / HoodConstants.kHoodGearRatio),
+                HOOD_MOTOR, HOOD_MOMENT_OF_INERTIA, HoodConstants.kHoodGearRatio),
             HOOD_MOTOR);
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
@@ -83,11 +83,11 @@ public class HoodIOSim extends HoodIOTalonFX {
       simVelocityRadPerSec = 0.0;
     }
 
-    double rotorPosition = Units.radiansToRotations(simPositionRads) / HoodConstants.kHoodGearRatio;
+    double rotorPosition = Units.radiansToRotations(simPositionRads) * HoodConstants.kHoodGearRatio;
     simState.setRawRotorPosition(rotorPosition);
     Logger.recordOutput("Hood/Sim/setRawRotorPosition", rotorPosition);
 
-    double rotorVel = Units.radiansToRotations(simVelocityRadPerSec) / HoodConstants.kHoodGearRatio;
+    double rotorVel = Units.radiansToRotations(simVelocityRadPerSec) * HoodConstants.kHoodGearRatio;
     simState.setRotorVelocity(rotorVel);
     Logger.recordOutput("Hood/Sim/SimulatorVelocityRadS", simVelocityRadPerSec);
   }

@@ -21,7 +21,7 @@ public class TurretIOSim extends TurretIOTalonFX {
     mechanismSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                TURRET_MOTOR, TURRET_MOMENT_OF_INERTIA, 1.0 / TurretConstants.kTurretGearRatio),
+                TURRET_MOTOR, TURRET_MOMENT_OF_INERTIA, TurretConstants.kTurretGearRatio),
             TURRET_MOTOR);
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
@@ -88,13 +88,13 @@ public class TurretIOSim extends TurretIOTalonFX {
 
     // Mutate rotor position
     double rotorPosition =
-        Units.radiansToRotations(simPositionRads) / TurretConstants.kTurretGearRatio;
+        Units.radiansToRotations(simPositionRads) * TurretConstants.kTurretGearRatio;
     simState.setRawRotorPosition(rotorPosition);
     Logger.recordOutput("Turret/Sim/setRawRotorPosition", rotorPosition);
 
     // Mutate rotor vel
     double rotorVel =
-        Units.radiansToRotations(simVelocityRadPerSec) / TurretConstants.kTurretGearRatio;
+        Units.radiansToRotations(simVelocityRadPerSec) * TurretConstants.kTurretGearRatio;
     simState.setRotorVelocity(rotorVel);
     Logger.recordOutput("Turret/Sim/SimulatorVelocityRadS", simVelocityRadPerSec);
   }

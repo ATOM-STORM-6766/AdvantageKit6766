@@ -43,7 +43,6 @@ public class Turret extends SubsystemBase {
     Logger.recordOutput("Turret/latencyPeriodicSec", Timer.getFPGATimestamp() - timestamp);
   }
 
-  // FF is in rad/s.
   public Command positionSetpointCommand(DoubleSupplier radiansFromCenter, DoubleSupplier ffVel) {
     return run(() -> {
           double setpoint = clampToRange(radiansFromCenter.getAsDouble());

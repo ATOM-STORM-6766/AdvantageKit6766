@@ -19,11 +19,9 @@ public interface TurretIO {
     return Arrays.asList();
   }
 
-  // Read Inputs
   default void readInputs(TurretInputs inputs) {}
 
-  // Set open loop duty cycle
-  default void setOpenLoopDutyCycle(double dutyCycle) {}
+  default void setOpenLoopVoltage(double voltage) {}
 
   default void setPositionSetpoint(double radiansFromCenter, double radsPerSecond) {}
 }

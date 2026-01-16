@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
@@ -25,6 +27,8 @@ import frc.robot.util.GenericShooterResolver.ShooterConfig;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+  public static final CANBus kCANBus = new CANBus("rio");
 
   public static final ShooterConfig SHOOTER_CONFIG =
       new ShooterConfig()
