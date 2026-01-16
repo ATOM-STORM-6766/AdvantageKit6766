@@ -1,5 +1,6 @@
 package frc.robot.subsystems.hood;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,7 +44,7 @@ public class Hood extends SubsystemBase {
   public Command positionSetpointCommand(
       DoubleSupplier radiansFromCenter, DoubleSupplier radsPerSec) {
     return run(() -> {
-          double setpoint = radiansFromCenter.getAsDouble();
+          double setpoint = clampToRange(radiansFromCenter.getAsDouble());
           setPositionSetpointImpl(setpoint, radsPerSec.getAsDouble());
           hoodSetpointRadiansFromCenter = setpoint;
         })
@@ -53,13 +54,17 @@ public class Hood extends SubsystemBase {
   public Command waitForPosition(DoubleSupplier radiansFromCenter, double toleranceRadians) {
     return new WaitUntilCommand(
             () -> {
-              return Math.abs(
-                      new Rotation2d(inputs.positionRad)
-                          .rotateBy(new Rotation2d(radiansFromCenter.getAsDouble()).unaryMinus())
-                          .getRadians())
-                  < toleranceRadians;
+              double target = clampToRange(radiansFromCenter.getAsDouble());
+              return Math.abs(inputs.positionRad - target) < toleranceRadians;
             })
         .withName("Hood wait for position");
+  }
+
+  private double clampToRange(double radiansFromCenter) {
+    return MathUtil.clamp(
+        radiansFromCenter,
+        HoodConstants.kHoodMinPositionRadians,
+        HoodConstants.kHoodMaxPositionRadians);
   }
 
   private void setPositionSetpointImpl(double radiansFromCenter, double radsPerSec) {

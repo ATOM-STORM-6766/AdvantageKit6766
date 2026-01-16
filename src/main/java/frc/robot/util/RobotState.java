@@ -10,8 +10,8 @@ import java.util.function.Supplier;
 
 public class RobotState {
   private static final Translation3d ROBOT_TO_TURRET = new Translation3d(0.2, 0.0, 0.3);
-  private static final Translation3d TURRET_TO_HOOD = new Translation3d(0.1, 0.0, 0.1);
-  private static final Translation3d TURRET_TO_FLYWHEEL = new Translation3d(0.15, 0.0, 0.2);
+  private static final Translation3d TURRET_TO_HOOD = new Translation3d(0.0, 0.0, 0.0);
+  private static final Translation3d TURRET_TO_FLYWHEEL = new Translation3d(0.0, 0.0, 0.0);
 
   private final Supplier<Pose2d> robotPoseSupplier;
   private Rotation2d latestHoodRotation = new Rotation2d();
@@ -34,14 +34,6 @@ public class RobotState {
       double timestamp, Rotation2d absoluteRotation, double positionRad, double velocityRadPerSec) {
     this.latestTurretPositionRad = positionRad;
     this.latestTurretVelocityRadPerSec = velocityRadPerSec;
-  }
-
-  public double getLatestTurretPositionRadians() {
-    return latestTurretPositionRad;
-  }
-
-  public double getLatestTurretAngularVelocity() {
-    return latestTurretVelocityRadPerSec;
   }
 
   public Pose3d getTurretWorldPose() {

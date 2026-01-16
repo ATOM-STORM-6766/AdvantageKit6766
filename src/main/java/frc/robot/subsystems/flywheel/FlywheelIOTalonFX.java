@@ -1,6 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -11,7 +12,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.generated.TunerConstants;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
 
@@ -25,7 +25,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Current> currentSupplySignal;
 
   public FlywheelIOTalonFX() {
-    motor = new TalonFX(FlywheelConstants.kFlywheelMotorCanID, TunerConstants.kCANBus);
+    motor = new TalonFX(FlywheelConstants.kFlywheelMotorCanID, new CANBus("rio"));
 
     velocitySignal = motor.getVelocity();
     voltsSignal = motor.getMotorVoltage();

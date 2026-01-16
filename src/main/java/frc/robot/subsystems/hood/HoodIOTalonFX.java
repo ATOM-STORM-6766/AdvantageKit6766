@@ -1,12 +1,11 @@
 package frc.robot.subsystems.hood;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
@@ -15,13 +14,11 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.generated.TunerConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
   private final PositionVoltage positionControl = new PositionVoltage(0);
-  private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
   private final StatusSignal<Voltage> voltsSignal;
@@ -29,7 +26,7 @@ public class HoodIOTalonFX implements HoodIO {
   private final StatusSignal<Current> currentSupplySignal;
 
   public HoodIOTalonFX() {
-    hoodMotor = new TalonFX(HoodConstants.kHoodMotorCanID, TunerConstants.kCANBus);
+    hoodMotor = new TalonFX(HoodConstants.kHoodMotorCanID, new CANBus("rio"));
 
     positionSignal = hoodMotor.getPosition();
     velocitySignal = hoodMotor.getVelocity();
@@ -39,16 +36,14 @@ public class HoodIOTalonFX implements HoodIO {
 
     var config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    config.Audio.BeepOnBoot = false;
-    config.Audio.BeepOnConfig = false;
-
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        HoodConstants.kHoodRotorMaxPosition - HoodConstants.kHoodPositionTolerance;
+        Units.radiansToRotations(HoodConstants.kHoodMaxPositionRadians)
+            / HoodConstants.kHoodGearRatio;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        HoodConstants.kHoodRotorMinPosition + HoodConstants.kHoodPositionTolerance;
+        Units.radiansToRotations(HoodConstants.kHoodMinPositionRadians)
+            / HoodConstants.kHoodGearRatio;
 
     config.Slot0.kS = HoodConstants.kS;
     config.Slot0.kP = HoodConstants.kP;
@@ -90,34 +85,23 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setNeutralMode(NeutralModeValue mode) {
-    hoodMotor.setNeutralMode(mode);
-  }
-
-  @Override
   public void setPositionSetpoint(double radiansFromCenter, double radsPerSec) {
-    double setpointRotations =
-        Units.radiansToRotations(radiansFromCenter) / HoodConstants.kHoodGearRatio;
-    double setpointRotor =
+    double setpointRadians =
         MathUtil.clamp(
-            setpointRotations,
-            HoodConstants.kHoodRotorMinPosition + HoodConstants.kHoodPositionTolerance,
-            HoodConstants.kHoodRotorMaxPosition - HoodConstants.kHoodPositionTolerance);
-    double rotationsPerSec = Units.radiansToRotations(radsPerSec) / HoodConstants.kHoodGearRatio;
+            radiansFromCenter,
+            HoodConstants.kHoodMinPositionRadians,
+            HoodConstants.kHoodMaxPositionRadians);
+    double setpointRotations = Units.radiansToRotations(setpointRadians);
+    double setpointRotor = setpointRotations / HoodConstants.kHoodGearRatio;
+    double ffVel = Units.radiansToRotations(radsPerSec) / HoodConstants.kHoodGearRatio;
 
-    hoodMotor.setControl(positionControl.withPosition(setpointRotor).withVelocity(rotationsPerSec));
+    hoodMotor.setControl(positionControl.withPosition(setpointRotor).withVelocity(ffVel));
 
     Logger.recordOutput("Hood/IO/setPositionSetpoint/radiansFromCenter", radiansFromCenter);
+    Logger.recordOutput("Hood/IO/setPositionSetpoint/radsPerSec", radsPerSec);
+    Logger.recordOutput("Hood/IO/setPositionSetpoint/ffVel", ffVel);
     Logger.recordOutput("Hood/IO/setPositionSetpoint/setpointRotor", setpointRotor);
-  }
-
-  @Override
-  public void setDutyCycleOut(double percentOutput) {
-    hoodMotor.setControl(dutyCycleOut.withOutput(percentOutput));
-  }
-
-  @Override
-  public void resetZeroPoint() {
-    hoodMotor.setPosition(0.0);
+    Logger.recordOutput(
+        "Hood/IO/setPositionSetpoint/radsPerSecRotor", radsPerSec / HoodConstants.kHoodGearRatio);
   }
 }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.turret;
 
-import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
@@ -25,8 +24,6 @@ public class TurretIOSim extends TurretIOTalonFX {
                 TURRET_MOTOR, TURRET_MOMENT_OF_INERTIA, 1.0 / TurretConstants.kTurretGearRatio),
             TURRET_MOTOR);
 
-    // Assume that Turret boots zeroed
-    canCoder.setPosition(0.0);
     lastUpdateTimestamp = Timer.getFPGATimestamp();
 
     // Initialize DCMotorSim state to zero position and velocity
@@ -38,8 +35,6 @@ public class TurretIOSim extends TurretIOTalonFX {
     // Run simulation at a faster rate so PID gains behave more reasonably
     simNotifier = new Notifier(this::updateSimState);
     simNotifier.startPeriodic(0.005);
-
-    canCoder.getSimState().Orientation = ChassisReference.Clockwise_Positive;
   }
 
   @Override
@@ -86,14 +81,10 @@ public class TurretIOSim extends TurretIOTalonFX {
 
     Logger.recordOutput("Turret/Sim/SimulatorPositionRadians", simPositionRads);
 
-    canCoder.getSimState().setRawPosition(Units.radiansToRotations(simPositionRads));
     double simVelocityRadPerSec = mechanismSim.getAngularVelocityRadPerSec();
     if (simPositionRads <= minAngle || simPositionRads >= maxAngle) {
       simVelocityRadPerSec = 0.0;
     }
-    canCoder.getSimState().setVelocity(Units.radiansToRotations(simVelocityRadPerSec));
-    double simTurretCancoder = canCoder.getPosition().getValueAsDouble();
-    Logger.recordOutput("Turret/Sim/Turret CANcoder Position", simTurretCancoder);
 
     // Mutate rotor position
     double rotorPosition =
@@ -105,7 +96,6 @@ public class TurretIOSim extends TurretIOTalonFX {
     double rotorVel =
         Units.radiansToRotations(simVelocityRadPerSec) / TurretConstants.kTurretGearRatio;
     simState.setRotorVelocity(rotorVel);
-    Logger.recordOutput(
-        "Turret/Sim/SimulatorVelocityRadS", mechanismSim.getAngularVelocityRadPerSec());
+    Logger.recordOutput("Turret/Sim/SimulatorVelocityRadS", simVelocityRadPerSec);
   }
 }

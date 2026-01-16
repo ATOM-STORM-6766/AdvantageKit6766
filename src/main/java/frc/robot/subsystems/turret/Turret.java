@@ -1,6 +1,7 @@
 package frc.robot.subsystems.turret;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.util.RobotState;
@@ -33,7 +34,10 @@ public class Turret extends SubsystemBase {
     Logger.processInputs("Turret", inputs);
 
     robotState.addTurretUpdates(
-        timestamp, inputs.turretPositionAbsolute, inputs.positionRad, inputs.velocityRadPerSec);
+        timestamp,
+        Rotation2d.fromRadians(inputs.positionRad),
+        inputs.positionRad,
+        inputs.velocityRadPerSec);
 
     Logger.recordOutput("Turret/WorldPose", robotState.getTurretWorldPose());
     Logger.recordOutput("Turret/latencyPeriodicSec", Timer.getFPGATimestamp() - timestamp);
@@ -53,13 +57,9 @@ public class Turret extends SubsystemBase {
     return new WaitUntilCommand(
             () -> {
               double target = clampToRange(radiansFromCenter.getAsDouble());
-              return Math.abs(getCurrentPosition() - target) < toleranceRadians;
+              return Math.abs(inputs.positionRad - target) < toleranceRadians;
             })
         .withName("Turret wait for position");
-  }
-
-  public double getCurrentPosition() {
-    return robotState.getLatestTurretPositionRadians();
   }
 
   private double clampToRange(double radiansFromCenter) {

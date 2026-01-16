@@ -5,7 +5,7 @@ import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 
 public class TurretConstants {
   // CAN IDs (placeholder values - update with actual hardware IDs)
-  public static final int kTurretMotorCanID = 2;
+  public static final int kTurretMotorCanID = 1;
   public static final int kTurretCanCoderID = 22;
   public static final String kTurretCanBus = "rio";
 

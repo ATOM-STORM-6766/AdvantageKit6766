@@ -1,11 +1,11 @@
 package frc.robot.command_factories;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
 import java.util.function.Supplier;
@@ -37,8 +37,8 @@ public class AimFactory {
     double turretMid = (turretMin + turretMax) * 0.5;
     double turretAmp = (turretMax - turretMin) * 0.45;
 
-    double hoodMin = Units.degreesToRadians(0.0);
-    double hoodMax = Units.degreesToRadians(60.0);
+    double hoodMin = HoodConstants.kHoodMinPositionRadians;
+    double hoodMax = HoodConstants.kHoodMaxPositionRadians;
     double hoodMid = (hoodMin + hoodMax) * 0.5;
     double hoodAmp = (hoodMax - hoodMin) * 0.45;
 

@@ -5,16 +5,15 @@ import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 
 public class HoodConstants {
   // CAN IDs (placeholder values - update with actual hardware IDs)
-  public static final int kHoodMotorCanID = 1;
+  public static final int kHoodMotorCanID = 2;
   public static final String kHoodCanBus = "rio";
 
   // Gear ratio: motor rotations per hood mechanism rotation
   public static final double kHoodGearRatio = 1; // TODO: Update with actual ratio
 
-  // Software limits (in rotor rotations)
-  public static final double kHoodRotorMinPosition = 0.0;
-  public static final double kHoodRotorMaxPosition = 1.0; // TODO: Update with actual max
-  public static final double kHoodPositionTolerance = 0.05;
+  // Rotation limits (in radians from center)
+  public static final double kHoodMinPositionRadians = 0.0; // 0 degrees
+  public static final double kHoodMaxPositionRadians = Math.toRadians(60.0); // 60 degrees
 
   // PID + Feedforward gains
   public static final double kS = 0.18; // Static friction voltage

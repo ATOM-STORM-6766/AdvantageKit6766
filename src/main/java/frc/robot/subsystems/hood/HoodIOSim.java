@@ -10,7 +10,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class HoodIOSim extends HoodIOTalonFX {
   private static final DCMotor HOOD_MOTOR = DCMotor.getKrakenX60Foc(1);
-  private static final double HOOD_MOMENT_OF_INERTIA = 0.1266;
+  private static final double HOOD_MOMENT_OF_INERTIA = 0.01;
   protected final DCMotorSim mechanismSim;
   private final Notifier simNotifier;
   private double lastUpdateTimestamp;
@@ -54,8 +54,8 @@ public class HoodIOSim extends HoodIOTalonFX {
   public void updateSimState() {
     var simState = hoodMotor.getSimState();
     simState.setSupplyVoltage(12.0);
-
     double simVoltage = addFriction(simState.getMotorVoltage(), 0.25);
+
     mechanismSim.setInput(simVoltage);
     Logger.recordOutput("Hood/Sim/SimulatorVoltage", simVoltage);
 
@@ -64,17 +64,31 @@ public class HoodIOSim extends HoodIOTalonFX {
     lastUpdateTimestamp = timestamp;
 
     double simPositionRads = mechanismSim.getAngularPositionRad();
+    double minAngle = HoodConstants.kHoodMinPositionRadians;
+    double maxAngle = HoodConstants.kHoodMaxPositionRadians;
+
+    // Clamp to physical limits for limited rotation range
+    if (simPositionRads < minAngle) {
+      simPositionRads = minAngle;
+      mechanismSim.setState(simPositionRads, 0.0);
+    } else if (simPositionRads > maxAngle) {
+      simPositionRads = maxAngle;
+      mechanismSim.setState(simPositionRads, 0.0);
+    }
+
     Logger.recordOutput("Hood/Sim/SimulatorPositionRadians", simPositionRads);
+
+    double simVelocityRadPerSec = mechanismSim.getAngularVelocityRadPerSec();
+    if (simPositionRads <= minAngle || simPositionRads >= maxAngle) {
+      simVelocityRadPerSec = 0.0;
+    }
 
     double rotorPosition = Units.radiansToRotations(simPositionRads) / HoodConstants.kHoodGearRatio;
     simState.setRawRotorPosition(rotorPosition);
     Logger.recordOutput("Hood/Sim/setRawRotorPosition", rotorPosition);
 
-    double rotorVel =
-        Units.radiansToRotations(mechanismSim.getAngularVelocityRadPerSec())
-            / HoodConstants.kHoodGearRatio;
+    double rotorVel = Units.radiansToRotations(simVelocityRadPerSec) / HoodConstants.kHoodGearRatio;
     simState.setRotorVelocity(rotorVel);
-    Logger.recordOutput(
-        "Hood/Sim/SimulatorVelocityRadS", mechanismSim.getAngularVelocityRadPerSec());
+    Logger.recordOutput("Hood/Sim/SimulatorVelocityRadS", simVelocityRadPerSec);
   }
 }
