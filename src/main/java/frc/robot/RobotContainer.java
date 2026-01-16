@@ -31,20 +31,20 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.shooter.FlywheelIO;
-import frc.robot.subsystems.shooter.FlywheelIOSim;
-import frc.robot.subsystems.shooter.FlywheelIOTalonFX;
-import frc.robot.subsystems.shooter.HoodIO;
-import frc.robot.subsystems.shooter.HoodIOSim;
-import frc.robot.subsystems.shooter.HoodIOTalonFX;
-import frc.robot.subsystems.shooter.Shoot;
-import frc.robot.subsystems.shooter.TurretIO;
-import frc.robot.subsystems.shooter.TurretIOSim;
-import frc.robot.subsystems.shooter.TurretIOTalonFX;
+import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.flywheel.FlywheelIOSim;
+import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodIOSim;
+import frc.robot.subsystems.hood.HoodIOTalonFX;
+import frc.robot.subsystems.turret.Turret;
+import frc.robot.subsystems.turret.TurretIOSim;
+import frc.robot.subsystems.turret.TurretIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.RobotState;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -59,7 +59,11 @@ public class RobotContainer {
   private final Vision vision;
 
   @SuppressWarnings("unused")
-  private final Shoot shoot;
+  private final Flywheel flywheel;
+
+  private final Hood hood;
+  private final Turret turret;
+  private final RobotState robotState;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -86,7 +90,13 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
-        shoot = new Shoot(new HoodIOTalonFX(), new TurretIOTalonFX(), new FlywheelIOTalonFX());
+        robotState = new RobotState(drive::getPose);
+        hood = new Hood(new HoodIOTalonFX(), robotState);
+        turret = new Turret(new TurretIOTalonFX(), robotState);
+        flywheel = new Flywheel(new FlywheelIOTalonFX(), robotState);
+        hood.setTeleopDefaultCommand();
+        turret.setTeleopDefaultCommand();
+        flywheel.setTeleopDefaultCommand();
         break;
 
       case SIM:
@@ -104,7 +114,13 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
-        shoot = new Shoot(new HoodIOSim(), new TurretIOSim(), new FlywheelIOSim());
+        robotState = new RobotState(drive::getPose);
+        hood = new Hood(new HoodIOSim(), robotState);
+        turret = new Turret(new TurretIOSim(), robotState);
+        flywheel = new Flywheel(new FlywheelIOSim(), robotState);
+        hood.setTeleopDefaultCommand();
+        turret.setTeleopDefaultCommand();
+        flywheel.setTeleopDefaultCommand();
         break;
 
       default:
@@ -119,7 +135,14 @@ public class RobotContainer {
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        shoot = new Shoot(new HoodIO() {}, new TurretIO() {}, new FlywheelIO() {});
+        robotState = new RobotState(drive::getPose);
+        hood = new Hood(new HoodIOSim(), robotState);
+        turret = new Turret(new TurretIOSim(), robotState);
+        flywheel = new Flywheel(new FlywheelIOSim(), robotState);
+        hood.setTeleopDefaultCommand();
+        turret.setTeleopDefaultCommand();
+        flywheel.setTeleopDefaultCommand();
+
         break;
     }
 
@@ -144,6 +167,18 @@ public class RobotContainer {
 
     // 配置按键绑定
     configureButtonBindings();
+  }
+
+  public Hood getHood() {
+    return hood;
+  }
+
+  public Turret getTurret() {
+    return turret;
+  }
+
+  public Flywheel getFlywheel() {
+    return flywheel;
   }
 
   /**
