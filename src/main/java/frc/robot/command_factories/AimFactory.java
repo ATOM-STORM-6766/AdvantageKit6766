@@ -74,7 +74,6 @@ public class AimFactory {
   public static Command resetToLimit(RobotContainer container) {
     return new ParallelCommandGroup(
             container.getHood().resetToLimitCommand(), container.getTurret().resetToLimitCommand())
-        .withTimeout(5.0)
         .withName("Reset To Limit");
   }
 }

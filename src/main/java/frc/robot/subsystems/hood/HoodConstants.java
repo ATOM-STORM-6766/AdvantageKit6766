@@ -15,12 +15,13 @@ public class HoodConstants {
       (48.0 / 14.0) * (36.0 / 15.0) * (160.0 / 10.0); // TODO: Update with actual ratio
 
   // Rotation limits (in radians from center)
-  public static final double kHoodMinPositionRadians = 0.0; // 0 degrees
+  public static final double kHoodMinPositionRadians = Math.toRadians(0.0); // 0 degrees
   public static final double kHoodMaxPositionRadians = Math.toRadians(60.0); // 60 degrees
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
   public static final double kCalibrationCurrentThreshold = 25.0; // Amperes
+  public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;
 
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
@@ -29,8 +30,8 @@ public class HoodConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Software limits
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
         Units.radiansToRotations(kHoodMaxPositionRadians) * kHoodGearRatio;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =

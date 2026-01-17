@@ -20,7 +20,8 @@ public class TurretConstants {
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
-  public static final double kCalibrationCurrentThreshold = 25.0; // Amperes
+  public static final double kCalibrationCurrentThreshold = 45.0; // Amperes
+  public static final double kCalibrationVelocityThresholdRadPerSec = 1.0; // radians/sec
 
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
@@ -29,8 +30,8 @@ public class TurretConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Software limits
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
         Units.radiansToRotations(kTurretMaxPositionRadians) * kTurretGearRatio;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =

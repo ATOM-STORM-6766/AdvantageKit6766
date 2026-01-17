@@ -1,5 +1,7 @@
 package frc.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -23,7 +25,6 @@ public class HoodIOTalonFX implements HoodIO {
   private final StatusSignal<Voltage> voltsSignal;
   private final StatusSignal<Current> currentStatorSignal;
   private final StatusSignal<Current> currentSupplySignal;
-  protected CalibrationState calibrationState = CalibrationState.NOT_CALIBRATED;
 
   public HoodIOTalonFX() {
     hoodMotor = new TalonFX(HoodConstants.kHoodMotorCanID, Constants.kCANBus);
@@ -34,7 +35,6 @@ public class HoodIOTalonFX implements HoodIO {
     currentStatorSignal = hoodMotor.getStatorCurrent();
     currentSupplySignal = hoodMotor.getSupplyCurrent();
 
-    // Configure TalonFX
     hoodMotor.getConfigurator().apply(HoodConstants.getTalonFXConfig());
     hoodMotor.setPosition(0.0);
 
@@ -48,37 +48,19 @@ public class HoodIOTalonFX implements HoodIO {
     BaseStatusSignal.refreshAll(
         positionSignal, velocitySignal, voltsSignal, currentStatorSignal, currentSupplySignal);
 
-    if (calibrationState == CalibrationState.CALIBRATING) {
-      double currentAmps = currentStatorSignal.getValueAsDouble();
-      if (currentAmps >= HoodConstants.kCalibrationCurrentThreshold) {
-        hoodMotor.setControl(voltageControl.withOutput(0.0));
+    double hoodRotorPositionRadians =
+        BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Radians);
+    double hoodPositionRadians = (hoodRotorPositionRadians / HoodConstants.kHoodGearRatio);
 
-        double positionRotations = Units.radiansToRotations(HoodConstants.kHoodMinPositionRadians);
-        double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
-        hoodMotor.setPosition(positionRotor);
-
-        calibrationState = CalibrationState.CALIBRATED;
-      }
-
-      inputs.appliedVolts = voltsSignal.getValueAsDouble();
-      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
-    } else {
-      inputs.positionRad =
-          Units.rotationsToRadians(
-              positionSignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
-      inputs.positionRotations = positionSignal.getValueAsDouble();
-      inputs.velocityRadPerSec =
-          Units.rotationsToRadians(
-              velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
-      inputs.appliedVolts = voltsSignal.getValueAsDouble();
-      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
-    }
-
-    inputs.calibrationState = calibrationState;
-
-    Logger.recordOutput("Hood/IO/Calibration", calibrationState);
+    inputs.positionRad = hoodPositionRadians;
+    inputs.positionDegrees = Units.radiansToDegrees(hoodPositionRadians);
+    inputs.velocityRadPerSec =
+        Units.radiansToRotations(velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
+    inputs.velocityDegreesPerSec =
+        Units.radiansToDegrees(velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
+    inputs.appliedVolts = voltsSignal.getValueAsDouble();
+    inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
+    inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
   }
 
   @Override
@@ -103,8 +85,14 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void startCalibration() {
-    calibrationState = CalibrationState.CALIBRATING;
-    hoodMotor.setControl(voltageControl.withOutput(HoodConstants.kCalibrationVoltage));
+  public void setOpenloopVoltage(double voltage) {
+    hoodMotor.setControl(voltageControl.withOutput(voltage));
+  }
+
+  @Override
+  public void setRotorPosition(double hoodPositionRadians) {
+    double positionRotations = Units.radiansToRotations(hoodPositionRadians);
+    double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
+    hoodMotor.setPosition(positionRotor);
   }
 }

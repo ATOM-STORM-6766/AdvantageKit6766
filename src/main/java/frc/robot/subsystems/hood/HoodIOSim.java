@@ -11,11 +11,13 @@ import org.littletonrobotics.junction.Logger;
 public class HoodIOSim extends HoodIOTalonFX {
   private static final DCMotor HOOD_MOTOR = DCMotor.getKrakenX60Foc(1);
   private static final double HOOD_MOMENT_OF_INERTIA = 0.1266;
-  private static final double CALIBRATION_DELAY_SECONDS = 2.0;
+
+  private static final double SIM_STALL_CURRENT_AMPS =
+      HoodConstants.kCalibrationCurrentThreshold + 5.0;
   protected final DCMotorSim mechanismSim;
   private final Notifier simNotifier;
   private double lastUpdateTimestamp;
-  private final Timer calibrationTimer = new Timer();
+  private boolean simulatedStall = false;
 
   public HoodIOSim() {
     super();
@@ -28,43 +30,11 @@ public class HoodIOSim extends HoodIOTalonFX {
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
 
-    // Initialize DCMotorSim state to zero position and velocity
-    mechanismSim.setState(0.0, 0.0);
-
-    // Initialize TalonFX simulation state
-    hoodMotor.getSimState().setRawRotorPosition(0.0);
+    // 模拟初始位置是随机的
+    mechanismSim.setState(Units.degreesToRadians(30), 0.0);
 
     simNotifier = new Notifier(this::updateSimState);
     simNotifier.startPeriodic(0.005);
-  }
-
-  @Override
-  public void startCalibration() {
-    double minPositionRad = HoodConstants.kHoodMinPositionRadians;
-
-    mechanismSim.setState(minPositionRad, 0.0);
-
-    double positionRotations = Units.radiansToRotations(minPositionRad);
-    double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
-    hoodMotor.getSimState().setRawRotorPosition(positionRotor);
-    hoodMotor.getSimState().setRotorVelocity(0.0);
-
-    // Start calibration timer and set state to CALIBRATING
-    calibrationTimer.restart();
-    calibrationState = CalibrationState.CALIBRATING;
-  }
-
-  @Override
-  public void readInputs(HoodInputs inputs) {
-    // Check if calibration is complete after delay
-    if (calibrationState == CalibrationState.CALIBRATING
-        && calibrationTimer.hasElapsed(CALIBRATION_DELAY_SECONDS)) {
-      calibrationState = CalibrationState.CALIBRATED;
-      calibrationTimer.stop();
-    }
-
-    // Call parent implementation
-    super.readInputs(inputs);
   }
 
   protected double addFriction(double motorVoltage, double frictionVoltage) {
@@ -77,10 +47,21 @@ public class HoodIOSim extends HoodIOTalonFX {
     }
   }
 
+  @Override
+  public void readInputs(HoodInputs inputs) {
+    super.readInputs(inputs);
+
+    if (simulatedStall) {
+      inputs.currentStatorAmps = SIM_STALL_CURRENT_AMPS;
+      inputs.currentSupplyAmps = Math.max(inputs.currentSupplyAmps, SIM_STALL_CURRENT_AMPS);
+    }
+  }
+
   public void updateSimState() {
     var simState = hoodMotor.getSimState();
     simState.setSupplyVoltage(12.0);
-    double simVoltage = addFriction(simState.getMotorVoltage(), 0.25);
+    double motorVoltage = simState.getMotorVoltage();
+    double simVoltage = addFriction(motorVoltage, 0.25);
 
     mechanismSim.setInput(simVoltage);
     Logger.recordOutput("Hood/Sim/SimulatorVoltage", simVoltage);
@@ -93,7 +74,6 @@ public class HoodIOSim extends HoodIOTalonFX {
     double minAngle = HoodConstants.kHoodMinPositionRadians;
     double maxAngle = HoodConstants.kHoodMaxPositionRadians;
 
-    // Clamp to physical limits for limited rotation range
     if (simPositionRads < minAngle) {
       simPositionRads = minAngle;
       mechanismSim.setState(simPositionRads, 0.0);
@@ -104,9 +84,19 @@ public class HoodIOSim extends HoodIOTalonFX {
 
     Logger.recordOutput("Hood/Sim/SimulatorPositionRadians", simPositionRads);
 
+    boolean atMin = simPositionRads <= minAngle;
+    boolean atMax = simPositionRads >= maxAngle;
     double simVelocityRadPerSec = mechanismSim.getAngularVelocityRadPerSec();
-    if (simPositionRads <= minAngle || simPositionRads >= maxAngle) {
-      simVelocityRadPerSec = 0.0;
+
+    boolean pushingMin = simVoltage < 0;
+    boolean pushingMax = simVoltage > 0;
+
+    if ((atMin && pushingMin) || (atMax && pushingMax)) {
+      simulatedStall = true;
+      simState.setRotorVelocity(0.0);
+    } else {
+      simulatedStall = false;
+      simState.setRotorVelocity(0.0);
     }
 
     double rotorPosition = Units.radiansToRotations(simPositionRads) * HoodConstants.kHoodGearRatio;

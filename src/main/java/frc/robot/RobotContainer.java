@@ -52,6 +52,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * 相反，机器人结构（子系统、指令和按键映射等）应在此处声明。
  */
 public class RobotContainer {
+  private static final double kOpenLoopTestVoltage = 2.0;
+
   // 子系统
   private final Drive drive;
 
@@ -229,6 +231,11 @@ public class RobotContainer {
                         .get()
                         .toPose2d()
                         .plus(new Transform2d(1, 0, Rotation2d.k180deg))));
+
+    controller.leftBumper().whileTrue(hood.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
+    controller.leftStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
+    controller.rightBumper().whileTrue(turret.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
+    controller.rightStick().whileTrue(turret.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
   }
 
   /**

@@ -11,11 +11,13 @@ import org.littletonrobotics.junction.Logger;
 public class TurretIOSim extends TurretIOTalonFX {
   private static final DCMotor TURRET_MOTOR = DCMotor.getKrakenX60Foc(1);
   private static final double TURRET_MOMENT_OF_INERTIA = 0.2981858;
-  private static final double CALIBRATION_DELAY_SECONDS = 2.0;
+
+  private static final double SIM_STALL_CURRENT_AMPS =
+      TurretConstants.kCalibrationCurrentThreshold + 5.0;
   protected final DCMotorSim mechanismSim;
-  protected double lastUpdateTimestamp;
   private final Notifier simNotifier;
-  private final Timer calibrationTimer = new Timer();
+  protected double lastUpdateTimestamp;
+  private boolean simulatedStall = false;
 
   public TurretIOSim() {
     super();
@@ -28,48 +30,21 @@ public class TurretIOSim extends TurretIOTalonFX {
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
 
-    // Initialize DCMotorSim state to zero position and velocity
-    mechanismSim.setState(0.0, 0.0);
+    // 模拟初始位置是随机的
+    mechanismSim.setState(Units.degreesToRadians(30), 0.0);
 
-    // Initialize TalonFX simulation state
-    talon.getSimState().setRawRotorPosition(0.0);
-
-    // Run simulation at a faster rate so PID gains behave more reasonably
     simNotifier = new Notifier(this::updateSimState);
     simNotifier.startPeriodic(0.005);
   }
 
   @Override
-  public void startCalibration() {
-    // Simplified calibration for simulation
-    // Set position to min limit and start calibration timer
-    double minPositionRad = TurretConstants.kTurretMinPositionRadians;
-
-    // Update simulator state
-    mechanismSim.setState(minPositionRad, 0.0);
-
-    // Update TalonFX sim state
-    double positionRotations = Units.radiansToRotations(minPositionRad);
-    double positionRotor = positionRotations * TurretConstants.kTurretGearRatio;
-    talon.getSimState().setRawRotorPosition(positionRotor);
-    talon.getSimState().setRotorVelocity(0.0);
-
-    // Start calibration timer and set state to CALIBRATING
-    calibrationTimer.restart();
-    calibrationState = CalibrationState.CALIBRATING;
-  }
-
-  @Override
   public void readInputs(TurretInputs inputs) {
-    // Check if calibration is complete after delay
-    if (calibrationState == CalibrationState.CALIBRATING
-        && calibrationTimer.hasElapsed(CALIBRATION_DELAY_SECONDS)) {
-      calibrationState = CalibrationState.CALIBRATED;
-      calibrationTimer.stop();
-    }
-
-    // Call parent implementation
     super.readInputs(inputs);
+
+    if (simulatedStall) {
+      inputs.currentStatorAmps = SIM_STALL_CURRENT_AMPS;
+      inputs.currentSupplyAmps = Math.max(inputs.currentSupplyAmps, SIM_STALL_CURRENT_AMPS);
+    }
   }
 
   protected double addFriction(double motorVoltage, double frictionVoltage) {
@@ -83,10 +58,10 @@ public class TurretIOSim extends TurretIOTalonFX {
   }
 
   public void updateSimState() {
-    // Step sim
     var simState = talon.getSimState();
     simState.setSupplyVoltage(12.0);
-    double simVoltage = addFriction(simState.getMotorVoltage(), 0.25);
+    double motorVoltage = simState.getMotorVoltage();
+    double simVoltage = addFriction(motorVoltage, 0.25);
 
     mechanismSim.setInput(simVoltage);
     Logger.recordOutput("Turret/Sim/SimulatorVoltage", simVoltage);
@@ -95,12 +70,10 @@ public class TurretIOSim extends TurretIOTalonFX {
     mechanismSim.update(timestamp - lastUpdateTimestamp);
     lastUpdateTimestamp = timestamp;
 
-    // Find current state of sim in radians from 0 point
     double simPositionRads = mechanismSim.getAngularPositionRad();
     double minAngle = TurretConstants.kTurretMinPositionRadians;
     double maxAngle = TurretConstants.kTurretMaxPositionRadians;
 
-    // Clamp to physical limits for limited rotation range
     if (simPositionRads < minAngle) {
       simPositionRads = minAngle;
       mechanismSim.setState(simPositionRads, 0.0);
@@ -111,18 +84,26 @@ public class TurretIOSim extends TurretIOTalonFX {
 
     Logger.recordOutput("Turret/Sim/SimulatorPositionRadians", simPositionRads);
 
+    boolean atMin = simPositionRads <= minAngle;
+    boolean atMax = simPositionRads >= maxAngle;
     double simVelocityRadPerSec = mechanismSim.getAngularVelocityRadPerSec();
-    if (simPositionRads <= minAngle || simPositionRads >= maxAngle) {
-      simVelocityRadPerSec = 0.0;
+
+    boolean pushingMin = simVoltage < 0;
+    boolean pushingMax = simVoltage > 0;
+
+    if ((atMin && pushingMin) || (atMax && pushingMax)) {
+      simulatedStall = true;
+      simState.setRotorVelocity(0.0);
+    } else {
+      simulatedStall = false;
+      simState.setRotorVelocity(0.0);
     }
 
-    // Mutate rotor position
     double rotorPosition =
         Units.radiansToRotations(simPositionRads) * TurretConstants.kTurretGearRatio;
     simState.setRawRotorPosition(rotorPosition);
     Logger.recordOutput("Turret/Sim/setRawRotorPosition", rotorPosition);
 
-    // Mutate rotor vel
     double rotorVel =
         Units.radiansToRotations(simVelocityRadPerSec) * TurretConstants.kTurretGearRatio;
     simState.setRotorVelocity(rotorVel);

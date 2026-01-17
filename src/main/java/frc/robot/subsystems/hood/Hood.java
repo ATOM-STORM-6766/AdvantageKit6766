@@ -1,9 +1,11 @@
 package frc.robot.subsystems.hood;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.util.RobotState;
@@ -11,32 +13,36 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
+  public enum InitState {
+    UNINITIALIZED,
+    INITIALIZING,
+    INITIALIZED
+  }
+
   private final HoodInputsAutoLogged inputs = new HoodInputsAutoLogged();
   private final RobotState robotState;
   private final HoodIO io;
-  private double hoodSetpointRadiansFromCenter = 0.0;
+  private final Debouncer calibrationCurrentDebouncer =
+      new Debouncer(0.25, Debouncer.DebounceType.kBoth);
+  private InitState initState = InitState.UNINITIALIZED;
 
   public Hood(final HoodIO io, RobotState robotState) {
     this.io = io;
     this.robotState = robotState;
   }
 
-  public void setTeleopDefaultCommand() {
-    this.setDefaultCommand(
-        run(() -> {
-              setPositionSetpointImpl(hoodSetpointRadiansFromCenter, 0.0);
-            })
-            .withName("Hood Maintain Setpoint (default)"));
-  }
+  public void setTeleopDefaultCommand() {}
 
   @Override
   public void periodic() {
     double timestamp = Timer.getFPGATimestamp();
     io.readInputs(inputs);
-    Logger.processInputs("Hood", inputs);
 
     robotState.addHoodRotation(new Rotation2d(inputs.positionRad));
+
+    Logger.processInputs("Hood", inputs);
     Logger.recordOutput("Hood/WorldPose", robotState.getHoodWorldPose());
+    Logger.recordOutput("Hood/InitState", initState.toString());
     Logger.recordOutput("Hood/latencyPeriodicSec", Timer.getFPGATimestamp() - timestamp);
   }
 
@@ -45,9 +51,16 @@ public class Hood extends SubsystemBase {
     return run(() -> {
           double setpoint = clampToRange(radiansFromCenter.getAsDouble());
           setPositionSetpointImpl(setpoint, radsPerSec.getAsDouble());
-          hoodSetpointRadiansFromCenter = setpoint;
         })
         .withName("Hood positionSetpointCommand");
+  }
+
+  public Command openLoopVoltageCommand(DoubleSupplier voltage) {
+    return Commands.startEnd(
+            () -> io.setOpenloopVoltage(voltage.getAsDouble()),
+            () -> io.setOpenloopVoltage(0.0),
+            this)
+        .withName("Hood openLoopVoltageCommand");
   }
 
   public Command waitForPosition(DoubleSupplier radiansFromCenter, double toleranceRadians) {
@@ -60,16 +73,17 @@ public class Hood extends SubsystemBase {
   }
 
   public Command resetToLimitCommand() {
-    return runOnce(() -> io.startCalibration())
+    return Commands.runOnce(() -> initState = InitState.INITIALIZING)
         .andThen(
-            run(() -> {})
-                .until(() -> inputs.calibrationState == HoodIO.CalibrationState.CALIBRATED))
-        .andThen(
-            runOnce(
-                () -> {
-                  hoodSetpointRadiansFromCenter = HoodConstants.kHoodMinPositionRadians;
-                  Logger.recordOutput("Hood/ResetComplete", true);
-                }))
+            run(() -> io.setOpenloopVoltage(HoodConstants.kCalibrationVoltage))
+                .until(this::isCalibrationStalled)
+                .andThen(
+                    runOnce(
+                        () -> {
+                          io.setOpenloopVoltage(0.0);
+                          io.setRotorPosition(HoodConstants.kHoodMinPositionRadians);
+                          initState = InitState.INITIALIZED;
+                        })))
         .withName("Hood Reset to Limit");
   }
 
@@ -84,5 +98,14 @@ public class Hood extends SubsystemBase {
     Logger.recordOutput("Hood/API/setPositionSetpoint/radiansFromCenter", radiansFromCenter);
     Logger.recordOutput("Hood/API/setPositionSetpoint/radsPerSec", radsPerSec);
     io.setPositionSetpoint(radiansFromCenter, radsPerSec);
+  }
+
+  private boolean isCalibrationStalled() {
+    boolean currentOverThreshold =
+        calibrationCurrentDebouncer.calculate(
+            inputs.currentStatorAmps >= HoodConstants.kCalibrationCurrentThreshold);
+    return Math.abs(inputs.velocityRadPerSec)
+            <= HoodConstants.kCalibrationVelocityThresholdRadPerSec
+        && currentOverThreshold;
   }
 }

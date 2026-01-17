@@ -15,8 +15,7 @@ public class RobotState {
 
   private final Supplier<Pose2d> robotPoseSupplier;
   private Rotation2d latestHoodRotation = new Rotation2d();
-  private double latestTurretPositionRad = 0.0;
-  private double latestTurretVelocityRadPerSec = 0.0;
+  private Rotation2d latestTurretRotation = new Rotation2d();
 
   public RobotState() {
     this(() -> new Pose2d());
@@ -30,16 +29,14 @@ public class RobotState {
     this.latestHoodRotation = rotation;
   }
 
-  public void addTurretUpdates(
-      double timestamp, Rotation2d absoluteRotation, double positionRad, double velocityRadPerSec) {
-    this.latestTurretPositionRad = positionRad;
-    this.latestTurretVelocityRadPerSec = velocityRadPerSec;
+  public void addTurretRotation(Rotation2d rotation) {
+    this.latestTurretRotation = rotation;
   }
 
   public Pose3d getTurretWorldPose() {
     Pose2d robotPose2d = robotPoseSupplier.get();
     Pose3d robotPose3d = new Pose3d(robotPose2d);
-    Rotation3d turretYaw = new Rotation3d(0.0, 0.0, latestTurretPositionRad);
+    Rotation3d turretYaw = new Rotation3d(0.0, 0.0, latestTurretRotation.getRadians());
     return robotPose3d.transformBy(new Transform3d(ROBOT_TO_TURRET, turretYaw));
   }
 

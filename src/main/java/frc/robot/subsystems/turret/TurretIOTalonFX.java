@@ -1,6 +1,6 @@
 package frc.robot.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Radians;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -25,7 +25,6 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Voltage> voltsSignal;
   private final StatusSignal<Current> currentStatorSignal;
   private final StatusSignal<Current> currentSupplySignal;
-  protected CalibrationState calibrationState = CalibrationState.NOT_CALIBRATED;
 
   public TurretIOTalonFX() {
     talon = new TalonFX(TurretConstants.kTurretMotorCanID, Constants.kCANBus);
@@ -50,38 +49,21 @@ public class TurretIOTalonFX implements TurretIO {
     BaseStatusSignal.refreshAll(
         positionSignal, velocitySignal, voltsSignal, currentStatorSignal, currentSupplySignal);
 
-    if (calibrationState == CalibrationState.CALIBRATING) {
-      double currentAmps = currentStatorSignal.getValueAsDouble();
-      if (currentAmps >= TurretConstants.kCalibrationCurrentThreshold) {
-        talon.setControl(openLoopVoltageControl.withOutput(0.0));
+    double turretRotorPositionRadians =
+        BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Radians);
+    double turretPositionRadians = (turretRotorPositionRadians / TurretConstants.kTurretGearRatio);
 
-        double positionRotations =
-            Units.radiansToRotations(TurretConstants.kTurretMinPositionRadians);
-        double positionRotor = positionRotations * TurretConstants.kTurretGearRatio;
-        talon.setPosition(positionRotor);
-
-        calibrationState = CalibrationState.CALIBRATED;
-      }
-
-      inputs.appliedVolts = voltsSignal.getValueAsDouble();
-      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
-    } else {
-      double talonPosition =
-          BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Rotations);
-
-      inputs.positionRad =
-          Units.rotationsToRadians(talonPosition / TurretConstants.kTurretGearRatio);
-      inputs.velocityRadPerSec =
-          Units.rotationsToRadians(
-              velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
-      inputs.appliedVolts = voltsSignal.getValueAsDouble();
-      inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-      inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
-    }
-
-    inputs.calibrationState = calibrationState;
-    Logger.recordOutput("Turret/IO/Calibration", calibrationState);
+    inputs.positionRad = turretPositionRadians;
+    inputs.positionDegrees = Units.radiansToDegrees(turretPositionRadians);
+    inputs.velocityRadPerSec =
+        Units.radiansToRotations(
+            velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
+    inputs.velocityDegreesPerSec =
+        Units.radiansToDegrees(
+            velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
+    inputs.appliedVolts = voltsSignal.getValueAsDouble();
+    inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
+    inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
   }
 
   @Override
@@ -111,8 +93,14 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void startCalibration() {
-    calibrationState = CalibrationState.CALIBRATING;
-    talon.setControl(openLoopVoltageControl.withOutput(TurretConstants.kCalibrationVoltage));
+  public void setOpenloopVoltage(double voltage) {
+    talon.setControl(openLoopVoltageControl.withOutput(voltage));
+  }
+
+  @Override
+  public void setRotorPosition(double turretPositionRadians) {
+    double positionRotations = Units.radiansToRotations(turretPositionRadians);
+    double positionRotor = positionRotations * TurretConstants.kTurretGearRatio;
+    talon.setPosition(positionRotor);
   }
 }
