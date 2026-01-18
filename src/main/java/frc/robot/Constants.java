@@ -13,7 +13,17 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.generated.TunerConstants;
+import java.util.List;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -34,4 +44,16 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final Trajectory trajectoryOne =
+      TrajectoryGenerator.generateTrajectory(
+          new Pose2d(0, 0, Rotation2d.fromDegrees(0)), // 起始位姿：(x=0, y=0)，朝向 0 度
+          List.of(
+              new Translation2d(0.0, 0.5),
+              new Translation2d(0.5, 0.5),
+              new Translation2d(0.5, 0.0)), // 中间途经点：(0.5, 0.5) 和 (2, -0.5)
+          new Pose2d(0.0, 0, Rotation2d.fromDegrees(0)), // 结束位姿：(x=3, y=0)，朝向 0 度
+          new TrajectoryConfig(
+              TunerConstants.kSpeedAt12Volts.times(0.3),
+              MetersPerSecondPerSecond.of(1.3).times(0.3))); // 配置：最大速度和加速度均为 3 英尺/秒
 }
