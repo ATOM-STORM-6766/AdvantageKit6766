@@ -23,8 +23,8 @@ public class TurretConstants {
   public static final double kCRTToleranceRadians = Math.toRadians(5.0);
 
   // Rotation limits (in radians from center)
-  public static final double kTurretMinPositionRadians = Math.toRadians(0.0);
-  public static final double kTurretMaxPositionRadians = Math.toRadians(360.0);
+  public static final double kTurretMinPositionRadians = Math.toRadians(-180.0);
+  public static final double kTurretMaxPositionRadians = Math.toRadians(180.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
@@ -46,8 +46,8 @@ public class TurretConstants {
 
     // Motion Magic
     config.MotionMagic.MotionMagicJerk = 0.0;
-    config.MotionMagic.MotionMagicAcceleration = 50.0; // rotations/sec^2
-    config.MotionMagic.MotionMagicCruiseVelocity = 5.0; // rotations/sec
+    config.MotionMagic.MotionMagicAcceleration = 200.0; // rotations/sec^2
+    config.MotionMagic.MotionMagicCruiseVelocity = 20.0; // rotations/sec
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

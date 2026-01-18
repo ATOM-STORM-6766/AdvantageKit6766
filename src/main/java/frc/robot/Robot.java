@@ -161,7 +161,7 @@ public class Robot extends LoggedRobot {
             AimFactory.resetAllToLimit(robotContainer)
                 .andThen(
                     AimFactory.aimAtTarget(
-                        robotContainer, () -> new Translation3d(0.0, 0.0, 0.0))));
+                        robotContainer, () -> new Translation3d(4.6256194, 4.0346376, 1.82))));
 
     // CommandScheduler.getInstance().schedule(robotContainer.getTurret().resetToLimitCommand());
   }
