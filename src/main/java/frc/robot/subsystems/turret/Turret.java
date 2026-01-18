@@ -29,7 +29,7 @@ public class Turret extends SubsystemBase {
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(0.25, Debouncer.DebounceType.kBoth);
   private InitState initState = InitState.UNINITIALIZED;
-  private CalibrationMethod calibrationMethod = CalibrationMethod.NO_CALIBRATION;
+  private CalibrationMethod calibrationMethod = CalibrationMethod.ABSOLUTE_ENCODER;
 
   public Turret(final TurretIO io, RobotState robotState) {
     this.io = io;
@@ -49,21 +49,6 @@ public class Turret extends SubsystemBase {
     Logger.recordOutput("Turret/WorldPose", robotState.getTurretWorldPose());
     Logger.recordOutput("Turret/InitState", initState.toString());
     Logger.recordOutput("Turret/latencyPeriodicSec", Timer.getFPGATimestamp() - timestamp);
-
-    var resolvedAngle =
-        solveAbsoluteAngle(
-            inputs.absoluteEncoderPosition,
-            inputs.rotorPosition - Math.floor(inputs.rotorPosition));
-
-    // var resolvedAngle =
-    //     solveAbsoluteAngle(
-    //         inputs.absoluteEncoderPosition,
-    //         inputs.absoluteEncoder2Position);
-    if (resolvedAngle != null) {
-      Logger.recordOutput("Turret/resolvedAngle", Units.radiansToDegrees(resolvedAngle));
-    } else {
-      Logger.recordOutput("Turret/resolvedAngle", Double.NaN);
-    }
   }
 
   public Command positionSetpointCommand(DoubleSupplier radiansFromCenter, DoubleSupplier ffVel) {

@@ -32,8 +32,8 @@ public class TurretIOTalonFX implements TurretIO {
 
   public TurretIOTalonFX() {
     talon = new TalonFX(TurretConstants.kTurretMotorCanID, Constants.kCANBus);
-    absoluteEncoder = new DutyCycleEncoder(TurretConstants.kAbsoluteEncoderDIO, 1, 0.474216);
-    absoluteEncoder2 = new DutyCycleEncoder(TurretConstants.kAbsoluteEncoder2DIO);
+    absoluteEncoder = new DutyCycleEncoder(TurretConstants.kAbsoluteEncoderDIO, 1, 0.0);
+    absoluteEncoder2 = new DutyCycleEncoder(TurretConstants.kAbsoluteEncoder2DIO, 1, 0.0);
 
     positionSignal = talon.getPosition();
     velocitySignal = talon.getVelocity();
