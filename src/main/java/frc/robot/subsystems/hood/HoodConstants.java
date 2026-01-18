@@ -2,21 +2,18 @@ package frc.robot.subsystems.hood;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class HoodConstants {
   // CAN IDs
-  public static final int kHoodMotorCanID = 2;
+  public static final int kHoodMotorCanID = 20;
 
   // Gear ratio: motor rotations per output rotation
   // Example: For a 100:1 gearbox, set this to 100.0
-  public static final double kHoodGearRatio =
-      (48.0 / 14.0) * (36.0 / 15.0) * (160.0 / 10.0); // TODO: Update with actual ratio
+  public static final double kHoodGearRatio = (48.0 / 14.0) * (36.0 / 15.0) * (160.0 / 10.0);
 
-  // Rotation limits (in radians from center)
-  public static final double kHoodMinPositionRadians = Math.toRadians(0.0); // 0 degrees
-  public static final double kHoodMaxPositionRadians = Math.toRadians(60.0); // 60 degrees
+  public static final double kHoodMinPositionRadians = Math.toRadians(0.0);
+  public static final double kHoodMaxPositionRadians = Math.toRadians(60.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
@@ -28,14 +25,6 @@ public class HoodConstants {
 
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    // Software limits
-    // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.radiansToRotations(kHoodMaxPositionRadians) * kHoodGearRatio;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.radiansToRotations(kHoodMinPositionRadians) * kHoodGearRatio;
 
     // PID + Feedforward
     config.Slot0.kS = 0.18;

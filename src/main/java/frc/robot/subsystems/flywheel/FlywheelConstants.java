@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public class FlywheelConstants {
   // CAN IDs
-  public static final int kFlywheelMotorCanID = 0;
+  public static final int kFlywheelMotorCanID = 19;
 
   // Gear ratio: motor rotations per output rotation
   // Example: For a 2:1 gearbox, set this to 2.0

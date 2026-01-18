@@ -13,11 +13,15 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class TurretIOTalonFX implements TurretIO {
   protected final TalonFX talon;
+  protected final DutyCycleEncoder absoluteEncoder;
+  protected final DutyCycleEncoder absoluteEncoder2;
+
   private final MotionMagicVoltage motionMagicVoltageControl = new MotionMagicVoltage(0.0);
   private final VoltageOut openLoopVoltageControl = new VoltageOut(0.0);
   private final StatusSignal<Angle> positionSignal;
@@ -28,6 +32,8 @@ public class TurretIOTalonFX implements TurretIO {
 
   public TurretIOTalonFX() {
     talon = new TalonFX(TurretConstants.kTurretMotorCanID, Constants.kCANBus);
+    absoluteEncoder = new DutyCycleEncoder(TurretConstants.kAbsoluteEncoderDIO);
+    absoluteEncoder2 = new DutyCycleEncoder(TurretConstants.kAbsoluteEncoder2DIO);
 
     positionSignal = talon.getPosition();
     velocitySignal = talon.getVelocity();
@@ -61,6 +67,19 @@ public class TurretIOTalonFX implements TurretIO {
     inputs.velocityDegreesPerSec =
         Units.radiansToDegrees(
             velocitySignal.getValueAsDouble() / TurretConstants.kTurretGearRatio);
+
+    double absoluteEncoderPosition = absoluteEncoder.get();
+    inputs.absoluteEncoderPosition = absoluteEncoderPosition;
+    inputs.absoluteEncoderPositionRadians =
+        Units.rotationsToRadians(
+            absoluteEncoderPosition / TurretConstants.kTurretAbsoluteEncoderToTurretRatio);
+
+    double absoluteEncoder2Position = absoluteEncoder2.get();
+    inputs.absoluteEncoder2Position = absoluteEncoder2Position;
+    inputs.absoluteEncoder2PositionRadians =
+        Units.rotationsToRadians(
+            absoluteEncoder2Position / TurretConstants.kTurretAbsoluteEncoder2ToTurretRatio);
+
     inputs.appliedVolts = voltsSignal.getValueAsDouble();
     inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
     inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();

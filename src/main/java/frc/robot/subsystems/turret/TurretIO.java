@@ -9,6 +9,10 @@ public interface TurretIO {
     public double positionDegrees = 0.0;
     public double velocityRadPerSec = 0.0;
     public double velocityDegreesPerSec = 0.0;
+    public double absoluteEncoderPosition = 0.0;
+    public double absoluteEncoderPositionRadians = 0.0;
+    public double absoluteEncoder2Position = 0.0;
+    public double absoluteEncoder2PositionRadians = 0.0;
     public double appliedVolts = 0.0;
     public double currentStatorAmps = 0.0;
     public double currentSupplyAmps = 0.0;

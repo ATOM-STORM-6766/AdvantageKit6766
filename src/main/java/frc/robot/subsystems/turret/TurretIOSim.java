@@ -6,15 +6,19 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DutyCycleEncoderSim;
 import org.littletonrobotics.junction.Logger;
 
 public class TurretIOSim extends TurretIOTalonFX {
   private static final DCMotor TURRET_MOTOR = DCMotor.getKrakenX60Foc(1);
-  private static final double TURRET_MOMENT_OF_INERTIA = 0.2981858;
+  private static final double TURRET_MOMENT_OF_INERTIA = 0.0181858;
 
   private static final double SIM_STALL_CURRENT_AMPS =
       TurretConstants.kCalibrationCurrentThreshold + 5.0;
   protected final DCMotorSim mechanismSim;
+  protected final DutyCycleEncoderSim absoluteEncoderSim;
+  protected final DutyCycleEncoderSim absoluteEncoder2Sim;
+
   private final Notifier simNotifier;
   protected double lastUpdateTimestamp;
   private boolean simulatedStall = false;
@@ -28,10 +32,13 @@ public class TurretIOSim extends TurretIOTalonFX {
                 TURRET_MOTOR, TURRET_MOMENT_OF_INERTIA, TurretConstants.kTurretGearRatio),
             TURRET_MOTOR);
 
+    absoluteEncoderSim = new DutyCycleEncoderSim(absoluteEncoder);
+    absoluteEncoder2Sim = new DutyCycleEncoderSim(absoluteEncoder2);
+
     lastUpdateTimestamp = Timer.getFPGATimestamp();
 
     // 模拟初始位置是随机的
-    mechanismSim.setState(Units.degreesToRadians(30), 0.0);
+    mechanismSim.setState(Units.degreesToRadians(0), 0.0);
 
     simNotifier = new Notifier(this::updateSimState);
     simNotifier.startPeriodic(0.005);
@@ -59,6 +66,7 @@ public class TurretIOSim extends TurretIOTalonFX {
 
   public void updateSimState() {
     var simState = talon.getSimState();
+
     simState.setSupplyVoltage(12.0);
     double motorVoltage = simState.getMotorVoltage();
     double simVoltage = addFriction(motorVoltage, 0.25);
@@ -108,5 +116,24 @@ public class TurretIOSim extends TurretIOTalonFX {
         Units.radiansToRotations(simVelocityRadPerSec) * TurretConstants.kTurretGearRatio;
     simState.setRotorVelocity(rotorVel);
     Logger.recordOutput("Turret/Sim/SimulatorVelocityRadS", simVelocityRadPerSec);
+
+    // Calculate the number of turret rotations (can be fractional)
+    double turretRotations = Units.radiansToRotations(simPositionRads);
+
+    // Absolute Encoder 1
+    double absoluteEncoderRotations =
+        turretRotations * TurretConstants.kTurretAbsoluteEncoderToTurretRatio;
+    double absoluteEncoderPosition =
+        absoluteEncoderRotations - Math.floor(absoluteEncoderRotations);
+    absoluteEncoderSim.set(absoluteEncoderPosition);
+    Logger.recordOutput("Turret/Sim/SimulatorAbsoluteEncoder", absoluteEncoderPosition);
+
+    // Absolute Encoder 2
+    double absoluteEncoder2Rotations =
+        turretRotations * TurretConstants.kTurretAbsoluteEncoder2ToTurretRatio;
+    double absoluteEncoder2Position =
+        absoluteEncoder2Rotations - Math.floor(absoluteEncoder2Rotations);
+    absoluteEncoder2Sim.set(absoluteEncoder2Position);
+    Logger.recordOutput("Turret/Sim/SimulatorAbsoluteEncoder2", absoluteEncoder2Position);
   }
 }

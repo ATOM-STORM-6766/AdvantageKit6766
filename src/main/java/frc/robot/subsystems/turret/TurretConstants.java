@@ -2,21 +2,29 @@ package frc.robot.subsystems.turret;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class TurretConstants {
   // CAN IDs
-  public static final int kTurretMotorCanID = 1;
+  public static final int kTurretMotorCanID = 17;
 
-  // Gear ratio: motor rotations per output rotation
+  public static final int kAbsoluteEncoderDIO = 0;
+  public static final int kAbsoluteEncoder2DIO = 1;
+
+  // Gear ratio: motor rotor rotations per turret rotation
   // Example: For a 100:1 gearbox, set this to 100.0
-  public static final double kTurretGearRatio =
-      (52. / 14.) * (125. / 10.); // TODO: Update with actual ratio
+  public static final double kTurretGearRatio = 100.0 / 10.0;
+
+  // Gear ratio: absolute encoder rotations per turret rotation
+  public static final double kTurretAbsoluteEncoderToTurretRatio = 100.0 / 11.0;
+  public static final double kTurretAbsoluteEncoder2ToTurretRatio = 100.0 / 10.0;
+
+  // CRT algorithm tolerance (radians)
+  public static final double kCRTToleranceRadians = Math.toRadians(5.0);
 
   // Rotation limits (in radians from center)
   public static final double kTurretMinPositionRadians = Math.toRadians(0.0);
-  public static final double kTurretMaxPositionRadians = Math.toRadians(270.0);
+  public static final double kTurretMaxPositionRadians = Math.toRadians(360.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
@@ -29,25 +37,17 @@ public class TurretConstants {
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    // Software limits
-    // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.radiansToRotations(kTurretMaxPositionRadians) * kTurretGearRatio;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        Units.radiansToRotations(kTurretMinPositionRadians) * kTurretGearRatio;
-
     // PID + Feedforward
     config.Slot0.kS = 0.18;
-    config.Slot0.kP = 6.0;
-    config.Slot0.kD = 0.1;
+    config.Slot0.kP = 3.0;
+    config.Slot0.kD = 0.0;
     config.Slot0.kV = 0.120;
     config.Slot0.kA = 0.0001 * 12.0;
 
     // Motion Magic
     config.MotionMagic.MotionMagicJerk = 0.0;
-    config.MotionMagic.MotionMagicAcceleration = 900.0; // rotations/sec^2
-    config.MotionMagic.MotionMagicCruiseVelocity = 90.0; // rotations/sec
+    config.MotionMagic.MotionMagicAcceleration = 50.0; // rotations/sec^2
+    config.MotionMagic.MotionMagicCruiseVelocity = 5.0; // rotations/sec
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

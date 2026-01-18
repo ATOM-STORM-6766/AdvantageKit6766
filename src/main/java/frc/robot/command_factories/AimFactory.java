@@ -31,6 +31,31 @@ public class AimFactory {
         .withName("Align Superstructure");
   }
 
+  public static Command sweepTurret(RobotContainer container) {
+    double turretMin = TurretConstants.kTurretMinPositionRadians;
+    double turretMax = TurretConstants.kTurretMaxPositionRadians;
+    double turretMid = (turretMin + turretMax) * 0.5;
+    double turretAmp = (turretMax - turretMin) * 0.45;
+
+    double periodSeconds = 6.0;
+    double omega = (2.0 * Math.PI) / periodSeconds;
+
+    Timer timer = new Timer();
+
+    return container
+        .getTurret()
+        .positionSetpointCommand(
+            () -> {
+              double t = timer.get();
+              double target = turretMid + turretAmp * Math.sin(omega * t);
+              return MathUtil.clamp(target, turretMin, turretMax);
+            },
+            () -> 0.0)
+        .beforeStarting(timer::start)
+        .finallyDo(() -> timer.stop())
+        .withName("Sweep Turret");
+  }
+
   public static Command sweepTurretAndHood(RobotContainer container) {
     double turretMin = TurretConstants.kTurretMinPositionRadians;
     double turretMax = TurretConstants.kTurretMaxPositionRadians;
@@ -71,7 +96,7 @@ public class AimFactory {
         .withName("Sweep Turret And Hood (teleop)");
   }
 
-  public static Command resetToLimit(RobotContainer container) {
+  public static Command resetAllToLimit(RobotContainer container) {
     return new ParallelCommandGroup(
             container.getHood().resetToLimitCommand(), container.getTurret().resetToLimitCommand())
         .withName("Reset To Limit");

@@ -232,10 +232,23 @@ public class RobotContainer {
                         .toPose2d()
                         .plus(new Transform2d(1, 0, Rotation2d.k180deg))));
 
-    controller.leftBumper().whileTrue(hood.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
-    controller.leftStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
-    controller.rightBumper().whileTrue(turret.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
-    controller.rightStick().whileTrue(turret.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
+    controller.leftBumper().whileTrue(turret.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
+    // controller.leftStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
+    controller.rightBumper().whileTrue(turret.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
+    // controller.rightStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
+
+    controller
+        .povUp()
+        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(0.0), () -> 0.0));
+    controller
+        .povRight()
+        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(90.0), () -> 0.0));
+    controller
+        .povDown()
+        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(180.0), () -> 0.0));
+    controller
+        .povLeft()
+        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(270.0), () -> 0.0));
   }
 
   /**
