@@ -290,10 +290,15 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** 返回测得的机器人底盘速度。 */
+  /** 返回测得的机器人底盘速度（机器人相对）。 */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /** 返回测得的机器人底盘速度（场地相对）。 */
+  public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
   }
 
   /** 返回每个模块的轮位姿（单位：弧度）。 */

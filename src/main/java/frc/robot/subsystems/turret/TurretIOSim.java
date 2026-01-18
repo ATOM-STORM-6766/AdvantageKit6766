@@ -40,9 +40,11 @@ public class TurretIOSim extends TurretIOTalonFX {
     double randomInitialTurretPosition = 30;
     mechanismSim.setState(Units.degreesToRadians(randomInitialTurretPosition), 0.0);
     double encoder1Position =
-        Units.degreesToRotations(randomInitialTurretPosition) * TurretConstants.kTurretAbsoluteEncoderToTurretRatio;
+        Units.degreesToRotations(randomInitialTurretPosition)
+            * TurretConstants.kTurretAbsoluteEncoderToTurretRatio;
     double encoder2Position =
-        Units.degreesToRotations(randomInitialTurretPosition) * TurretConstants.kTurretAbsoluteEncoder2ToTurretRatio;
+        Units.degreesToRotations(randomInitialTurretPosition)
+            * TurretConstants.kTurretAbsoluteEncoder2ToTurretRatio;
     absoluteEncoderSim.set(encoder1Position - Math.floor(encoder1Position));
     absoluteEncoder2Sim.set(encoder2Position - Math.floor(encoder2Position));
 

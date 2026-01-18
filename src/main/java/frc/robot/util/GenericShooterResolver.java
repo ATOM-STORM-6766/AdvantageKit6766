@@ -79,6 +79,11 @@ public class GenericShooterResolver {
     public double launchSpeed;
     public boolean isValid;
 
+    // Debug fields for visualization
+    public Translation3d virtualTarget;
+    public Translation3d actualTarget;
+    public double flightTime;
+
     public static ShooterSetpoint invalid() {
       ShooterSetpoint s = new ShooterSetpoint();
       s.isValid = false;
@@ -137,6 +142,13 @@ public class GenericShooterResolver {
     // --- 步骤 3: 运动补偿解算 (核心方程) ---
     // |V_shot * t|^2 = |Delta - V_turret * t|^2
     double a = vTurretX * vTurretX + vTurretY * vTurretY - vShot * vShot;
+
+    // Handle edge case: a ≈ 0 (robot velocity close to shot velocity)
+    if (Math.abs(a) < 1e-6) {
+      vShot = 1.01 * vShot;
+      a = vTurretX * vTurretX + vTurretY * vTurretY - vShot * vShot;
+    }
+
     double b = -2.0 * (rangeVector.getX() * vTurretX + rangeVector.getY() * vTurretY);
     double c =
         rangeVector.getX() * rangeVector.getX()
@@ -144,7 +156,11 @@ public class GenericShooterResolver {
             + rangeVector.getZ() * rangeVector.getZ();
 
     double discriminant = b * b - 4.0 * a * c;
-    if (discriminant < 0.0) return ShooterSetpoint.invalid();
+
+    // Handle edge case: discriminant < 0 (no geometric solution, use approximate)
+    if (discriminant < 0.0) {
+      discriminant = 0.0;
+    }
 
     double t = (-b - Math.sqrt(discriminant)) / (2.0 * a);
     if (t <= 0) return ShooterSetpoint.invalid();
@@ -195,6 +211,22 @@ public class GenericShooterResolver {
     double vzCorrected = (rangeVector.getZ() - drop) / t;
     result.launchSpeed = Math.hypot(xyVel, vzCorrected);
     result.isValid = true;
+
+    // --- 步骤 8: 填充调试字段 ---
+    result.flightTime = t;
+    result.actualTarget = targetPosition;
+
+    // Virtual target: where we're actually aiming (compensated for motion)
+    // This is the turret position plus the virtual shot velocity direction scaled by distance
+    Translation3d turretPos3d =
+        new Translation3d(turretFieldPosXY.getX(), turretFieldPosXY.getY(), turretHeight);
+    double virtualDistance = virtualShotVelocity.getNorm() * t;
+    Translation3d virtualDirection =
+        new Translation3d(
+            virtualShotVelocity.getX() / virtualShotVelocity.getNorm(),
+            virtualShotVelocity.getY() / virtualShotVelocity.getNorm(),
+            vzCorrected / result.launchSpeed);
+    result.virtualTarget = turretPos3d.plus(virtualDirection.times(virtualDistance));
 
     return result;
   }

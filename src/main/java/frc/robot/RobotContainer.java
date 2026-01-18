@@ -183,6 +183,14 @@ public class RobotContainer {
     return flywheel;
   }
 
+  public Drive getDrive() {
+    return drive;
+  }
+
+  public RobotState getRobotState() {
+    return robotState;
+  }
+
   /**
    * 使用此方法定义按键到指令的映射。可以实例化 {@link GenericHID} 或其子类 （如 {@link edu.wpi.first.wpilibj.Joystick} 或
    * {@link XboxController}），然后传递给 {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}

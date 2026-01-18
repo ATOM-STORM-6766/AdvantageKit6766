@@ -14,6 +14,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
@@ -29,10 +30,29 @@ public final class Constants {
 
   public static final CANBus kCANBus = new CANBus("rio");
 
-  public static final ShooterConfig SHOOTER_CONFIG =
-      new ShooterConfig()
-          .withTurretYawLimits(
-              TurretConstants.kTurretMinPositionRadians, TurretConstants.kTurretMaxPositionRadians);
+  // Turret offset from robot center (X: forward, Y: left, Z: height)
+  public static final Translation3d ROBOT_CENTER_TO_TURRET = new Translation3d(0.2, 0.0, 0.3);
+
+  public static final ShooterConfig SHOOTER_CONFIG = createShooterConfig();
+
+  private static ShooterConfig createShooterConfig() {
+    ShooterConfig config = new ShooterConfig();
+
+    // Hood 0 degrees = vertical (pointing up), so hoodZeroAngleRadians = π/2
+    config.hoodZeroAngleRadians = Math.PI / 2.0;
+
+    // Turret offset from robot center
+    config.robotCenterToTurret = ROBOT_CENTER_TO_TURRET;
+
+    // Turret yaw limits
+    config.turretMinYawRadians = TurretConstants.kTurretMinPositionRadians;
+    config.turretMaxYawRadians = TurretConstants.kTurretMaxPositionRadians;
+
+    // Default fixed launch speed for testing (15 m/s)
+    config.withFixedSpeed(15.0);
+
+    return config;
+  }
 
   public static enum Mode {
     /** Running on a real robot. */

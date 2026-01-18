@@ -12,8 +12,8 @@ public class HoodConstants {
   // Example: For a 100:1 gearbox, set this to 100.0
   public static final double kHoodGearRatio = (48.0 / 14.0) * (36.0 / 15.0) * (160.0 / 10.0);
 
-  public static final double kHoodMinPositionRadians = Math.toRadians(0.0);
-  public static final double kHoodMaxPositionRadians = Math.toRadians(60.0);
+  public static final double kHoodMinPositionRadians = Math.toRadians(20.0);
+  public static final double kHoodMaxPositionRadians = Math.toRadians(70.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
