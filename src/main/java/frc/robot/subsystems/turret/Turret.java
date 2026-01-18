@@ -51,7 +51,14 @@ public class Turret extends SubsystemBase {
     Logger.recordOutput("Turret/latencyPeriodicSec", Timer.getFPGATimestamp() - timestamp);
 
     var resolvedAngle =
-        solveAbsoluteAngle(inputs.absoluteEncoderPosition, inputs.absoluteEncoder2Position);
+        solveAbsoluteAngle(
+            inputs.absoluteEncoderPosition,
+            inputs.rotorPosition - Math.floor(inputs.rotorPosition));
+
+    // var resolvedAngle =
+    //     solveAbsoluteAngle(
+    //         inputs.absoluteEncoderPosition,
+    //         inputs.absoluteEncoder2Position);
     if (resolvedAngle != null) {
       Logger.recordOutput("Turret/resolvedAngle", Units.radiansToDegrees(resolvedAngle));
     } else {
