@@ -29,7 +29,7 @@ public class Turret extends SubsystemBase {
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(0.25, Debouncer.DebounceType.kBoth);
   private InitState initState = InitState.UNINITIALIZED;
-  private CalibrationMethod calibrationMethod = CalibrationMethod.ABSOLUTE_ENCODER;
+  private CalibrationMethod calibrationMethod = CalibrationMethod.NO_CALIBRATION;
 
   public Turret(final TurretIO io) {
     this.io = io;

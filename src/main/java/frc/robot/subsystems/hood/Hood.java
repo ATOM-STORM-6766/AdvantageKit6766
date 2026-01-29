@@ -75,7 +75,7 @@ public class Hood extends SubsystemBase {
     return Commands.runOnce(() -> initState = InitState.INITIALIZING)
         .andThen(
             run(() -> io.setOpenloopVoltage(HoodConstants.kCalibrationVoltage))
-                .until(this::isCalibrationStalled)
+                .onlyWhile(this::isCalibrationStalled)
                 .andThen(
                     runOnce(
                         () -> {
@@ -102,7 +102,7 @@ public class Hood extends SubsystemBase {
   private boolean isCalibrationStalled() {
     boolean currentOverThreshold =
         calibrationCurrentDebouncer.calculate(
-            inputs.currentStatorAmps >= HoodConstants.kCalibrationCurrentThreshold);
+            Math.abs(inputs.currentStatorAmps) >= HoodConstants.kCalibrationCurrentThreshold);
     return Math.abs(inputs.velocityRadPerSec)
             <= HoodConstants.kCalibrationVelocityThresholdRadPerSec
         && currentOverThreshold;

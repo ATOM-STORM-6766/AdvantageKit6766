@@ -117,7 +117,8 @@ public class AimFactory {
                 .getHood()
                 .positionSetpointCommand(
                     () -> lastValidSetpoint[0].hoodPitch,
-                    () -> lastValidSetpoint[0].hoodFeedforward))
+                    () -> lastValidSetpoint[0].hoodFeedforward),
+            container.getFlywheel().velocitySetpointCommand(() -> lastValidSetpoint[0].flywheelRps))
         .withName("Aim At Target Direct");
   }
 
