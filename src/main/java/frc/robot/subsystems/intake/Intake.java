@@ -1,8 +1,8 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.Logger;
-
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
@@ -16,5 +16,9 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+  }
+
+  public Command setVelocityCommand(double velocityRadPerSec) {
+    return run(() -> io.setIntakeVelocity(velocityRadPerSec)).withName("Intake Set Velocity");
   }
 }
