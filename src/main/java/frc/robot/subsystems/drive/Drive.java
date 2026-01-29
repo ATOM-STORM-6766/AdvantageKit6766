@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -209,6 +210,11 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
+    RobotState robotState = RobotState.getInstance();
+    robotState.addRobotPose(getPose());
+    robotState.addRobotRelativeSpeeds(getChassisSpeeds());
+    robotState.addFieldRelativeSpeeds(getFieldRelativeChassisSpeeds());
+
     // 更新陀螺仪告警
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
@@ -333,6 +339,7 @@ public class Drive extends SubsystemBase {
   /** 重置当前里程计位姿。 */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    RobotState.getInstance().addRobotPose(pose);
   }
 
   /** 添加带时间戳的视觉测量。 */

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.RobotState;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolverV2;
@@ -135,8 +136,8 @@ public class AimFactory {
       Supplier<Translation3d> targetSupplier,
       ShooterSetpointV2[] lastValidSetpoint) {
 
-    var robotPose = container.getDrive().getPose();
-    var robotSpeeds = container.getDrive().getFieldRelativeChassisSpeeds();
+    var robotPose = RobotState.getInstance().getRobotPose();
+    var robotSpeeds = RobotState.getInstance().getFieldRelativeSpeeds();
     var target = targetSupplier.get();
 
     ShooterSetpointV2 setpoint =

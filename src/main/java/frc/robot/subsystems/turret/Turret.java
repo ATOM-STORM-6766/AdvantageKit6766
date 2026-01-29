@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.*;
-import frc.robot.util.RobotState;
+import frc.robot.RobotState;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -25,15 +25,14 @@ public class Turret extends SubsystemBase {
 
   private final TurretInputsAutoLogged inputs = new TurretInputsAutoLogged();
   private final TurretIO io;
-  private final RobotState robotState;
+  private final RobotState robotState = RobotState.getInstance();
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(0.25, Debouncer.DebounceType.kBoth);
   private InitState initState = InitState.UNINITIALIZED;
   private CalibrationMethod calibrationMethod = CalibrationMethod.ABSOLUTE_ENCODER;
 
-  public Turret(final TurretIO io, RobotState robotState) {
+  public Turret(final TurretIO io) {
     this.io = io;
-    this.robotState = robotState;
   }
 
   public void setTeleopDefaultCommand() {}

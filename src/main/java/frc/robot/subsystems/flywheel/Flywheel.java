@@ -4,19 +4,18 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.util.RobotState;
+import frc.robot.RobotState;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   private final FlywheelInputsAutoLogged inputs = new FlywheelInputsAutoLogged();
   private final FlywheelIO io;
-  private final RobotState robotState;
+  private final RobotState robotState = RobotState.getInstance();
   private double velocitySetpointRPM = 0.0;
 
-  public Flywheel(final FlywheelIO io, RobotState robotState) {
+  public Flywheel(final FlywheelIO io) {
     this.io = io;
-    this.robotState = robotState;
   }
 
   public void setTeleopDefaultCommand() {

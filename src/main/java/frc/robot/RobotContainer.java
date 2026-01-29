@@ -44,7 +44,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.robot.util.RobotState;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -65,7 +64,6 @@ public class RobotContainer {
 
   private final Hood hood;
   private final Turret turret;
-  private final RobotState robotState;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -92,10 +90,9 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
-        robotState = new RobotState(drive::getPose);
-        hood = new Hood(new HoodIOTalonFX(), robotState);
-        turret = new Turret(new TurretIOTalonFX(), robotState);
-        flywheel = new Flywheel(new FlywheelIOTalonFX(), robotState);
+        hood = new Hood(new HoodIOTalonFX());
+        turret = new Turret(new TurretIOTalonFX());
+        flywheel = new Flywheel(new FlywheelIOTalonFX());
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -116,10 +113,9 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
-        robotState = new RobotState(drive::getPose);
-        hood = new Hood(new HoodIOSim(), robotState);
-        turret = new Turret(new TurretIOSim(), robotState);
-        flywheel = new Flywheel(new FlywheelIOSim(), robotState);
+        hood = new Hood(new HoodIOSim());
+        turret = new Turret(new TurretIOSim());
+        flywheel = new Flywheel(new FlywheelIOSim());
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -137,10 +133,9 @@ public class RobotContainer {
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        robotState = new RobotState(drive::getPose);
-        hood = new Hood(new HoodIOSim(), robotState);
-        turret = new Turret(new TurretIOSim(), robotState);
-        flywheel = new Flywheel(new FlywheelIOSim(), robotState);
+        hood = new Hood(new HoodIOSim());
+        turret = new Turret(new TurretIOSim());
+        flywheel = new Flywheel(new FlywheelIOSim());
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -185,10 +180,6 @@ public class RobotContainer {
 
   public Drive getDrive() {
     return drive;
-  }
-
-  public RobotState getRobotState() {
-    return robotState;
   }
 
   /**

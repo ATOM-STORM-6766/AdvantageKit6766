@@ -25,7 +25,7 @@ public class GenericShooterResolverV2 {
     public double minRange = 0.0;
     public double maxRange = 999.0;
 
-    public int lookaheadIterations = 3;
+    public int lookaheadIterations = 1;
     public double lookaheadDistanceEpsilonMeters = 1e-3;
   }
 
@@ -103,10 +103,10 @@ public class GenericShooterResolverV2 {
 
     Rotation2d turretYawRobotRelative = turretYawField.minus(robotPose.getRotation());
     result.turretYaw = turretYawRobotRelative.getRadians();
-    // if (result.turretYaw < config.turretMinYawRadians
-    //     || result.turretYaw > config.turretMaxYawRadians) {
-    //   return ShooterSetpointV2.invalid();
-    // }
+    if (result.turretYaw < config.turretMinYawRadians
+        || result.turretYaw > config.turretMaxYawRadians) {
+      return ShooterSetpointV2.invalid();
+    }
 
     result.hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getRadians();
     result.flywheelRps = config.flywheelRpsMap.get(distanceMeters);

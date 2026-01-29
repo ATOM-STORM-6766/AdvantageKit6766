@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.util.RobotState;
+import frc.robot.RobotState;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -20,15 +20,14 @@ public class Hood extends SubsystemBase {
   }
 
   private final HoodInputsAutoLogged inputs = new HoodInputsAutoLogged();
-  private final RobotState robotState;
+  private final RobotState robotState = RobotState.getInstance();
   private final HoodIO io;
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(0.25, Debouncer.DebounceType.kBoth);
   private InitState initState = InitState.UNINITIALIZED;
 
-  public Hood(final HoodIO io, RobotState robotState) {
+  public Hood(final HoodIO io) {
     this.io = io;
-    this.robotState = robotState;
   }
 
   public void setTeleopDefaultCommand() {}
