@@ -18,7 +18,11 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake", inputs);
   }
 
-  public Command setVelocityCommand(double velocityRadPerSec) {
-    return run(() -> io.setIntakeVelocity(velocityRadPerSec)).withName("Intake Set Velocity");
+  public Command setIntakeVelocityCommand(double voltage) {
+    return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
+  }
+
+  public Command setFeedVelocityCommand(double velocityRadPerSec) {
+    return runOnce(() -> io.setFeedVelocity(velocityRadPerSec)).withName("Intake Set Feed Velocity");
   }
 }
