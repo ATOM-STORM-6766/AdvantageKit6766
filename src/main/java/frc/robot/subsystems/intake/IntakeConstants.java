@@ -5,5 +5,5 @@ import com.ctre.phoenix6.CANBus;
 public class IntakeConstants {
   public static final CANBus canBus = CANBus.roboRIO();
 
-  public static final int motorID = 10;
+  public static final int motorID = 41;
 }

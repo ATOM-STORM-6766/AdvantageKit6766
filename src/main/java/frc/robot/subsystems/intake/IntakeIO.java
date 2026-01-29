@@ -14,4 +14,10 @@ public interface IntakeIO {
   public void updateInputs(IntakeIOInputs inputs);
 
   public void setPosition(Rotation2d position);
+
+  public void setVelocity(double velocityRadPerSec);
+
+  public default void stop() {
+    setVelocity(0.0);
+  }
 }

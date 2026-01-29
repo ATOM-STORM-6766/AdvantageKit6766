@@ -24,8 +24,8 @@ public class TurretConstants {
   public static final double kCRTToleranceRadians = Math.toRadians(5.0);
 
   // Rotation limits (in radians from center)
-  public static final double kTurretMinPositionRadians = Math.toRadians(-180.0);
-  public static final double kTurretMaxPositionRadians = Math.toRadians(180.0);
+  public static final double kTurretMinPositionRadians = Math.toRadians(-90.0);
+  public static final double kTurretMaxPositionRadians = Math.toRadians(90.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;

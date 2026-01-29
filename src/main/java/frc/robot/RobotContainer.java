@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.TargetCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -36,6 +35,8 @@ import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.TurretIOSim;
 import frc.robot.subsystems.turret.TurretIOTalonFX;
@@ -63,6 +64,7 @@ public class RobotContainer {
 
   private final Hood hood;
   private final Turret turret;
+  private final Intake m_intake;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -92,6 +94,8 @@ public class RobotContainer {
         hood = new Hood(new HoodIOTalonFX());
         turret = new Turret(new TurretIOTalonFX());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
+        m_intake = new Intake(new IntakeIOTalonFX());
+        m_intake.setDefaultCommand(m_intake.setVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -115,6 +119,8 @@ public class RobotContainer {
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
+        m_intake = new Intake(new IntakeIOTalonFX());
+        m_intake.setDefaultCommand(m_intake.setVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -135,6 +141,8 @@ public class RobotContainer {
         hood = new Hood(new HoodIOSim());
         turret = new Turret(new TurretIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
+        m_intake = new Intake(new IntakeIOTalonFX());
+        m_intake.setDefaultCommand(m_intake.setVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -222,22 +230,20 @@ public class RobotContainer {
     controller
         .y()
         .whileTrue(
-            new TargetCommand(
-                drive,
-                // () ->
-                //     aprilTagLayout
-                //         .getTagPose(18)
-                //         .get()
-                //         .toPose2d()
-                //         .plus(new Transform2d(1, 0, Rotation2d.k180deg)))
-                Constants.trajectoryOne));
-            new AutoTargetCommand(
-                () ->
-                    aprilTagLayout
-                        .getTagPose(18)
-                        .get()
-                        .toPose2d()
-                        .plus(new Transform2d(1, 0, Rotation2d.k180deg))));
+            // new TargetCommand(
+            //     drive,
+            //     // () ->
+            //     //     aprilTagLayout
+            //     //         .getTagPose(18)
+            //     //         .get()
+            //     //         .toPose2d()
+            //     //         .plus(new Transform2d(1, 0, Rotation2d.k180deg)))
+            //     Constants.trajectoryOne));
+            // AimFactory.aimAtTarget(
+            //     this, () -> new Translation3d(4.7117, 4.1148, 1.8288) // 目标位置提供者
+            //     ));
+            Commands.runOnce(
+                () -> drive.setPose(new Pose2d(4.6256194 - 2, 4.0346376, Rotation2d.k180deg))));
 
     controller.leftBumper().whileTrue(turret.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
     // controller.leftStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));

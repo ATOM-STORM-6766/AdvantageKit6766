@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public class FlywheelConstants {
   // CAN IDs
-  public static final int kFlywheelMotorCanID = 19;
+  public static final int kFlywheelMotorCanID = 0;
 
   // Gear ratio: motor rotations per output rotation
   // Example: For a 2:1 gearbox, set this to 2.0
@@ -23,11 +23,11 @@ public class FlywheelConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // PID + Feedforward configuration
-    config.Slot0.kS = 0.0;
-    config.Slot0.kP = 0.1;
+    config.Slot0.kP = 9;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0;
-    config.Slot0.kV = 0.12; // volts per RPS
+    config.Slot0.kS = 8;
+    config.Slot0.kV = 0.699999988079071; // Ampere per RPS //volts per RPS
     config.Slot0.kA = 0.0;
 
     // Current limits (real robot only)

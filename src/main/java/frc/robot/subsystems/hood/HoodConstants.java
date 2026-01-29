@@ -6,18 +6,18 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public class HoodConstants {
   // CAN IDs
-  public static final int kHoodMotorCanID = 20;
+  public static final int kHoodMotorCanID = 1;
 
   // Gear ratio: motor rotations per output rotation
   // Example: For a 100:1 gearbox, set this to 100.0
   public static final double kHoodGearRatio = (48.0 / 14.0) * (36.0 / 15.0) * (160.0 / 10.0);
 
-  public static final double kHoodMinPositionRadians = Math.toRadians(20.0);
-  public static final double kHoodMaxPositionRadians = Math.toRadians(70.0);
+  public static final double kHoodMinPositionRadians = Math.toRadians(42.0);
+  public static final double kHoodMaxPositionRadians = Math.toRadians(72.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
-  public static final double kCalibrationCurrentThreshold = 25.0; // Amperes
+  public static final double kCalibrationCurrentThreshold = 19.0; // Amperes
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;
 
   public static TalonFXConfiguration getTalonFXConfig() {
