@@ -23,6 +23,16 @@ public class Intake extends SubsystemBase {
   }
 
   public Command setFeedVelocityCommand(double velocityRadPerSec) {
-    return runOnce(() -> io.setFeedVelocity(velocityRadPerSec)).withName("Intake Set Feed Velocity");
+    return runOnce(() -> io.setFeedVelocity(velocityRadPerSec))
+        .withName("Intake Set Feed Velocity");
+  }
+
+  public Command setFeedIntakeVelocityCommand(double intakeVoltage, double feedVelocityRadPerSec) {
+    return runOnce(
+            () -> {
+              io.setIntakeVelocity(intakeVoltage);
+              io.setFeedVelocity(feedVelocityRadPerSec);
+            })
+        .withName("Intake Set Feed and Intake Velocity");
   }
 }

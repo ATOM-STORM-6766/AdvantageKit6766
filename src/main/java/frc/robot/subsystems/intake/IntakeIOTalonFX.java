@@ -25,7 +25,7 @@ public class IntakeIOTalonFX implements IntakeIO {
       new VoltageOut(3.648).withEnableFOC(true).withUseTimesync(true);
 
   private final VelocityTorqueCurrentFOC feedVelocityControl =
-      new VelocityTorqueCurrentFOC(0).withUseTimesync(true);
+      new VelocityTorqueCurrentFOC(0).withUseTimesync(true).withSlot(1);
 
   public IntakeIOTalonFX() {
     intakeMotor = new TalonFX(IntakeConstants.intakeMotorID, IntakeConstants.canBus);
