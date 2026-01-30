@@ -2,7 +2,7 @@ package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -12,8 +12,7 @@ import frc.robot.Constants;
 public class FlywheelIOTalonFX implements FlywheelIO {
 
   private final TalonFX motor;
-  private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0);
+  private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0);
 
   private final StatusSignal<AngularVelocity> velocitySignal;
   private final StatusSignal<Voltage> voltsSignal;
@@ -49,6 +48,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void setVelocity(double velocityRPM, double ffVolts) {
     double velocityRPS = velocityRPM / 60.0;
-    motor.setControl(velocityControl.withVelocity(velocityRPS).withFeedForward(ffVolts));
+    motor.setControl(velocityControl.withVelocity(velocityRPS)); // .withFeedForward(ffVolts));
   }
 }

@@ -6,18 +6,21 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakeIO {
   @AutoLog
   public static class IntakeIOInputs {
-    public Rotation2d position = new Rotation2d();
-    public double currentAmps = 0.0;
-    public double voltageVolts = 0.0;
+    public Rotation2d intakeRotation = new Rotation2d();
+    public double intakeVelocity = 0.0;
+    public double feedVelocity = 0.0;
   }
 
   public void updateInputs(IntakeIOInputs inputs);
 
-  public void setPosition(Rotation2d position);
+  public void setIntakePosition(Rotation2d position);
 
-  public void setVelocity(double velocityRadPerSec);
+  public void setIntakeVelocity(double voltage);
+
+  public void setFeedVelocity(double velocityRadPerSec);
 
   public default void stop() {
-    setVelocity(0.0);
+    setIntakeVelocity(0.0);
+    setFeedVelocity(0.0);
   }
 }

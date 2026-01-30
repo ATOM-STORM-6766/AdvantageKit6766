@@ -10,7 +10,7 @@ public class HoodConstants {
 
   // Gear ratio: motor rotations per output rotation
   // Example: For a 100:1 gearbox, set this to 100.0
-  public static final double kHoodGearRatio = (48.0 / 14.0) * (36.0 / 15.0) * (160.0 / 10.0);
+  public static final double kHoodGearRatio = 144;
 
   public static final double kHoodMinPositionRadians = Math.toRadians(42.0);
   public static final double kHoodMaxPositionRadians = Math.toRadians(72.0);
@@ -34,8 +34,11 @@ public class HoodConstants {
     config.Slot0.kA = 0.0001 * 12.0;
 
     // Motion Magic
-    config.MotionMagic.MotionMagicAcceleration = 1000.0; // rotations/sec^2
-    config.MotionMagic.MotionMagicCruiseVelocity = 100.0; // rotations/sec
+    config.MotionMagic.MotionMagicAcceleration = 100.0; // rotations/sec^2
+    config.MotionMagic.MotionMagicCruiseVelocity = 10.0; // rotations/sec
+
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kHoodMaxPositionRadians * kHoodGearRatio;
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

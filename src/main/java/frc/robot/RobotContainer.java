@@ -95,7 +95,7 @@ public class RobotContainer {
         turret = new Turret(new TurretIOTalonFX());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setVelocityCommand(3.648));
+        m_intake.setDefaultCommand(m_intake.setFeedIntakeVelocityCommand(2.648, 15.0));
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -120,7 +120,7 @@ public class RobotContainer {
         turret = new Turret(new TurretIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setVelocityCommand(3.648));
+        m_intake.setDefaultCommand(m_intake.setIntakeVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -142,7 +142,7 @@ public class RobotContainer {
         turret = new Turret(new TurretIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setVelocityCommand(3.648));
+        m_intake.setDefaultCommand(m_intake.setIntakeVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         turret.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
@@ -183,6 +183,10 @@ public class RobotContainer {
 
   public Flywheel getFlywheel() {
     return flywheel;
+  }
+
+  public Intake getIntake() {
+    return m_intake;
   }
 
   public Drive getDrive() {
