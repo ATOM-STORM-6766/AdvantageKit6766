@@ -1,6 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -21,6 +22,7 @@ public class FlywheelConstants {
 
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // PID + Feedforward configuration
     config.Slot0.kP = 9;

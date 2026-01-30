@@ -18,13 +18,7 @@ public class Flywheel extends SubsystemBase {
     this.io = io;
   }
 
-  public void setTeleopDefaultCommand() {
-    this.setDefaultCommand(
-        run(() -> {
-              setVelocityImpl(FlywheelConstants.kFlywheelIdleVelocityRPM, 0.0);
-            })
-            .withName("Flywheel Idle (default)"));
-  }
+  public void setTeleopDefaultCommand() {}
 
   @Override
   public void periodic() {

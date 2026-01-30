@@ -75,7 +75,7 @@ public class Hood extends SubsystemBase {
     return Commands.runOnce(() -> initState = InitState.INITIALIZING)
         .andThen(
             run(() -> io.setOpenloopVoltage(HoodConstants.kCalibrationVoltage))
-                .onlyWhile(this::isCalibrationStalled)
+                .until(this::isCalibrationStalled)
                 .andThen(
                     runOnce(
                         () -> {
