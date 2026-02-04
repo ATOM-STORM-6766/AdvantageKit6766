@@ -10,7 +10,6 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelInputsAutoLogged inputs = new FlywheelInputsAutoLogged();
   private final FlywheelIO io;
-  private FlywheelSetpointRps velocitySetpoint = new FlywheelSetpointRps(0, 0, 0);
 
   public Flywheel(final FlywheelIO io) {
     this.io = io;
@@ -26,7 +25,6 @@ public class Flywheel extends SubsystemBase {
     return run(() -> {
           FlywheelSetpointRps setpoint = setpointSupplier.get();
           setVelocityImpl(setpoint);
-          velocitySetpoint = setpoint;
         })
         .withName("Flywheel Velocity Control");
   }
@@ -42,13 +40,6 @@ public class Flywheel extends SubsystemBase {
               return at0 && at1 && at2;
             })
         .withName("Flywheel Wait For Velocity");
-  }
-
-  public boolean isAtTargetVelocity() {
-    double tol = FlywheelConstants.kFlywheelVelocityToleranceRps;
-    return Math.abs(velocitySetpoint.rps0() - inputs.velocityRps0) < tol
-        && Math.abs(velocitySetpoint.rps1() - inputs.velocityRps1) < tol
-        && Math.abs(velocitySetpoint.rps2() - inputs.velocityRps2) < tol;
   }
 
   private void setVelocityImpl(FlywheelSetpointRps setpoint) {

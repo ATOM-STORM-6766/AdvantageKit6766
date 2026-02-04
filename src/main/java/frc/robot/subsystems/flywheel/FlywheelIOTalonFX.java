@@ -11,7 +11,7 @@ import frc.robot.Constants;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
 
-  private final TalonFX motor0, motor1, motor2;
+  protected final TalonFX motor0, motor1, motor2;
   private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0);
 
   private final StatusSignal<AngularVelocity> velocity0, velocity1, velocity2;

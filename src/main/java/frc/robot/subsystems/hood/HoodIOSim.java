@@ -80,7 +80,6 @@ public class HoodIOSim extends HoodIOTalonFX {
       mechanismSim.setState(simPositionRads, 0.0);
     }
 
-
     boolean atMin = simPositionRads <= minAngle;
     boolean atMax = simPositionRads >= maxAngle;
     double simVelocityRadPerSec = mechanismSim.getAngularVelocityRadPerSec();
