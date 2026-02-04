@@ -8,6 +8,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.RobotState;
 
 public class GenericShooterResolverV2 {
 
@@ -82,7 +83,11 @@ public class GenericShooterResolverV2 {
     int iterations = Math.max(0, config.lookaheadIterations);
     for (int i = 0; i < iterations; i++) {
       double tofSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
-      lookaheadPosXY = turretFieldPosXY.plus(turretFieldVelXY.times(tofSeconds));
+      Pose2d lookaheadRobotPose = RobotState.getInstance().getRobotPose(tofSeconds);
+      lookaheadPosXY =
+          lookaheadRobotPose
+              .getTranslation()
+              .plus(turretOffsetXY.rotateBy(lookaheadRobotPose.getRotation()));
       distanceMeters = targetXY.getDistance(lookaheadPosXY);
       if (Math.abs(distanceMeters - lastDistanceMeters) < config.lookaheadDistanceEpsilonMeters) {
         break;
@@ -91,7 +96,12 @@ public class GenericShooterResolverV2 {
     }
 
     result.timeOfFlightSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
-    lookaheadPosXY = turretFieldPosXY.plus(turretFieldVelXY.times(result.timeOfFlightSeconds));
+    Pose2d finalLookaheadRobotPose =
+        RobotState.getInstance().getRobotPose(result.timeOfFlightSeconds);
+    lookaheadPosXY =
+        finalLookaheadRobotPose
+            .getTranslation()
+            .plus(turretOffsetXY.rotateBy(finalLookaheadRobotPose.getRotation()));
 
     Translation2d aimVectorXY = targetXY.minus(lookaheadPosXY);
     Rotation2d turretYawField = aimVectorXY.getAngle();
@@ -101,7 +111,7 @@ public class GenericShooterResolverV2 {
     result.virtualTarget =
         new Translation3d(virtualTargetXY.getX(), virtualTargetXY.getY(), targetPosition.getZ());
 
-    Rotation2d turretYawRobotRelative = turretYawField.minus(robotPose.getRotation());
+    Rotation2d turretYawRobotRelative = turretYawField.minus(finalLookaheadRobotPose.getRotation());
     result.turretYaw = turretYawRobotRelative.getRadians();
     if (result.turretYaw < config.turretMinYawRadians
         || result.turretYaw > config.turretMaxYawRadians) {

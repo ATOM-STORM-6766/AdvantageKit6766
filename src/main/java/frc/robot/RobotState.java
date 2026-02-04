@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
@@ -41,6 +42,20 @@ public class RobotState {
 
   public Pose2d getRobotPose() {
     return robotPose;
+  }
+
+  public Pose2d getRobotPose(double lookaheadSeconds) {
+    Pose2d current = getRobotPose();
+    ChassisSpeeds field = getFieldRelativeSpeeds();
+    Translation2d deltaTranslation =
+        new Translation2d(
+            field.vxMetersPerSecond * lookaheadSeconds,
+            field.vyMetersPerSecond * lookaheadSeconds);
+    Rotation2d deltaRotation =
+        new Rotation2d(field.omegaRadiansPerSecond * lookaheadSeconds);
+    return new Pose2d(
+        current.getTranslation().plus(deltaTranslation),
+        current.getRotation().plus(deltaRotation));
   }
 
   public Rotation2d getRobotRotation() {
