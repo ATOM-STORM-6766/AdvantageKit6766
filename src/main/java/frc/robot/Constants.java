@@ -17,9 +17,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
-import frc.robot.util.GenericShooterResolverV2.ShooterConfigV2;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -36,32 +34,9 @@ public final class Constants {
   public static final Translation3d ROBOT_CENTER_TO_TURRET = new Translation3d(-0.19685, 0.0, 0.44);
 
   public static final ShooterConfig SHOOTER_CONFIG = createShooterConfig();
-  public static final ShooterConfigV2 SHOOTER_CONFIG_V2 = createShooterConfigV2();
 
   private static ShooterConfig createShooterConfig() {
     ShooterConfig config = new ShooterConfig();
-
-    // Hood 0 degrees = vertical (pointing up), so hoodZeroAngleRadians = π/2
-    config.hoodZeroAngleRadians = Math.PI / 2.0;
-
-    // Turret offset from robot center
-    config.robotCenterToTurret = ROBOT_CENTER_TO_TURRET;
-
-    // Turret yaw limits
-    config.turretMinYawRadians = TurretConstants.kTurretMinPositionRadians;
-    config.turretMaxYawRadians = TurretConstants.kTurretMaxPositionRadians;
-
-    // Default fixed launch speed for testing (15 m/s)
-    config.withFixedSpeed(15.0);
-
-    return config;
-  }
-
-  private static ShooterConfigV2 createShooterConfigV2() {
-    ShooterConfigV2 config = new ShooterConfigV2();
-
-    config.turretMaxYawRadians = TurretConstants.kTurretMaxPositionRadians;
-    config.turretMinYawRadians = TurretConstants.kTurretMinPositionRadians;
 
     config.robotCenterToTurret = ROBOT_CENTER_TO_TURRET;
 

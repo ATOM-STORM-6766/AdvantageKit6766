@@ -212,7 +212,6 @@ public class Drive extends SubsystemBase {
 
     RobotState robotState = RobotState.getInstance();
     robotState.addRobotPose(getPose());
-    robotState.addRobotRelativeSpeeds(getChassisSpeeds());
     robotState.addFieldRelativeSpeeds(getFieldRelativeChassisSpeeds());
 
     // 更新陀螺仪告警

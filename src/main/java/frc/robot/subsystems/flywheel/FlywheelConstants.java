@@ -6,16 +6,17 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class FlywheelConstants {
-  // CAN IDs
-  public static final int kFlywheelMotorCanID = 0;
+  // CAN IDs (three motors, shared config)
+  public static final int kFlywheelMotor0CanID = 0;
+  public static final int kFlywheelMotor1CanID = 1;
+  public static final int kFlywheelMotor2CanID = 2;
 
   // Gear ratio: motor rotations per output rotation
-  // Example: For a 2:1 gearbox, set this to 2.0
-  public static final double kFlywheelGearRatio = 1.0; // TODO: Update with actual ratio
+  public static final double kFlywheelGearRatio = 1.0;
 
-  // Velocity targets (in RPM)
-  public static final double kFlywheelIdleVelocityRPM = 0.0;
-  public static final double kFlywheelVelocityTolerance = 50.0; // RPM
+  // Velocity (RPS)
+  public static final double kFlywheelIdleVelocityRps = 0.0;
+  public static final double kFlywheelVelocityToleranceRps = 1.0;
 
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();

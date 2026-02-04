@@ -6,7 +6,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import org.littletonrobotics.junction.Logger;
 
 public class HoodIOSim extends HoodIOTalonFX {
   private static final DCMotor HOOD_MOTOR = DCMotor.getKrakenX60Foc(1);
@@ -64,7 +63,6 @@ public class HoodIOSim extends HoodIOTalonFX {
     double simVoltage = addFriction(motorVoltage, 0.25);
 
     mechanismSim.setInput(simVoltage);
-    Logger.recordOutput("Hood/Sim/SimulatorVoltage", simVoltage);
 
     double timestamp = Timer.getFPGATimestamp();
     mechanismSim.update(timestamp - lastUpdateTimestamp);
@@ -82,7 +80,6 @@ public class HoodIOSim extends HoodIOTalonFX {
       mechanismSim.setState(simPositionRads, 0.0);
     }
 
-    Logger.recordOutput("Hood/Sim/SimulatorPositionRadians", simPositionRads);
 
     boolean atMin = simPositionRads <= minAngle;
     boolean atMax = simPositionRads >= maxAngle;
@@ -101,10 +98,8 @@ public class HoodIOSim extends HoodIOTalonFX {
 
     double rotorPosition = Units.radiansToRotations(simPositionRads) * HoodConstants.kHoodGearRatio;
     simState.setRawRotorPosition(rotorPosition);
-    Logger.recordOutput("Hood/Sim/setRawRotorPosition", rotorPosition);
 
     double rotorVel = Units.radiansToRotations(simVelocityRadPerSec) * HoodConstants.kHoodGearRatio;
     simState.setRotorVelocity(rotorVel);
-    Logger.recordOutput("Hood/Sim/SimulatorVelocityRadS", simVelocityRadPerSec);
   }
 }

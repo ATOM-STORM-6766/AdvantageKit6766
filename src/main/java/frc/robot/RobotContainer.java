@@ -37,9 +37,6 @@ import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodIOTalonFX;
-import frc.robot.subsystems.turret.Turret;
-import frc.robot.subsystems.turret.TurretIOSim;
-import frc.robot.subsystems.turret.TurretIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -51,8 +48,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * 相反，机器人结构（子系统、指令和按键映射等）应在此处声明。
  */
 public class RobotContainer {
-  private static final double kOpenLoopTestVoltage = 2.0;
-
   // 子系统
   private final Drive drive;
 
@@ -63,7 +58,6 @@ public class RobotContainer {
   private final Flywheel flywheel;
 
   private final Hood hood;
-  private final Turret turret;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -91,11 +85,7 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
         hood = new Hood(new HoodIOTalonFX());
-        turret = new Turret(new TurretIOTalonFX());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
-        hood.setTeleopDefaultCommand();
-        turret.setTeleopDefaultCommand();
-        flywheel.setTeleopDefaultCommand();
         break;
 
       case SIM:
@@ -114,11 +104,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         hood = new Hood(new HoodIOSim());
-        turret = new Turret(new TurretIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood.setTeleopDefaultCommand();
-        turret.setTeleopDefaultCommand();
-        flywheel.setTeleopDefaultCommand();
         break;
 
       default:
@@ -134,11 +120,7 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         hood = new Hood(new HoodIOSim());
-        turret = new Turret(new TurretIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
-        hood.setTeleopDefaultCommand();
-        turret.setTeleopDefaultCommand();
-        flywheel.setTeleopDefaultCommand();
 
         break;
     }
@@ -168,10 +150,6 @@ public class RobotContainer {
 
   public Hood getHood() {
     return hood;
-  }
-
-  public Turret getTurret() {
-    return turret;
   }
 
   public Flywheel getFlywheel() {
@@ -230,24 +208,6 @@ public class RobotContainer {
                         .get()
                         .toPose2d()
                         .plus(new Transform2d(1, 0, Rotation2d.k180deg))));
-
-    controller.leftBumper().whileTrue(turret.openLoopVoltageCommand(() -> kOpenLoopTestVoltage));
-    // controller.leftStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
-    controller.rightBumper().whileTrue(turret.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
-    // controller.rightStick().whileTrue(hood.openLoopVoltageCommand(() -> -kOpenLoopTestVoltage));
-
-    controller
-        .povUp()
-        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(0.0), () -> 0.0));
-    controller
-        .povRight()
-        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(90.0), () -> 0.0));
-    controller
-        .povDown()
-        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(180.0), () -> 0.0));
-    controller
-        .povLeft()
-        .whileTrue(turret.positionSetpointCommand(() -> Math.toRadians(270.0), () -> 0.0));
   }
 
   /**
