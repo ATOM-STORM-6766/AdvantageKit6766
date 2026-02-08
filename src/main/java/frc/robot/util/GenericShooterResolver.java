@@ -20,9 +20,6 @@ public class GenericShooterResolver {
 
     public Translation3d robotCenterToTurret = new Translation3d();
 
-    public double turretMinYawRadians = Double.NEGATIVE_INFINITY;
-    public double turretMaxYawRadians = Double.POSITIVE_INFINITY;
-
     public double minRange = 0.0;
     public double maxRange = 999.0;
 
@@ -91,29 +88,19 @@ public class GenericShooterResolver {
       lastDistanceMeters = distanceMeters;
     }
 
-    result.timeOfFlightSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
     Pose2d finalLookaheadRobotPose =
         RobotState.getInstance().getRobotPose(result.timeOfFlightSeconds);
-    lookaheadPosXY =
-        finalLookaheadRobotPose
-            .getTranslation()
-            .plus(turretOffsetXY.rotateBy(finalLookaheadRobotPose.getRotation()));
 
-    Translation2d aimVectorXY = targetXY.minus(lookaheadPosXY);
-    Rotation2d turretYawField = aimVectorXY.getAngle();
+    Translation2d lookaheadRobotCenter = finalLookaheadRobotPose.getTranslation();
+
+    result.timeOfFlightSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
 
     Translation2d virtualTargetXY =
         targetXY.minus(turretFieldVelXY.times(result.timeOfFlightSeconds));
     result.virtualTarget =
         new Translation3d(virtualTargetXY.getX(), virtualTargetXY.getY(), targetPosition.getZ());
 
-    Rotation2d turretYawRobotRelative = turretYawField.minus(finalLookaheadRobotPose.getRotation());
-    result.robotYaw = turretYawRobotRelative.getRadians();
-    if (result.robotYaw < config.turretMinYawRadians
-        || result.robotYaw > config.turretMaxYawRadians) {
-      return ShooterSetpoint.invalid();
-    }
-
+    result.robotYaw = targetXY.minus(lookaheadRobotCenter).getAngle().getRadians();
     result.hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getRadians();
     result.flywheelRps = config.flywheelRpsMap.get(distanceMeters);
     result.isValid = true;

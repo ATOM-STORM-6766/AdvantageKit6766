@@ -16,13 +16,14 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import choreo.Choreo;
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AimCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowChoreoPathCommand;
 import frc.robot.generated.TunerConstants;
@@ -44,6 +45,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -51,11 +53,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * 相反，机器人结构（子系统、指令和按键映射等）应在此处声明。
  */
 public class RobotContainer {
-  private static final double kOpenLoopTestVoltage = 2.0;
-
   // 子系统
   private final Drive drive;
+
+  @SuppressWarnings("unused")
   private final Vision vision;
+
   private final Flywheel flywheel;
   private final Hood hood;
   private final Intake m_intake;
@@ -183,15 +186,24 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // 按住 A 键时锁定到 0°
+    // 按住 Y 键时自动瞄准目标（resolver 计算底盘 + hood）
+    Supplier<Translation3d> targetSupplier = () -> new Translation3d(4.6256194, 4.0346376, 1.82);
     controller
         .y()
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
+            AimCommand.autoAimAtTarget(
+                this, targetSupplier, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+
+    // 按住左肩键时用写死角度瞄准（测试用）
+    controller
+        .leftBumper()
+        .whileTrue(
+            AimCommand.aimAtTarget(
+                this,
+                () -> Math.toRadians(30),
+                () -> Math.toRadians(180),
                 () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d())); // TODO 实现瞄准目标
+                () -> -controller.getLeftX()));
 
     // 按下 X 键时切换至 X 模式
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -204,29 +216,10 @@ public class RobotContainer {
                 m_intake.setFeedIntakeVelocityCommand(2.648 * 2, 0.45),
                 m_intake.testSinPositionCommand()))
         .onFalse(m_intake.stopCommand());
-    // .onTrue(
-    // Commands.runOnce(
-    // () ->
-    // drive.setPose(
-    // new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-    // drive)
-    // .ignoringDisable(true));
 
     controller
         .a()
         .whileTrue(
-            // new TargetCommand(
-            // drive,
-            // // () ->
-            // // aprilTagLayout
-            // // .getTagPose(18)
-            // // .get()
-            // // .toPose2d()
-            // // .plus(new Transform2d(1, 0, Rotation2d.k180deg)))
-            // Constants.trajectoryOne));
-            // AimFactory.aimAtTarget(
-            // this, () -> new Translation3d(4.7117, 4.1148, 1.8288) // 目标位置提供者
-            // ));
             flywheel.setVelocity(
                 () ->
                     new FlywheelSetpoint(

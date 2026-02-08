@@ -30,15 +30,12 @@ public final class Constants {
 
   public static final CANBus kCANBus = new CANBus("rio");
 
-  // Turret offset from robot center (X: forward, Y: left, Z: height)
-  public static final Translation3d ROBOT_CENTER_TO_TURRET = new Translation3d(-0.19685, 0.0, 0.44);
-
   public static final ShooterConfig SHOOTER_CONFIG = createShooterConfig();
 
   private static ShooterConfig createShooterConfig() {
     ShooterConfig config = new ShooterConfig();
 
-    config.robotCenterToTurret = ROBOT_CENTER_TO_TURRET;
+    config.robotCenterToTurret = new Translation3d(-0.19685, 0.0, 0.44);
 
     config.hoodPitchRadiansMap.put(1.45, Rotation2d.fromDegrees(19.0));
     config.hoodPitchRadiansMap.put(1.75, Rotation2d.fromDegrees(21.0));
@@ -51,16 +48,16 @@ public final class Constants {
     config.hoodPitchRadiansMap.put(4.43, Rotation2d.fromDegrees(30.5));
     config.hoodPitchRadiansMap.put(5.28, Rotation2d.fromDegrees(34.0));
 
-    config.flywheelRpsMap.put(1.45, 175.0);
-    config.flywheelRpsMap.put(1.75, 185.0);
-    config.flywheelRpsMap.put(2.15, 190.0);
-    config.flywheelRpsMap.put(2.50, 200.0);
-    config.flywheelRpsMap.put(2.84, 210.0);
-    config.flywheelRpsMap.put(3.15, 218.0);
-    config.flywheelRpsMap.put(3.58, 222.0);
-    config.flywheelRpsMap.put(4.16, 230.0);
-    config.flywheelRpsMap.put(4.43, 235.0);
-    config.flywheelRpsMap.put(5.28, 250.0);
+    config.flywheelRpsMap.put(1.45, 30.0);
+    config.flywheelRpsMap.put(1.75, 40.0);
+    config.flywheelRpsMap.put(2.15, 41.0);
+    config.flywheelRpsMap.put(2.50, 42.0);
+    config.flywheelRpsMap.put(2.84, 43.0);
+    config.flywheelRpsMap.put(3.15, 44.0);
+    config.flywheelRpsMap.put(3.58, 45.0);
+    config.flywheelRpsMap.put(4.16, 46.0);
+    config.flywheelRpsMap.put(4.43, 47.0);
+    config.flywheelRpsMap.put(5.28, 53.0);
 
     config.timeOfFlightSecondsMap.put(1.64227, 0.93);
     config.timeOfFlightSecondsMap.put(2.859544, 1.0);
