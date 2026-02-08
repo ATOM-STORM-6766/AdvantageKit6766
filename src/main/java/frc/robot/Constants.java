@@ -25,7 +25,6 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
 import frc.robot.util.GenericShooterResolverV2.ShooterConfigV2;
 import java.util.List;
@@ -56,10 +55,6 @@ public final class Constants {
     // Turret offset from robot center
     config.robotCenterToTurret = ROBOT_CENTER_TO_TURRET;
 
-    // Turret yaw limits
-    config.turretMinYawRadians = TurretConstants.kTurretMinPositionRadians;
-    config.turretMaxYawRadians = TurretConstants.kTurretMaxPositionRadians;
-
     // Default fixed launch speed for testing (15 m/s)
     config.withFixedSpeed(15.0);
 
@@ -68,9 +63,6 @@ public final class Constants {
 
   private static ShooterConfigV2 createShooterConfigV2() {
     ShooterConfigV2 config = new ShooterConfigV2();
-
-    config.turretMaxYawRadians = TurretConstants.kTurretMaxPositionRadians;
-    config.turretMinYawRadians = TurretConstants.kTurretMinPositionRadians;
 
     config.robotCenterToTurret = ROBOT_CENTER_TO_TURRET;
 

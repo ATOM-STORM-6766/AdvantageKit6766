@@ -10,7 +10,9 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -225,9 +227,15 @@ public class Drive extends SubsystemBase {
    * @param speeds 以米/秒为单位的速度
    */
   public void runVelocity(ChassisSpeeds speeds) {
+    runVelocityWithCenter(speeds, Translation2d.kZero);
+  }
+
+  public void runVelocityWithCenter(ChassisSpeeds speeds, Translation2d centerOfRotation) {
     // 计算各模块设定值
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+    ChassisSpeeds discreteSpeeds =
+        speeds; // ChassisSpeeds.discretize(speeds, 0.02); //TODO 测试延迟补偿是否有效
+    SwerveModuleState[] setpointStates =
+        kinematics.toSwerveModuleStates(discreteSpeeds, centerOfRotation);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
     // 记录未优化的设定值以及底盘设定速度

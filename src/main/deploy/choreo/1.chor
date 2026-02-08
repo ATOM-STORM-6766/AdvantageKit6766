@@ -1,0 +1,84 @@
+{
+ "name":"1",
+ "version":2,
+ "type":"Swerve",
+ "variables":{
+  "expressions":{},
+  "poses":{}
+ },
+ "config":{
+  "frontLeft":{
+   "x":{
+    "exp":"10.91634 in",
+    "val":0.277275036
+   },
+   "y":{
+    "exp":"10.17815 in",
+    "val":0.25852501
+   }
+  },
+  "backLeft":{
+   "x":{
+    "exp":"-10.91634 in",
+    "val":-0.277275036
+   },
+   "y":{
+    "exp":"10.17815 in",
+    "val":0.25852501
+   }
+  },
+  "mass":{
+   "exp":"130 lbs",
+   "val":58.9670081
+  },
+  "inertia":{
+   "exp":"6 kg m ^ 2",
+   "val":6.0
+  },
+  "gearing":{
+   "exp":"6.026785714285714",
+   "val":6.026785714285714
+  },
+  "radius":{
+   "exp":"1.96 in",
+   "val":0.049783999999999995
+  },
+  "vmax":{
+   "exp":"5785 RPM",
+   "val":605.8037833672317
+  },
+  "tmax":{
+   "exp":"1.1885999999999999 N * m",
+   "val":1.1886
+  },
+  "cof":{
+   "exp":"1.2",
+   "val":1.2
+  },
+  "bumper":{
+   "front":{
+    "exp":"650.97823 mm",
+    "val":0.6509782300000001
+   },
+   "side":{
+    "exp":"431 mm",
+    "val":0.431
+   },
+   "back":{
+    "exp":"443.75 mm",
+    "val":0.44375
+   }
+  },
+  "differentialTrackWidth":{
+   "exp":"22 in",
+   "val":0.5588
+  }
+ },
+ "generationFeatures":[],
+ "codegen":{
+  "root":"..\\C:\\Users\\Holle\\frc\\AdvantageKit_TalonFXSwerveTemplate\\src\\main\\java",
+  "genVars":false,
+  "genTrajData":true,
+  "useChoreoLib":false
+ }
+}

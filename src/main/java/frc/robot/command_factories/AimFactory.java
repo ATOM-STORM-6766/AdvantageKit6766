@@ -1,5 +1,7 @@
 package frc.robot.command_factories;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -10,44 +12,16 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.RobotState;
+import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.subsystems.hood.HoodConstants;
-import frc.robot.subsystems.turret.TurretConstants;
 import frc.robot.util.GenericShooterResolverV2;
 import frc.robot.util.GenericShooterResolverV2.ShooterSetpointV2;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class AimFactory {
-  public static Command sweepTurret(RobotContainer container) {
-    double turretMin = TurretConstants.kTurretMinPositionRadians;
-    double turretMax = TurretConstants.kTurretMaxPositionRadians;
-    double turretMid = (turretMin + turretMax) * 0.5;
-    double turretAmp = (turretMax - turretMin) * 0.45;
-
-    double periodSeconds = 6.0;
-    double omega = (2.0 * Math.PI) / periodSeconds;
-
-    Timer timer = new Timer();
-
-    return container
-        .getTurret()
-        .positionSetpointCommand(
-            () -> {
-              double t = timer.get();
-              double target = turretMid + turretAmp * Math.sin(omega * t);
-              return MathUtil.clamp(target, turretMin, turretMax);
-            },
-            () -> 0.0)
-        .beforeStarting(timer::start)
-        .finallyDo(() -> timer.stop())
-        .withName("Sweep Turret");
-  }
 
   public static Command sweepTurretAndHood(RobotContainer container) {
-    double turretMin = TurretConstants.kTurretMinPositionRadians;
-    double turretMax = TurretConstants.kTurretMaxPositionRadians;
-    double turretMid = (turretMin + turretMax) * 0.5;
-    double turretAmp = (turretMax - turretMin) * 0.45;
 
     double hoodMin = HoodConstants.kHoodMinPositionRadians;
     double hoodMax = HoodConstants.kHoodMaxPositionRadians;
@@ -60,15 +34,6 @@ public class AimFactory {
     Timer timer = new Timer();
 
     return new ParallelCommandGroup(
-            container
-                .getTurret()
-                .positionSetpointCommand(
-                    () -> {
-                      double t = timer.get();
-                      double target = turretMid + turretAmp * Math.sin(omega * t);
-                      return MathUtil.clamp(target, turretMin, turretMax);
-                    },
-                    () -> 0.0),
             container
                 .getHood()
                 .positionSetpointCommand(
@@ -85,7 +50,7 @@ public class AimFactory {
 
   public static Command resetAllToLimit(RobotContainer container) {
     return new ParallelCommandGroup(
-            container.getHood().resetToLimitCommand(), container.getTurret().resetToLimitCommand())
+            container.getHood().resetToLimitCommand(), container.getIntake().resetToLimitCommand())
         .withName("Reset To Limit");
   }
 
@@ -106,19 +71,18 @@ public class AimFactory {
 
     return new ParallelCommandGroup(
             container
-                .getTurret()
-                .positionSetpointCommand(
-                    () -> {
-                      updateSetpoint(container, targetSupplier, lastValidSetpoint);
-                      return lastValidSetpoint[0].turretYaw;
-                    },
-                    () -> lastValidSetpoint[0].turretFeedforward),
-            container
                 .getHood()
                 .positionSetpointCommand(
                     () -> lastValidSetpoint[0].hoodPitch,
                     () -> lastValidSetpoint[0].hoodFeedforward),
-            container.getFlywheel().velocitySetpointCommand(() -> lastValidSetpoint[0].flywheelRps))
+            container
+                .getFlywheel()
+                .flywheelSetpointCommand(
+                    () ->
+                        new FlywheelSetpoint(
+                            RotationsPerSecond.of(53.489),
+                            RotationsPerSecond.of(53.489),
+                            RotationsPerSecond.of(53.489))))
         .withName("Aim At Target Direct");
   }
 
