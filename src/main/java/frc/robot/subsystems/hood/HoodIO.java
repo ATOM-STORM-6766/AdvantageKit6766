@@ -22,7 +22,7 @@ public interface HoodIO {
 
   default void readInputs(HoodIO.HoodInputs inputs) {}
 
-  default void setPositionSetpoint(double radiansFromCenter, double radsPerSec) {}
+  default void setPositionSetpoint(double setpoint) {}
 
   default void setOpenloopVoltage(double voltage) {}
 

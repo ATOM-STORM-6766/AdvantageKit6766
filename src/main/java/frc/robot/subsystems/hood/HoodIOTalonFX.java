@@ -14,7 +14,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-import org.littletonrobotics.junction.Logger;
 
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
@@ -64,24 +63,14 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setPositionSetpoint(double radiansFromCenter, double radsPerSec) {
+  public void setPositionSetpoint(double setpoint) {
     double setpointRadians =
         MathUtil.clamp(
-            radiansFromCenter,
-            HoodConstants.kHoodMinPositionRadians,
-            HoodConstants.kHoodMaxPositionRadians);
+            setpoint, HoodConstants.kHoodMinPositionRadians, HoodConstants.kHoodMaxPositionRadians);
     double setpointRotations = Units.radiansToRotations(setpointRadians);
     double setpointRotor = setpointRotations * HoodConstants.kHoodGearRatio;
-    double ffVel = Units.radiansToRotations(radsPerSec) * HoodConstants.kHoodGearRatio;
 
-    hoodMotor.setControl(positionControl.withPosition(setpointRotor).withVelocity(ffVel));
-
-    Logger.recordOutput("Hood/IO/setPositionSetpoint/radiansFromCenter", radiansFromCenter);
-    Logger.recordOutput("Hood/IO/setPositionSetpoint/radsPerSec", radsPerSec);
-    Logger.recordOutput("Hood/IO/setPositionSetpoint/ffVel", ffVel);
-    Logger.recordOutput("Hood/IO/setPositionSetpoint/setpointRotor", setpointRotor);
-    Logger.recordOutput(
-        "Hood/IO/setPositionSetpoint/radsPerSecRotor", radsPerSec * HoodConstants.kHoodGearRatio);
+    hoodMotor.setControl(positionControl.withPosition(setpointRotor));
   }
 
   @Override

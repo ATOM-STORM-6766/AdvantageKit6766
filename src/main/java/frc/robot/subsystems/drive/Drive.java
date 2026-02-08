@@ -131,7 +131,7 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(3, 0.0, 0.5), new PIDConstants(0.0, 0.0, 0)),
+            new PIDConstants(0.005, 0.0, 0), new PIDConstants(1.8, 0.0, 0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -214,7 +214,6 @@ public class Drive extends SubsystemBase {
 
     RobotState robotState = RobotState.getInstance();
     robotState.addRobotPose(getPose());
-    robotState.addRobotRelativeSpeeds(getChassisSpeeds());
     robotState.addFieldRelativeSpeeds(getFieldRelativeChassisSpeeds());
 
     // 更新陀螺仪告警

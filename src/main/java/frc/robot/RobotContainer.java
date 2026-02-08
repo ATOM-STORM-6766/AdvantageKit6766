@@ -17,12 +17,14 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import choreo.Choreo;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AutoTargetCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowChoreoPathCommand;
 import frc.robot.generated.TunerConstants;
@@ -34,6 +36,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
+import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIOSim;
@@ -55,13 +58,8 @@ public class RobotContainer {
 
   // 子系统
   private final Drive drive;
-
-  @SuppressWarnings("unused")
   private final Vision vision;
-
-  @SuppressWarnings("unused")
   private final Flywheel flywheel;
-
   private final Hood hood;
   private final Intake m_intake;
 
@@ -93,7 +91,6 @@ public class RobotContainer {
         hood = new Hood(new HoodIOTalonFX());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        hood.setTeleopDefaultCommand();
         break;
 
       case SIM:
@@ -114,9 +111,6 @@ public class RobotContainer {
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setIntakeVelocityCommand(3.648));
-        hood.setTeleopDefaultCommand();
-        flywheel.setTeleopDefaultCommand();
         break;
 
       default:
@@ -134,10 +128,6 @@ public class RobotContainer {
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setIntakeVelocityCommand(3.648));
-        hood.setTeleopDefaultCommand();
-        flywheel.setTeleopDefaultCommand();
-
         break;
     }
 

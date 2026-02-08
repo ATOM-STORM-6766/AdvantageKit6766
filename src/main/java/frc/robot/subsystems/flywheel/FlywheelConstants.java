@@ -1,33 +1,29 @@
 package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class FlywheelConstants {
-  // CAN IDs
-  public static final int kFlywheelMotorCanID0 = 11;
-  public static final int kFlywheelMotorCanID1 = 12;
-  public static final int kFlywheelMotorCanID2 = 13;
-  public static final int kShooterFeedMotorCanID = 14;
-
-  public static final int kLimitSwitchID0 = 0;
-  public static final int kLimitSwitchID1 = 1;
-  public static final int kLimitSwitchID2 = 2;
+  // CAN IDs (three motors, shared config)
+  public static final int kFlywheelMotor0CanID = 0;
+  public static final int kFlywheelMotor1CanID = 1;
+  public static final int kFlywheelMotor2CanID = 2;
 
   // Gear ratio: motor rotations per output rotation
-  // Example: For a 2:1 gearbox, set this to 2.0
-  public static final double kFlywheelGearRatio = 1.0; // TODO: Update with actual ratio
+  public static final double kFlywheelGearRatio = 1.0;
 
-  // Velocity targets (in RPM)
-  public static final double kFlywheelIdleVelocityRPM = 0.0;
-  public static final double kFlywheelVelocityTolerance = 50.0; // RPM
+  // Velocity (RPS)
+  public static final double kFlywheelIdleVelocityRps = 0.0;
+  public static final double kFlywheelVelocityToleranceRps = 1.0;
 
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
 
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // PID + Feedforward configuration
     config.Slot0.kP = 9;
