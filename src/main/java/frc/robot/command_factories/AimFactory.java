@@ -14,8 +14,8 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotState;
 import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.subsystems.hood.HoodConstants;
-import frc.robot.util.GenericShooterResolverV2;
-import frc.robot.util.GenericShooterResolverV2.ShooterSetpointV2;
+import frc.robot.util.GenericShooterResolver;
+import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -41,8 +41,7 @@ public class AimFactory {
                       double t = timer.get();
                       double target = hoodMid + hoodAmp * Math.sin(omega * t);
                       return MathUtil.clamp(target, hoodMin, hoodMax);
-                    },
-                    () -> 0.0))
+                    }))
         .beforeStarting(timer::start)
         .finallyDo(() -> timer.stop())
         .withName("Sweep Turret And Hood (teleop)");
@@ -67,14 +66,10 @@ public class AimFactory {
       RobotContainer container, Supplier<Translation3d> targetSupplier) {
 
     // Cache for last valid setpoint
-    final ShooterSetpointV2[] lastValidSetpoint = {createDefaultSetpointV2()};
+    final ShooterSetpoint[] lastValidSetpoint = {createDefaultSetpoint()};
 
     return new ParallelCommandGroup(
-            container
-                .getHood()
-                .positionSetpointCommand(
-                    () -> lastValidSetpoint[0].hoodPitch,
-                    () -> lastValidSetpoint[0].hoodFeedforward),
+            container.getHood().positionSetpointCommand(() -> lastValidSetpoint[0].hoodPitch),
             container
                 .getFlywheel()
                 .flywheelSetpointCommand(
@@ -86,12 +81,10 @@ public class AimFactory {
         .withName("Aim At Target Direct");
   }
 
-  private static ShooterSetpointV2 createDefaultSetpointV2() {
-    ShooterSetpointV2 s = new ShooterSetpointV2();
-    s.turretYaw = Math.toRadians(180.0); // Default to facing backward
-    s.hoodPitch = Math.toRadians(30.0); // Default to 60 degree pitch (30 degree hood)
-    s.turretFeedforward = 0.0;
-    s.hoodFeedforward = 0.0;
+  private static ShooterSetpoint createDefaultSetpoint() {
+    ShooterSetpoint s = new ShooterSetpoint();
+    s.robotYaw = Math.toRadians(180.0);
+    s.hoodPitch = Math.toRadians(30.0);
     s.isValid = false;
     return s;
   }
@@ -99,15 +92,14 @@ public class AimFactory {
   private static void updateSetpoint(
       RobotContainer container,
       Supplier<Translation3d> targetSupplier,
-      ShooterSetpointV2[] lastValidSetpoint) {
+      ShooterSetpoint[] lastValidSetpoint) {
 
     var robotPose = RobotState.getInstance().getRobotPose();
     var robotSpeeds = RobotState.getInstance().getFieldRelativeSpeeds();
     var target = targetSupplier.get();
 
-    ShooterSetpointV2 setpoint =
-        GenericShooterResolverV2.resolve(
-            robotPose, robotSpeeds, target, Constants.SHOOTER_CONFIG_V2);
+    ShooterSetpoint setpoint =
+        GenericShooterResolver.resolve(robotPose, robotSpeeds, target, Constants.SHOOTER_CONFIG);
 
     // Log resolver outputs
     Logger.recordOutput("Aiming/SetpointValid", setpoint.isValid);
@@ -117,7 +109,7 @@ public class AimFactory {
       lastValidSetpoint[0] = setpoint;
 
       // Log debug info
-      Logger.recordOutput("Aiming/TurretYawDeg", Math.toDegrees(setpoint.turretYaw));
+      Logger.recordOutput("Aiming/TurretYawDeg", Math.toDegrees(setpoint.robotYaw));
       Logger.recordOutput("Aiming/HoodPitchDeg", Math.toDegrees(setpoint.hoodPitch));
       Logger.recordOutput("Aiming/TimeOfFlight", setpoint.timeOfFlightSeconds);
       Logger.recordOutput("Aiming/FlywheelRps", setpoint.flywheelRps);

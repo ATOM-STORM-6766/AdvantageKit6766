@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.command_factories.AimFactory;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpointRps;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -164,9 +163,7 @@ public class Robot extends LoggedRobot {
             AimFactory.resetAllToLimit(robotContainer)
                 .andThen(
                     Commands.parallel(
-                        robotContainer
-                            .getHood()
-                            .positionSetpointCommand(() -> Math.toRadians(40), () -> 0),
+                        robotContainer.getHood().positionSetpointCommand(() -> Math.toRadians(40)),
                         robotContainer.getIntake().setPosCommand(Degree.of(0)))));
 
     // CommandScheduler.getInstance().schedule(robotContainer.getTurret().resetToLimitCommand());
