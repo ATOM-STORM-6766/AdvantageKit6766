@@ -3,7 +3,6 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 

@@ -20,7 +20,6 @@ public class IntakeConstants {
   public static final double kCalibrationVoltage = 1.0;
   public static final double kCalibrationCurrentThreshold = 12.0; // Amperes
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.025;
-  public static final double kCalibrationDebounceTimeSec = 0.1;
 
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
