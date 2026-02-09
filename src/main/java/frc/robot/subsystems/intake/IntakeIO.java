@@ -1,11 +1,16 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
+
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
@@ -22,17 +27,17 @@ public interface IntakeIO {
 
   public void setIntakePosition(Angle position);
 
-  public void setIntakeVelocity(double voltage);
+  public void setIntakeVelocity(Voltage voltage);
 
-  public void setFeedVelocity(double velocityRadPerSec);
+  public void setFeedVelocity(AngularVelocity velocity);
 
-  public void setPositionVoltage(double voltage);
+  public void setPositionVoltage(Voltage voltage);
 
   public void setCurrentPosition(double positionRotations);
 
   public default void stop() {
-    setIntakeVelocity(0.0);
-    setFeedVelocity(0.0);
-    setIntakePosition(Rotation.of(IntakeConstants.minRotation));
+    setIntakeVelocity(Volts.of(0));
+    setFeedVelocity(RadiansPerSecond.of(0));
+    setPositionVoltage(Volts.of(0));
   }
 }

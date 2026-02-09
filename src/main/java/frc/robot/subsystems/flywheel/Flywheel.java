@@ -18,8 +18,6 @@ public class Flywheel extends SubsystemBase {
     this.io = io;
   }
 
-  public void setTeleopDefaultCommand() {}
-
   @Override
   public void periodic() {
     io.updateInputs(inputs);

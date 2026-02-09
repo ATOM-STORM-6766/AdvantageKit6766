@@ -40,6 +40,7 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -110,7 +111,7 @@ public class RobotContainer {
 
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
-        m_intake = new Intake(new IntakeIOTalonFX());
+        m_intake = new Intake(new IntakeIOSim());
         break;
 
       default:
