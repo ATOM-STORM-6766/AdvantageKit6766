@@ -114,7 +114,6 @@ public class RobotContainer {
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setIntakeVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
         break;
@@ -134,7 +133,6 @@ public class RobotContainer {
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        m_intake.setDefaultCommand(m_intake.setIntakeVelocityCommand(3.648));
         hood.setTeleopDefaultCommand();
         flywheel.setTeleopDefaultCommand();
 
@@ -159,6 +157,7 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption("Intake SysId", m_intake.runSysId());
     autoChooser.addOption(
         "test", new FollowChoreoPathCommand(drive, Choreo.loadTrajectory("test")));
 

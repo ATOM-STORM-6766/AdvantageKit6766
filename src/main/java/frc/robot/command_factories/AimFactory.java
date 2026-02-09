@@ -50,7 +50,11 @@ public class AimFactory {
 
   public static Command resetAllToLimit(RobotContainer container) {
     return new ParallelCommandGroup(
-            container.getHood().resetToLimitCommand(), container.getIntake().resetToLimitCommand())
+            container.getHood().resetToLimitCommand(),
+            container
+                .getIntake()
+                .resetToLimitCommand()
+                .unless(container.getIntake()::isInitialized))
         .withName("Reset To Limit");
   }
 

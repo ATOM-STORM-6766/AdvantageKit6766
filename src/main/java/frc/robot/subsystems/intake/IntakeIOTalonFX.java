@@ -5,10 +5,10 @@ import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 public class IntakeIOTalonFX implements IntakeIO {
 
@@ -55,11 +55,11 @@ public class IntakeIOTalonFX implements IntakeIO {
     velocitySignal.refresh();
     feedVelocitySignal.refresh();
 
-    inputs.intakePosition = new Rotation2d(positionSignal.getValue());
-    inputs.positionCurrent = positionCurrentSignal.getValueAsDouble();
+    inputs.intakePosition = positionSignal.getValue();
+    inputs.positionCurrent = positionCurrentSignal.getValue();
     inputs.positionVelocity = positionVelocitySignal.getValue();
-    inputs.intakeVelocity = velocitySignal.getValueAsDouble();
-    inputs.feedVelocity = feedVelocitySignal.getValueAsDouble();
+    inputs.intakeVelocity = velocitySignal.getValue();
+    inputs.feedVelocity = feedVelocitySignal.getValue();
   }
 
   @Override
@@ -68,19 +68,20 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public void setIntakeVelocity(double voltage) {
+  public void setIntakeVelocity(Voltage voltage) {
     intakeMotor.setControl(velocityControl.withOutput(voltage));
   }
 
   @Override
-  public void setFeedVelocity(double velocityRadPerSec) {
+  public void setFeedVelocity(AngularVelocity velocity) {
     feedMotor.set(
-        velocityRadPerSec); // setControl(feedVelocityControl.withVelocity(velocityRadPerSec));
+        velocity
+            .baseUnitMagnitude()); // setControl(feedVelocityControl.withVelocity(velocityRadPerSec));
     // //TODO
   }
 
   @Override
-  public void setPositionVoltage(double voltage) {
+  public void setPositionVoltage(Voltage voltage) {
     positionMotor.setControl(new VoltageOut(voltage));
   }
 
