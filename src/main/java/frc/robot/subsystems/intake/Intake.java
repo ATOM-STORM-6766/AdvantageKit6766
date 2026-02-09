@@ -29,8 +29,6 @@ public class Intake extends SubsystemBase {
   private State state = State.UNINITIALIZED;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
   private final IntakeIO io;
-  private final Debouncer calibrationCurrentDebouncer =
-      new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -149,12 +147,9 @@ public class Intake extends SubsystemBase {
   }
 
   private boolean isCalibrationStalled() {
-    boolean currentOverThreshold =
-        calibrationCurrentDebouncer.calculate(
-            inputs.positionCurrent.baseUnitMagnitude()
-                >= IntakeConstants.kCalibrationCurrentThreshold);
     return inputs.positionVelocity.abs(RadiansPerSecond)
-            <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
-        && currentOverThreshold;
+            < IntakeConstants.kCalibrationVelocityThresholdRadPerSec
+        && inputs.positionCurrent.baseUnitMagnitude()
+                > IntakeConstants.kCalibrationCurrentThreshold;
   }
 }
