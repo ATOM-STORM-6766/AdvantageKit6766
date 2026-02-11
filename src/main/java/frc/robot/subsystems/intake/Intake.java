@@ -2,20 +2,52 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
+  enum State {
+    UNINITIALIZED,
+    INITIALIZED
+  }
+
+  private final SysIdRoutine sysIdRoutine;
+
+  private State state = State.UNINITIALIZED;
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
   public Intake(IntakeIO io) {
     this.io = io;
+    this.sysIdRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(0.1).per(Seconds),
+                Volts.of(0.5),
+                Seconds.of(15.0),
+                (state) -> Logger.recordOutput("intake/SysIdState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> {
+                  io.setPositionVoltage(voltage);
+                  Logger.recordOutput("intake/Voltage", voltage.in(Volts));
+                  Logger.recordOutput("intake/Position", inputs.intakePosition.in(Rotations));
+                  Logger.recordOutput(
+                      "intake/Velocity", inputs.positionVelocity.in(RotationsPerSecond));
+                },
+                null,
+                this));
   }
 
   @Override
@@ -66,34 +98,36 @@ public class Intake extends SubsystemBase {
   }
 
   public Command resetToLimitCommand() {
-    return run(() -> io.setPositionVoltage(1.0))
+    return run(() -> io.setPositionVoltage(Volts.of(1)))
         .until(
             () -> {
-              return inputs.positionCurrent > 12.0
+              return inputs.positionCurrent.baseUnitMagnitude() > 12.0
                   && inputs.positionVelocity.abs(RadiansPerSecond) < 0.025;
             })
         .andThen(
             () -> {
-              io.setPositionVoltage(0.0);
+              io.setPositionVoltage(Volts.of(0));
               io.setCurrentPosition(IntakeConstants.maxRotation);
+              state = State.INITIALIZED;
             })
         .withName("Intake Reset Position");
   }
 
-  public Command setIntakeVelocityCommand(double voltage) {
+  public Command setIntakeVelocityCommand(Voltage voltage) {
     return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
   }
 
-  public Command setFeedVelocityCommand(double velocityRadPerSec) {
-    return runOnce(() -> io.setFeedVelocity(velocityRadPerSec))
-        .withName("Intake Set Feed Velocity");
+  public Command setFeedVelocityCommand(AngularVelocity velocity) {
+    return runOnce(() -> io.setFeedVelocity(velocity)).withName("Intake Set Feed Velocity");
   }
 
-  public Command setFeedIntakeVelocityCommand(double intakeVoltage, double feedVelocityRadPerSec) {
+  @Deprecated
+  public Command setFeedIntakeVelocityCommand(
+      double intakeVoltage, double feedVelocityRotationPerSec) { // TODO 需要修改
     return runOnce(
             () -> {
-              io.setIntakeVelocity(intakeVoltage);
-              io.setFeedVelocity(feedVelocityRadPerSec);
+              io.setIntakeVelocity(Volts.of(intakeVoltage));
+              io.setFeedVelocity(RotationsPerSecond.of(feedVelocityRotationPerSec));
             })
         .withName("Intake Set Feed and Intake Velocity");
   }
