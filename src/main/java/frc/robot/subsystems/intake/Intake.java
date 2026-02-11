@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -26,8 +27,10 @@ public class Intake extends SubsystemBase {
   private final SysIdRoutine sysIdRoutine;
 
   private State state = State.UNINITIALIZED;
-  private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+  private final IntakeIO io;
+  private final Debouncer calibrationCurrentDebouncer =
+      new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -99,18 +102,14 @@ public class Intake extends SubsystemBase {
 
   public Command resetToLimitCommand() {
     return run(() -> io.setPositionVoltage(Volts.of(1)))
-        .until(
-            () -> {
-              return inputs.positionCurrent.baseUnitMagnitude() > 12.0
-                  && inputs.positionVelocity.abs(RadiansPerSecond) < 0.025;
-            })
+        .until(this::isCalibrationStalled)
         .andThen(
             () -> {
               io.setPositionVoltage(Volts.of(0));
               io.setCurrentPosition(IntakeConstants.maxRotation);
               state = State.INITIALIZED;
             })
-        .withName("Intake Reset Position");
+        .withName("Intake Reset to Limit");
   }
 
   public Command setIntakeVelocityCommand(Voltage voltage) {
@@ -147,5 +146,15 @@ public class Intake extends SubsystemBase {
 
   public Command stopCommand() {
     return runOnce(() -> io.stop()).withName("Intake Stop");
+  }
+
+  private boolean isCalibrationStalled() {
+    boolean currentOverThreshold =
+        calibrationCurrentDebouncer.calculate(
+            inputs.positionCurrent.baseUnitMagnitude()
+                >= IntakeConstants.kCalibrationCurrentThreshold);
+    return inputs.positionVelocity.abs(RadiansPerSecond)
+            <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
+        && currentOverThreshold;
   }
 }

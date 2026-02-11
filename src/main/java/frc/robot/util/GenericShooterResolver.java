@@ -88,12 +88,12 @@ public class GenericShooterResolver {
       lastDistanceMeters = distanceMeters;
     }
 
+    result.timeOfFlightSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
+
     Pose2d finalLookaheadRobotPose =
         RobotState.getInstance().getRobotPose(result.timeOfFlightSeconds);
 
     Translation2d lookaheadRobotCenter = finalLookaheadRobotPose.getTranslation();
-
-    result.timeOfFlightSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
 
     Translation2d virtualTargetXY =
         targetXY.minus(turretFieldVelXY.times(result.timeOfFlightSeconds));

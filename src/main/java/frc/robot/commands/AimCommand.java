@@ -18,13 +18,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class AimCommand {
-
-  public static Command resetAllToLimit(RobotContainer container) {
-    return new ParallelCommandGroup(
-            container.getHood().resetToLimitCommand(), container.getIntake().resetToLimitCommand())
-        .withName("Reset To Limit");
-  }
-
   public static Command aimAtTarget(
       RobotContainer container,
       DoubleSupplier hoodPitchRadSupplier,

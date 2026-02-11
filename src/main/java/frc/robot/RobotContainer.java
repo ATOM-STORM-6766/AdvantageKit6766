@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AimCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowChoreoPathCommand;
 import frc.robot.generated.TunerConstants;
@@ -45,6 +46,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -105,7 +107,7 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
+                // new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         hood = new Hood(new HoodIOSim());
@@ -247,6 +249,16 @@ public class RobotContainer {
                 m_intake.setFeedIntakeVelocityCommand(2.648 * 2, 0.45),
                 m_intake.setPosCommand(Rotation.of(0))))
         .onFalse(m_intake.stopCommand());
+
+    // 按住左肩键时自瞄目标
+    controller
+        .leftBumper()
+        .whileTrue(
+            AimCommand.autoAimAtTarget(
+                this,
+                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX()));
   }
 
   /**

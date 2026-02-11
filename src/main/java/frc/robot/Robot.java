@@ -13,15 +13,12 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degree;
-
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.AimCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.generated.TunerConstants;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -158,13 +155,19 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    CommandScheduler.getInstance()
-        .schedule(
-            AimCommand.resetAllToLimit(robotContainer)
-                .andThen(
-                    Commands.parallel(
-                        robotContainer.getHood().positionSetpointCommand(() -> Math.toRadians(40)),
-                        robotContainer.getIntake().setPosCommand(Degree.of(0)))));
+    Command resetCommand =
+        new ParallelCommandGroup(
+                robotContainer
+                    .getHood()
+                    .resetToLimitCommand()
+                    .unless(robotContainer.getHood()::isInitialized),
+                robotContainer
+                    .getIntake()
+                    .resetToLimitCommand()
+                    .unless(robotContainer.getIntake()::isInitialized))
+            .withName("Reset To Limit");
+
+    CommandScheduler.getInstance().schedule(resetCommand);
 
     // CommandScheduler.getInstance().schedule(robotContainer.getTurret().resetToLimitCommand());
   }

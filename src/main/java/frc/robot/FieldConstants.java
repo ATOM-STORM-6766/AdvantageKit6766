@@ -1,0 +1,32 @@
+package frc.robot;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+
+public class FieldConstants {
+  public static AprilTagFieldLayout aprilTagLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  public static final double fieldWidth = aprilTagLayout.getFieldWidth();
+  public static final double fieldLength = aprilTagLayout.getFieldLength();
+
+  public static class Hub {
+
+    // Dimensions
+    public static final double width = Units.inchesToMeters(47.0);
+    public static final double height =
+        Units.inchesToMeters(72.0); // includes the catcher at the top
+    public static final double innerWidth = Units.inchesToMeters(41.7);
+    public static final double innerHeight = Units.inchesToMeters(56.5);
+
+    // Relevant reference points on alliance blue side
+    public static final Translation3d topCenterPoint =
+        new Translation3d(
+            aprilTagLayout.getTagPose(26).get().getX() + width / 2.0, fieldWidth / 2.0, height);
+  }
+
+  public static AprilTagFieldLayout getAprilTagLayout() {
+    return aprilTagLayout;
+  }
+}

@@ -10,14 +10,13 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.FieldConstants;
 
 public class VisionConstants {
   // AprilTag 布局
-  public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  public static AprilTagFieldLayout aprilTagLayout = FieldConstants.getAprilTagLayout();
 
   // 摄像头名称，必须与协处理器上配置的名称一致
   public static String camera0Name = "Front_Right";
@@ -25,13 +24,19 @@ public class VisionConstants {
 
   // 机器人到摄像头的变换
   // （Limelight 不使用，在其 Web UI 中配置）
-  public static Transform3d robotToCamera0 = // 35度，16度
+  public static Transform3d robotToCamera0 = // TODO: 更新参数
       new Transform3d(
-          0.283021, 0.259707, 0.194947, new Rotation3d(0.0, -0.279253, -0.610865)); // 面朝正方向左
+          0.283021,
+          0.259707,
+          0.194947,
+          new Rotation3d(0.0, -0.279253, -0.610865)); // 面向正前方 (Intake 方向)
 
-  public static Transform3d robotToCamera1 = // 35度，16度
+  public static Transform3d robotToCamera1 =
       new Transform3d(
-          0.283021, -0.259707, 0.194947, new Rotation3d(0.0, -0.279253, 0.610865)); // 面朝正方向右
+          -0.049141,
+          0.0,
+          0.650000,
+          new Rotation3d(0.0, Math.toRadians(-20.0), 0.0)); // 面向正前方 (Intake 方向)
 
   // 基础过滤阈值
   public static double maxAmbiguity = 0.3;

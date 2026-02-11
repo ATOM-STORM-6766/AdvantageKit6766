@@ -9,7 +9,12 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
+  enum State {
+    UNINITIALIZED,
+    INITIALIZED
+  }
 
+  private State state = State.UNINITIALIZED;
   private final HoodInputsAutoLogged inputs = new HoodInputsAutoLogged();
   private final HoodIO io;
   private final Debouncer calibrationCurrentDebouncer =
@@ -23,6 +28,10 @@ public class Hood extends SubsystemBase {
   public void periodic() {
     io.readInputs(inputs);
     Logger.processInputs("Hood", inputs);
+  }
+
+  public boolean isInitialized() {
+    return state == State.INITIALIZED;
   }
 
   public Command positionSetpointCommand(DoubleSupplier setpoint) {
@@ -50,6 +59,7 @@ public class Hood extends SubsystemBase {
                 () -> {
                   io.setOpenloopVoltage(0.0);
                   io.setRotorPosition(HoodConstants.kHoodMinPositionRadians);
+                  state = State.INITIALIZED;
                 }))
         .withName("Hood Reset to Limit");
   }

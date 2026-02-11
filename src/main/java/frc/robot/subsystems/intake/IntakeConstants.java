@@ -17,6 +17,11 @@ public class IntakeConstants {
   public static final double positionGearRatio =
       60.0 / 8 * 58 / 20 * 30 / 15; // 43.5 注意int和float的除号"/"区别
 
+  public static final double kCalibrationVoltage = 1.0;
+  public static final double kCalibrationCurrentThreshold = 12.0; // Amperes
+  public static final double kCalibrationVelocityThresholdRadPerSec = 0.025;
+  public static final double kCalibrationDebounceTimeSec = 0.1;
+
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
 
