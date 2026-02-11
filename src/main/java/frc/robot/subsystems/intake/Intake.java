@@ -35,8 +35,8 @@ public class Intake extends SubsystemBase {
     this.sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.1).per(Seconds),
-                Volts.of(0.5),
+                Volts.of(0.05).per(Seconds),
+                Volts.of(0.285),
                 Seconds.of(15.0),
                 (state) -> Logger.recordOutput("intake/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
@@ -65,34 +65,26 @@ public class Intake extends SubsystemBase {
     return Commands.sequence(
             sysIdRoutine
                 .dynamic(SysIdRoutine.Direction.kForward)
-                .until(
-                    () ->
-                        inputs.intakePosition.compareTo(
-                                Rotations.of(IntakeConstants.maxRotation - 0.01))
-                            > 0),
+                .until(() -> inputs.intakePosition.compareTo(Rotations.of(0.25)) > 0),
             stopCommand().andThen(Commands.waitSeconds(1)),
             sysIdRoutine
                 .dynamic(SysIdRoutine.Direction.kReverse)
                 .until(
                     () ->
                         inputs.intakePosition.compareTo(
-                                Rotations.of(IntakeConstants.minRotation + 0.01))
+                                Rotations.of(IntakeConstants.minRotation + 0.001))
                             < 0),
             stopCommand().andThen(Commands.waitSeconds(1)),
             sysIdRoutine
                 .quasistatic(SysIdRoutine.Direction.kForward)
-                .until(
-                    () ->
-                        inputs.intakePosition.compareTo(
-                                Rotations.of(IntakeConstants.maxRotation - 0.01))
-                            > 0),
+                .until(() -> inputs.intakePosition.compareTo(Rotations.of(0.25)) > 0),
             stopCommand().andThen(Commands.waitSeconds(1)),
             sysIdRoutine
                 .quasistatic(SysIdRoutine.Direction.kReverse)
                 .until(
                     () ->
                         inputs.intakePosition.compareTo(
-                                Rotations.of(IntakeConstants.minRotation + 0.01))
+                                Rotations.of(IntakeConstants.minRotation + 0.001))
                             < 0),
             stopCommand().andThen(Commands.waitSeconds(1)))
         .withName("Intake SysId");

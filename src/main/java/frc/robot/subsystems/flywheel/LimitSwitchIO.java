@@ -1,5 +1,6 @@
 package frc.robot.subsystems.flywheel;
 
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface LimitSwitchIO {
@@ -11,5 +12,11 @@ public interface LimitSwitchIO {
     public boolean limitSwitch2 = false;
   }
 
-  void updateInputs(LimitSwitchInputs inputs);
+  public void updateInputs(LimitSwitchInputs inputs);
+
+  public BooleanSupplier getLimitSwitch0();
+
+  public BooleanSupplier getLimitSwitch1();
+
+  public BooleanSupplier getLimitSwitch2();
 }

@@ -3,7 +3,7 @@ package frc.robot.subsystems.flywheel;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -33,7 +33,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Voltage> voltsSignalFeeder;
   private final StatusSignal<Current> currentTorqueSignalFeeder;
 
-  private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0);
+  private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
+      new MotionMagicVelocityTorqueCurrentFOC(0);
 
   public FlywheelIOTalonFX() {
     motor0 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID0, Constants.kCANBus);
