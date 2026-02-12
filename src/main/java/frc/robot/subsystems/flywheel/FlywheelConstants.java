@@ -1,5 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -15,6 +17,7 @@ public class FlywheelConstants {
   public static final int kLimitSwitchID1 = 1;
   public static final int kLimitSwitchID2 = 2;
 
+  public static final double kFlywheelBoost = 36.832850575486965; // A/rps
   // Gear ratio: motor rotations per output rotation
   // Example: For a 2:1 gearbox, set this to 2.0
   public static final double kFlywheelGearRatio = 1.0;
@@ -36,6 +39,7 @@ public class FlywheelConstants {
     config.Slot0.kS = 8;
     config.Slot0.kV = 0.699999988079071; // Ampere per RPS //volts per RPS
     config.Slot0.kA = 0.0;
+    config.Slot1 = Slot1Configs.from(SlotConfigs.from(config.Slot0.withKP(0))); // Boost slot
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

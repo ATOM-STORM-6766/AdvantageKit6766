@@ -12,42 +12,50 @@ import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   private final FlywheelInputsAutoLogged inputs = new FlywheelInputsAutoLogged();
+  private final LimitSwitchInputsAutoLogged limitSwitchInputs = new LimitSwitchInputsAutoLogged();
   private final FlywheelIO io;
+  private final LimitSwitchIO limitSwitchIO;
 
-  public Flywheel(final FlywheelIO io) {
+  public Flywheel(final FlywheelIO io, final LimitSwitchIO limitSwitchIO) {
     this.io = io;
+    this.limitSwitchIO = limitSwitchIO;
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    limitSwitchIO.updateInputs(limitSwitchInputs);
     Logger.processInputs("Flywheel", inputs);
+    Logger.processInputs("Flywheel", limitSwitchInputs);
   }
 
   public Command flywheelSetpointCommand(Supplier<FlywheelSetpoint> setpointSupplier) {
-    return run(() -> {
-          FlywheelSetpoint setpoint = setpointSupplier.get();
-          setVelocityImpl(setpoint);
-        })
+    return runOnce(
+            () -> {
+              FlywheelSetpoint setpoint = setpointSupplier.get();
+              setVelocityImpl(setpoint);
+            })
         .withName("Flywheel Velocity Control");
   }
 
   public Command feedVelocity(Supplier<AngularVelocity> setpoint) {
-    return run(() -> {
-          Logger.recordOutput("Flywheel/API/setVelocity/feeder", setpoint.get());
-          io.setFeederVelocity(setpoint.get());
-        })
+    return runOnce(
+            () -> {
+              Logger.recordOutput("Flywheel/API/setVelocity/feeder", setpoint.get());
+              io.setFeederVelocity(setpoint.get());
+            })
         .withName("Flywheel Feeder Velocity Control");
   }
 
   public Command setVelocity(
       Supplier<FlywheelSetpoint> setpointSupplier, Supplier<AngularVelocity> feedSetpoint) {
-    return run(() -> {
-          FlywheelSetpoint setpoint = setpointSupplier.get();
-          Logger.recordOutput("Flywheel/API/setVelocity/feeder", feedSetpoint.get());
-          io.setFeederVelocity(feedSetpoint.get());
-          setVelocityImpl(setpoint);
-        })
+    return runOnce(
+            () -> {
+              FlywheelSetpoint setpoint = setpointSupplier.get();
+              Logger.recordOutput("Flywheel/API/setVelocity/feeder", feedSetpoint.get());
+              io.setFeederVelocity(feedSetpoint.get());
+              setVelocityImpl(setpoint);
+            })
         .withName("Flywheel Velocity Control");
   }
 
@@ -77,6 +85,12 @@ public class Flywheel extends SubsystemBase {
     Logger.recordOutput("Flywheel/API/setVelocity/rps0", setpoint.motor0());
     Logger.recordOutput("Flywheel/API/setVelocity/rps1", setpoint.motor1());
     Logger.recordOutput("Flywheel/API/setVelocity/rps2", setpoint.motor2());
-    io.setFlywheelVelocity(setpoint);
+    io.setFlywheelWithBoost(
+        setpoint,
+        new boolean[] {
+          limitSwitchInputs.limitSwitch0,
+          limitSwitchInputs.limitSwitch1,
+          limitSwitchInputs.limitSwitch2
+        });
   }
 }

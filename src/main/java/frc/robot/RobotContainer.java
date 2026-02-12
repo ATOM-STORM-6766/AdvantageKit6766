@@ -36,6 +36,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.flywheel.LimitSwitchDIO;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodIOTalonFX;
@@ -91,7 +92,7 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
         hood = new Hood(new HoodIOTalonFX());
-        flywheel = new Flywheel(new FlywheelIOTalonFX());
+        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
 
@@ -111,7 +112,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         hood = new Hood(new HoodIOSim());
-        flywheel = new Flywheel(new FlywheelIOTalonFX());
+        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
         m_intake = new Intake(new IntakeIOSim());
         break;
 
@@ -128,7 +129,7 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         hood = new Hood(new HoodIOSim());
-        flywheel = new Flywheel(new FlywheelIOTalonFX());
+        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
     }

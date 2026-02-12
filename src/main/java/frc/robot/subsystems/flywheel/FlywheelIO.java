@@ -36,6 +36,8 @@ public interface FlywheelIO {
 
   public void setFlywheelVelocity(FlywheelSetpoint velocities);
 
+  public void setFlywheelWithBoost(FlywheelSetpoint velocities, boolean[] isBoost);
+
   public void setFeederVelocity(AngularVelocity velocity);
 
   public void stop();

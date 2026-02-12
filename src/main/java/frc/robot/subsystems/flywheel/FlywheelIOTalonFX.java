@@ -1,5 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
@@ -34,7 +36,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Current> currentTorqueSignalFeeder;
 
   private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0);
+      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
+
+  private final MotionMagicVelocityTorqueCurrentFOC boostControl =
+      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true).withSlot(1);
 
   public FlywheelIOTalonFX() {
     motor0 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID0, Constants.kCANBus);
@@ -135,5 +140,30 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     motor1.setControl(new CoastOut());
     motor2.setControl(new CoastOut());
     shootFeedMotor.setControl(new CoastOut());
+  }
+
+  @Override // 我深知这不优雅，谁能拯救我
+  public void setFlywheelWithBoost(FlywheelSetpoint velocities, boolean[] isBoost) {
+    motor0.setControl(
+        isBoost[0]
+            ? boostControl
+                .withVelocity(velocities.motor0())
+                .withFeedForward(
+                    FlywheelConstants.kFlywheelBoost * velocities.motor0().in(RotationsPerSecond))
+            : velocityControl.withVelocity(velocities.motor0()));
+    motor1.setControl(
+        isBoost[1]
+            ? boostControl
+                .withVelocity(velocities.motor1())
+                .withFeedForward(
+                    FlywheelConstants.kFlywheelBoost * velocities.motor1().in(RotationsPerSecond))
+            : velocityControl.withVelocity(velocities.motor1()));
+    motor2.setControl(
+        isBoost[2]
+            ? boostControl
+                .withVelocity(velocities.motor2())
+                .withFeedForward(
+                    FlywheelConstants.kFlywheelBoost * velocities.motor2().in(RotationsPerSecond))
+            : velocityControl.withVelocity(velocities.motor2()));
   }
 }
