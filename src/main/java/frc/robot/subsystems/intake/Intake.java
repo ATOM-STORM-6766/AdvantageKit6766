@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -142,6 +141,6 @@ public class Intake extends SubsystemBase {
     return inputs.positionVelocity.abs(RadiansPerSecond)
             < IntakeConstants.kCalibrationVelocityThresholdRadPerSec
         && inputs.positionCurrent.baseUnitMagnitude()
-                > IntakeConstants.kCalibrationCurrentThreshold;
+            > IntakeConstants.kCalibrationCurrentThreshold;
   }
 }
