@@ -17,7 +17,7 @@ public class FlywheelConstants {
   public static final int kLimitSwitchID1 = 1;
   public static final int kLimitSwitchID2 = 2;
 
-  public static final double kFlywheelBoost = 36.832850575486965; // A/rps
+  public static final double kFlywheelBoost = 12.277616858495655; // A/rps
   // Gear ratio: motor rotations per output rotation
   // Example: For a 2:1 gearbox, set this to 2.0
   public static final double kFlywheelGearRatio = 1.0;
@@ -32,14 +32,17 @@ public class FlywheelConstants {
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-    // PID + Feedforward configuration
-    config.Slot0.kP = 9;
+    // PID + Feedforward configuration 这里为原来的没铜轮的值
+    config.Slot0.kP = 5;
     config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
+    config.Slot0.kD = 0.01;
     config.Slot0.kS = 8;
-    config.Slot0.kV = 0.699999988079071; // Ampere per RPS //volts per RPS
-    config.Slot0.kA = 0.0;
+    config.Slot0.kV = 0.4; // Ampere per RPS //volts per RPS
     config.Slot1 = Slot1Configs.from(SlotConfigs.from(config.Slot0.withKP(0))); // Boost slot
+
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 80.0;
+    config.MotionMagic.MotionMagicJerk = 1000.0;
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

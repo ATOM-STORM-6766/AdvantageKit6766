@@ -42,12 +42,12 @@ public class IntakeConstants {
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotation;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    config.Slot0.kP = 7.0;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
-    config.Slot0.kS = 0.0;
-    config.Slot0.kV = 0.0;
-    config.Slot0.kA = 0.0;
+    config.Slot0.kP = 35.229; //sysid值
+    config.Slot0.kD = 6.2463;
+    config.Slot0.kS = 0.37146;
+    config.Slot0.kV = 3.3442;
+    config.Slot0.kA = 0.85434;
+    config.Slot0.kG = 0.16746;
     config.MotionMagic.MotionMagicExpo_kV = 0.12;
     config.MotionMagic.MotionMagicExpo_kA = 0.1;
 
