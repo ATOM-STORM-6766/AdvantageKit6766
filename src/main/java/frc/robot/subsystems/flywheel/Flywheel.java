@@ -19,6 +19,14 @@ public class Flywheel extends SubsystemBase {
   public Flywheel(final FlywheelIO io, final LimitSwitchIO limitSwitchIO) {
     this.io = io;
     this.limitSwitchIO = limitSwitchIO;
+
+    // this.setDefaultCommand(
+    //     this.setVelocity(
+    //         () ->
+    //             new FlywheelSetpoint(
+    //                 RotationsPerSecond.of(10.0),
+    //                 RotationsPerSecond.of(10.0),
+    //                 RotationsPerSecond.of(10.0))));
   }
 
   @Override
@@ -47,13 +55,10 @@ public class Flywheel extends SubsystemBase {
         .withName("Flywheel Feeder Velocity Control");
   }
 
-  public Command setVelocity(
-      Supplier<FlywheelSetpoint> setpointSupplier, Supplier<AngularVelocity> feedSetpoint) {
+  public Command setVelocity(Supplier<FlywheelSetpoint> setpointSupplier) {
     return runOnce(
             () -> {
               FlywheelSetpoint setpoint = setpointSupplier.get();
-              Logger.recordOutput("Flywheel/API/setVelocity/feeder", feedSetpoint.get());
-              io.setFeederVelocity(feedSetpoint.get());
               setVelocityImpl(setpoint);
             })
         .withName("Flywheel Velocity Control");

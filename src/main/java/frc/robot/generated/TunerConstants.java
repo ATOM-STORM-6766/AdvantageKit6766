@@ -22,17 +22,17 @@ public class TunerConstants {
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   private static final Slot0Configs steerGains =
       new Slot0Configs()
-          .withKP(67.482)
+          .withKP(100)
           .withKI(0)
-          .withKD(5.115175)
-          .withKS(0.4781)
-          .withKV(2.609075)
-          .withKA(0.1225485)
+          .withKD(0.5)
+          .withKS(0.1)
+          .withKV(2.49)
+          .withKA(0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   private static final Slot0Configs driveGains =
-      new Slot0Configs().withKP(0.262235).withKS(0.2785).withKV(0.7380525).withKA(0.05197225);
+      new Slot0Configs().withKP(0.9528875).withKS(0.06072175).withKV(0.710535).withKA(0.224175);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
@@ -58,7 +58,15 @@ public class TunerConstants {
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-  private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+  private static final TalonFXConfiguration driveInitialConfigs =
+      new TalonFXConfiguration()
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  // Swerve azimuth does not require much torque output, so we can set a relatively
+                  // low
+                  // stator current limit to help avoid brownouts without impacting performance.
+                  .withStatorCurrentLimit(Amps.of(60))
+                  .withStatorCurrentLimitEnable(true));
   private static final TalonFXConfiguration steerInitialConfigs =
       new TalonFXConfiguration()
           .withCurrentLimits(

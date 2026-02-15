@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -10,14 +12,33 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.RobotState;
+import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.util.GenericShooterResolver;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class AimCommand {
+  private static final LoggedTunableNumber autoAimHoodPitchDeg =
+      new LoggedTunableNumber("AutoAim/HoodPitchDeg", 25.0);
+
+  private static final AtomicReference<ShooterSetpoint> lastValidSetpoint =
+      new AtomicReference<>(createDefaultSetpoint());
+
+  public static Command shoot(RobotContainer container) {
+    Supplier<FlywheelSetpoint> flywheelSetpointSupplier =
+        () ->
+            new FlywheelSetpoint(
+                RotationsPerSecond.of(lastValidSetpoint.get().flywheelRps),
+                RotationsPerSecond.of(lastValidSetpoint.get().flywheelRps),
+                RotationsPerSecond.of(lastValidSetpoint.get().flywheelRps));
+
+    return container.getFlywheel().setVelocity(flywheelSetpointSupplier).withName("Shoot");
+  }
+
   public static Command aimAtTarget(
       RobotContainer container,
       DoubleSupplier hoodPitchRadSupplier,
@@ -39,12 +60,12 @@ public class AimCommand {
       Supplier<Translation3d> targetSupplier,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier) {
-    final AtomicReference<ShooterSetpoint> lastValidSetpoint =
-        new AtomicReference<>(createDefaultSetpoint());
+
     return new ParallelCommandGroup(
             new RunCommand(() -> updateSetpoint(container, targetSupplier, lastValidSetpoint)),
             aimAtTarget(
                 container,
+                // () -> Math.toRadians(autoAimHoodPitchDeg.get()),
                 () -> lastValidSetpoint.get().hoodPitch,
                 () -> lastValidSetpoint.get().robotYaw,
                 xSupplier,

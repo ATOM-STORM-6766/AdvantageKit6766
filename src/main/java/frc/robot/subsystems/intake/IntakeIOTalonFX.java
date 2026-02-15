@@ -2,7 +2,7 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
@@ -28,8 +28,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final VoltageOut velocityControl =
       new VoltageOut(3.648).withEnableFOC(true).withUseTimesync(true);
 
-  private final VelocityTorqueCurrentFOC feedVelocityControl =
-      new VelocityTorqueCurrentFOC(0).withUseTimesync(true).withSlot(1);
+  private final MotionMagicVelocityVoltage feedVelocityControl =
+      new MotionMagicVelocityVoltage(0).withUseTimesync(true);
 
   public IntakeIOTalonFX() {
     intakeMotor = new TalonFX(IntakeConstants.intakeMotorID, IntakeConstants.canBus);
@@ -74,9 +74,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public void setFeedVelocity(AngularVelocity velocity) {
-    feedMotor.set(
-        velocity
-            .baseUnitMagnitude()); // setControl(feedVelocityControl.withVelocity(velocityRadPerSec));
+    feedMotor.setControl(
+        feedVelocityControl.withVelocity(
+            velocity)); // setControl(feedVelocityControl.withVelocity(velocityRadPerSec));
     // //TODO
   }
 

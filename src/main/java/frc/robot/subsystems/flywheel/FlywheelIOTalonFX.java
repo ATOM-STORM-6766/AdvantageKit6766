@@ -66,7 +66,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     motor0.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
     motor1.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
     motor2.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
-    shootFeedMotor.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
+    shootFeedMotor.getConfigurator().apply(FlywheelConstants.getFeederTalonFXConfig());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50,

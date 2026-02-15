@@ -34,7 +34,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.flywheel.LimitSwitchDIO;
 import frc.robot.subsystems.hood.Hood;
@@ -48,6 +47,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -71,6 +71,9 @@ public class RobotContainer {
 
   // 仪表板输入
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private static final LoggedTunableNumber autoAimFlywheelRotation =
+      new LoggedTunableNumber("AutoAim/Flywheel", 50.0);
 
   /** 机器人容器，包含子系统、操作接口设备以及指令。 */
   public RobotContainer() {
@@ -208,9 +211,12 @@ public class RobotContainer {
         .b()
         .whileTrue(
             Commands.parallel(
-                m_intake.setFeedIntakeVelocityCommand(2.648 * 2, 0.45),
+                flywheel.feedVelocity(() -> RotationsPerSecond.of(60)),
+                m_intake.setFeedIntakeVelocityCommand(0.0, 20.0),
                 m_intake.testSinPositionCommand()))
-        .onFalse(m_intake.stopCommand());
+        .onFalse(
+            Commands.parallel(
+                m_intake.stopCommand(), flywheel.feedVelocity(() -> RotationsPerSecond.of(0.0))));
     // .onTrue(
     // Commands.runOnce(
     // () ->
@@ -221,33 +227,22 @@ public class RobotContainer {
 
     controller
         .a()
-        .whileTrue(
-            // new TargetCommand(
-            // drive,
-            // // () ->
-            // // aprilTagLayout
-            // // .getTagPose(18)
-            // // .get()
-            // // .toPose2d()
-            // // .plus(new Transform2d(1, 0, Rotation2d.k180deg)))
-            // Constants.trajectoryOne));
-            // AimFactory.aimAtTarget(
-            // this, () -> new Translation3d(4.7117, 4.1148, 1.8288) // 目标位置提供者
-            // ));
-            flywheel.setVelocity(
-                () ->
-                    new FlywheelSetpoint(
-                        RotationsPerSecond.of(50.489),
-                        RotationsPerSecond.of(50.489),
-                        RotationsPerSecond.of(50.489)),
-                () -> RotationsPerSecond.of(50.648)))
+        // .whileTrue(
+        //     flywheel.setVelocity(
+        //         () ->
+        //             new FlywheelSetpoint(
+        //                 RotationsPerSecond.of(autoAimFlywheelRotation.get()),
+        //                 RotationsPerSecond.of(autoAimFlywheelRotation.get()),
+        //                 RotationsPerSecond.of(autoAimFlywheelRotation.get())),
+        //         () -> RotationsPerSecond.of(50.648)))
+        .whileTrue(AimCommand.shoot(this))
         .onFalse(flywheel.stopCommand());
 
     controller
         .rightBumper()
         .whileTrue(
             Commands.parallel(
-                m_intake.setFeedIntakeVelocityCommand(2.648 * 2, 0.45),
+                m_intake.setFeedIntakeVelocityCommand(8.0, 0.0),
                 m_intake.setPosCommand(Rotation.of(0))))
         .onFalse(m_intake.stopCommand());
 

@@ -129,7 +129,7 @@ public class Intake extends SubsystemBase {
     return Commands.run(
             () ->
                 io.setIntakePosition(
-                    Degrees.of(35.0 - 25.0 * Math.cos(Timer.getFPGATimestamp() * 6))))
+                    Degrees.of(35.0 - 25.0 * Math.cos(Timer.getFPGATimestamp() * 3))))
         .withName("Intake Test Sin Position"); // TODO
   }
 

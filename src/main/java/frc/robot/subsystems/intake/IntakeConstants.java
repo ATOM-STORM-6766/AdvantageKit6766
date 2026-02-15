@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class IntakeConstants {
   public static final CANBus canBus = CANBus.roboRIO();
@@ -28,6 +29,25 @@ public class IntakeConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    // PID + Feedforward configuration 这里为原来的没铜轮的值
+    config.Slot0.kP = 0.2;
+    config.Slot0.kI = 0.0;
+    config.Slot0.kD = 0.0005;
+    config.Slot0.kS = 0.32;
+    config.Slot0.kV = 0.0; // Ampere per RPS //volts per RPS
+
+    config.MotionMagic.MotionMagicAcceleration = 10.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 8.0;
+    config.MotionMagic.MotionMagicJerk = 100.0;
+
+    if (RobotBase.isReal()) {
+      config.CurrentLimits.StatorCurrentLimit = 40.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
+      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+    }
+
     return config;
   }
 
@@ -42,14 +62,22 @@ public class IntakeConstants {
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotation;
 
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    config.Slot0.kP = 35.229; //sysid值
-    config.Slot0.kD = 6.2463;
+    config.Slot0.kP = 7.229;
+    config.Slot0.kD = 0.0;
     config.Slot0.kS = 0.37146;
     config.Slot0.kV = 3.3442;
     config.Slot0.kA = 0.85434;
     config.Slot0.kG = 0.16746;
     config.MotionMagic.MotionMagicExpo_kV = 0.12;
     config.MotionMagic.MotionMagicExpo_kA = 0.1;
+
+    if (RobotBase.isReal()) {
+      config.CurrentLimits.StatorCurrentLimit = 60.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+    }
 
     return config;
   }

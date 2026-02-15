@@ -42,7 +42,7 @@ public class HoodConstants {
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 50.0;
+      config.CurrentLimits.StatorCurrentLimit = 30.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
       config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;

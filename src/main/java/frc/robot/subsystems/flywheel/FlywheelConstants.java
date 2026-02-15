@@ -1,7 +1,5 @@
 package frc.robot.subsystems.flywheel;
 
-import com.ctre.phoenix6.configs.Slot1Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -38,7 +36,13 @@ public class FlywheelConstants {
     config.Slot0.kD = 0.01;
     config.Slot0.kS = 8;
     config.Slot0.kV = 0.4; // Ampere per RPS //volts per RPS
-    config.Slot1 = Slot1Configs.from(SlotConfigs.from(config.Slot0.withKP(0))); // Boost slot
+
+    // Boost slot
+    config.Slot1.kP = 0.0;
+    config.Slot1.kI = 0.0;
+    config.Slot1.kD = 0.01;
+    config.Slot1.kS = 8;
+    config.Slot1.kV = 0.4; // Ampere per RPS //volts per RPS
 
     config.MotionMagic.MotionMagicAcceleration = 100.0;
     config.MotionMagic.MotionMagicCruiseVelocity = 80.0;
@@ -46,13 +50,44 @@ public class FlywheelConstants {
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 80.0;
+      config.CurrentLimits.StatorCurrentLimit = 50.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.CurrentLimits.SupplyCurrentLimit = 60.0;
+      config.CurrentLimits.SupplyCurrentLimit = 20.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.02;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.05;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
+    }
+
+    return config;
+  }
+
+  public static TalonFXConfiguration getFeederTalonFXConfig() {
+    var config = new TalonFXConfiguration();
+
+    // Motor output
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    // PID + Feedforward configuration 这里为原来的没铜轮的值
+    config.Slot0.kP = 5;
+    config.Slot0.kI = 0.0;
+    config.Slot0.kD = 0.01;
+    config.Slot0.kS = 8;
+    config.Slot0.kV = 0.4; // Ampere per RPS //volts per RPS
+
+    config.MotionMagic.MotionMagicAcceleration = 100.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 80.0;
+    config.MotionMagic.MotionMagicJerk = 1000.0;
+
+    // Current limits (real robot only)
+    if (RobotBase.isReal()) {
+      config.CurrentLimits.StatorCurrentLimit = 40.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+      config.CurrentLimits.SupplyCurrentLimit = 20.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
     }
 
     return config;
