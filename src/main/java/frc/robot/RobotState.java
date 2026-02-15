@@ -4,12 +4,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
 
 public class RobotState {
   private static final RobotState instance = new RobotState();
 
   private volatile Pose2d robotPose = new Pose2d();
   private volatile ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds();
+  private volatile ShooterSetpoint aimSetpoint = ShooterSetpoint.invalid();
 
   private RobotState() {}
 
@@ -42,5 +44,13 @@ public class RobotState {
 
   public ChassisSpeeds getFieldRelativeSpeeds() {
     return fieldRelativeSpeeds;
+  }
+
+  public void setAimSetpoint(ShooterSetpoint setpoint) {
+    aimSetpoint = setpoint;
+  }
+
+  public ShooterSetpoint getAimSetpoint() {
+    return aimSetpoint;
   }
 }

@@ -56,7 +56,7 @@ public class HoodIOSim extends HoodIOTalonFX {
     }
   }
 
-  public void updateSimState() {
+  private void updateSimState() {
     var simState = hoodMotor.getSimState();
     simState.setSupplyVoltage(12.0);
     double motorVoltage = simState.getMotorVoltage();

@@ -30,11 +30,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Voltage> voltsSignal2;
   private final StatusSignal<Current> currentTorqueSignal2;
 
-  private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
+  private final MotionMagicVelocityTorqueCurrentFOC velocityControl = new MotionMagicVelocityTorqueCurrentFOC(0)
+      .withUseTimesync(true);
 
-  private final MotionMagicVelocityTorqueCurrentFOC boostControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true).withSlot(1);
+  private final MotionMagicVelocityTorqueCurrentFOC boostControl = new MotionMagicVelocityTorqueCurrentFOC(0)
+      .withUseTimesync(true).withSlot(1);
 
   public FlywheelIOTalonFX() {
     motor0 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID0, Constants.kCANBus);

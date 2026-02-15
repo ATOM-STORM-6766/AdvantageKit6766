@@ -18,14 +18,6 @@ public class Flywheel extends SubsystemBase {
   public Flywheel(final FlywheelIO io, final LimitSwitchIO limitSwitchIO) {
     this.io = io;
     this.limitSwitchIO = limitSwitchIO;
-
-    // this.setDefaultCommand(
-    //     this.setVelocity(
-    //         () ->
-    //             new FlywheelSetpoint(
-    //                 RotationsPerSecond.of(10.0),
-    //                 RotationsPerSecond.of(10.0),
-    //                 RotationsPerSecond.of(10.0))));
   }
 
   @Override
@@ -36,21 +28,11 @@ public class Flywheel extends SubsystemBase {
     Logger.processInputs("Flywheel", limitSwitchInputs);
   }
 
-  public Command flywheelSetpointCommand(Supplier<FlywheelSetpoint> setpointSupplier) {
-    return runOnce(
-            () -> {
-              FlywheelSetpoint setpoint = setpointSupplier.get();
-              setVelocityImpl(setpoint);
-            })
-        .withName("Flywheel Velocity Control");
-  }
-
   public Command setVelocity(Supplier<FlywheelSetpoint> setpointSupplier) {
-    return runOnce(
-            () -> {
-              FlywheelSetpoint setpoint = setpointSupplier.get();
-              setVelocityImpl(setpoint);
-            })
+    return run(() -> {
+          FlywheelSetpoint setpoint = setpointSupplier.get();
+          setVelocityImpl(setpoint);
+        })
         .withName("Flywheel Velocity Control");
   }
 

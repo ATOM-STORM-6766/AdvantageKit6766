@@ -27,6 +27,7 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowChoreoPathCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.aim.AimSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -37,6 +38,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIOSim;
 import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.flywheel.LimitSwitchDIO;
 import frc.robot.subsystems.hood.Hood;
@@ -68,6 +70,7 @@ public class RobotContainer {
 
   private final Hood hood;
   private final Intake m_intake;
+  private final AimSubsystem aimSubsystem = new AimSubsystem();
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -116,7 +119,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         hood = new Hood(new HoodIOSim());
-        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
+        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO(0, 1, 2));
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
         break;
@@ -134,7 +137,7 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         hood = new Hood(new HoodIOSim());
-        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
+        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO(0, 1, 2));
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
@@ -182,6 +185,10 @@ public class RobotContainer {
     return m_intake;
   }
 
+  public AimSubsystem getAimSubsystem() {
+    return aimSubsystem;
+  }
+
   public Drive getDrive() {
     return drive;
   }
@@ -203,22 +210,6 @@ public class RobotContainer {
     // 按下 X 键时切换至 X 模式
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // 按下 B 键时启动 feeder 送球
-    controller
-        .b()
-        .whileTrue(
-            Commands.parallel(
-                feeder.setShooterVelocityCommand(() -> RotationsPerSecond.of(60)),
-                feeder.setIntakeVelocityCommand(() -> RotationsPerSecond.of(20)),
-                m_intake.testSinPositionCommand()))
-        .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
-
-    // 按住 a 键时启动飞轮旋转
-    controller
-        .a()
-        .whileTrue(AimCommand.shoot(this))
-        .onFalse(flywheel.stopCommand());
-
     // 按住右肩键时启动 intake 吸球
     controller
         .rightBumper()
@@ -236,7 +227,16 @@ public class RobotContainer {
                 this,
                 () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
                 () -> -controller.getLeftY(),
-                () -> -controller.getLeftX()));
+                () -> -controller.getLeftX()))
+        .onFalse(Commands.parallel(flywheel.stopCommand()));
+
+    // 按下 y 键时送球
+    controller
+        .y()
+        .whileTrue(
+            feeder.setFeederVelocityCommand(
+                () -> RotationsPerSecond.of(60), () -> RotationsPerSecond.of(20)))
+        .onFalse(Commands.parallel(feeder.stopCommand()));
   }
 
   /**

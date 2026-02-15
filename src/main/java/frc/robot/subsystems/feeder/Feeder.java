@@ -20,14 +20,13 @@ public class Feeder extends SubsystemBase {
     Logger.processInputs("Feeder", inputs);
   }
 
-  public Command setShooterVelocityCommand(Supplier<AngularVelocity> velocitySupplier) {
-    return runOnce(() -> setShooterVelocityImpl(velocitySupplier.get()))
-        .withName("Feeder Shooter Velocity Control");
-  }
-
-  public Command setIntakeVelocityCommand(Supplier<AngularVelocity> velocitySupplier) {
-    return runOnce(() -> setIntakeVelocityImpl(velocitySupplier.get()))
-        .withName("Feeder Intake Velocity Control");
+  public Command setFeederVelocityCommand(
+      Supplier<AngularVelocity> intakeSupplier, Supplier<AngularVelocity> shooterSupplier) {
+    return run(() -> {
+          setIntakeVelocityImpl(intakeSupplier.get());
+          setShooterVelocityImpl(shooterSupplier.get());
+        })
+        .withName("Feeder Feeder Velocity Control");
   }
 
   public Command stopCommand() {

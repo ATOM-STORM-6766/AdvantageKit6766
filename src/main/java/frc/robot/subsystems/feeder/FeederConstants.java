@@ -30,8 +30,8 @@ public class FeederConstants {
       config.CurrentLimits.SupplyCurrentLimit = 20.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
+      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
     }
 
     return config;
@@ -56,6 +56,8 @@ public class FeederConstants {
     if (RobotBase.isReal()) {
       config.CurrentLimits.StatorCurrentLimit = 40.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
+      config.CurrentLimits.SupplyCurrentLimit = 20.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
       config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
