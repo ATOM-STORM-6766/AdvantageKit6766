@@ -12,11 +12,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import choreo.Choreo;
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,6 +33,9 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.flywheel.LimitSwitchDIO;
@@ -47,7 +50,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -62,6 +64,7 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Flywheel flywheel;
+  private final Feeder feeder;
 
   private final Hood hood;
   private final Intake m_intake;
@@ -71,9 +74,6 @@ public class RobotContainer {
 
   // 仪表板输入
   private final LoggedDashboardChooser<Command> autoChooser;
-
-  private static final LoggedTunableNumber autoAimFlywheelRotation =
-      new LoggedTunableNumber("AutoAim/Flywheel", 50.0);
 
   /** 机器人容器，包含子系统、操作接口设备以及指令。 */
   public RobotContainer() {
@@ -96,6 +96,7 @@ public class RobotContainer {
 
         hood = new Hood(new HoodIOTalonFX());
         flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
+        feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
 
@@ -116,6 +117,7 @@ public class RobotContainer {
 
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
+        feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
         break;
 
@@ -133,6 +135,7 @@ public class RobotContainer {
 
         hood = new Hood(new HoodIOSim());
         flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
+        feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
     }
@@ -171,6 +174,10 @@ public class RobotContainer {
     return flywheel;
   }
 
+  public Feeder getFeeder() {
+    return feeder;
+  }
+
   public Intake getIntake() {
     return m_intake;
   }
@@ -193,58 +200,33 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // 按住 A 键时锁定到 0°
-    controller
-        .y()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d())); // TODO 实现瞄准目标
-
     // 按下 X 键时切换至 X 模式
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // 按下 B 键时将陀螺仪重置到 0°
+    // 按下 B 键时启动 feeder 送球
     controller
         .b()
         .whileTrue(
             Commands.parallel(
-                flywheel.feedVelocity(() -> RotationsPerSecond.of(60)),
-                m_intake.setFeedIntakeVelocityCommand(0.0, 20.0),
+                feeder.setShooterVelocityCommand(() -> RotationsPerSecond.of(60)),
+                feeder.setIntakeVelocityCommand(() -> RotationsPerSecond.of(20)),
                 m_intake.testSinPositionCommand()))
-        .onFalse(
-            Commands.parallel(
-                m_intake.stopCommand(), flywheel.feedVelocity(() -> RotationsPerSecond.of(0.0))));
-    // .onTrue(
-    // Commands.runOnce(
-    // () ->
-    // drive.setPose(
-    // new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-    // drive)
-    // .ignoringDisable(true));
+        .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
 
+    // 按住 a 键时启动飞轮旋转
     controller
         .a()
-        // .whileTrue(
-        //     flywheel.setVelocity(
-        //         () ->
-        //             new FlywheelSetpoint(
-        //                 RotationsPerSecond.of(autoAimFlywheelRotation.get()),
-        //                 RotationsPerSecond.of(autoAimFlywheelRotation.get()),
-        //                 RotationsPerSecond.of(autoAimFlywheelRotation.get())),
-        //         () -> RotationsPerSecond.of(50.648)))
         .whileTrue(AimCommand.shoot(this))
         .onFalse(flywheel.stopCommand());
 
+    // 按住右肩键时启动 intake 吸球
     controller
         .rightBumper()
         .whileTrue(
             Commands.parallel(
-                m_intake.setFeedIntakeVelocityCommand(8.0, 0.0),
+                m_intake.setIntakeVelocityCommand(Volts.of(8.0)),
                 m_intake.setPosCommand(Rotation.of(0))))
-        .onFalse(m_intake.stopCommand());
+        .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
 
     // 按住左肩键时自瞄目标
     controller

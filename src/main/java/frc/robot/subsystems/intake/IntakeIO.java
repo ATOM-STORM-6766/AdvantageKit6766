@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -19,7 +18,6 @@ public interface IntakeIO {
     public AngularVelocity positionVelocity = RotationsPerSecond.of(0.0);
     public Current positionCurrent = Amp.of(0.0);
     public AngularVelocity intakeVelocity = RotationsPerSecond.of(0.0);
-    public AngularVelocity feedVelocity = RotationsPerSecond.of(0.0);
   }
 
   public void updateInputs(IntakeIOInputs inputs);
@@ -28,15 +26,12 @@ public interface IntakeIO {
 
   public void setIntakeVelocity(Voltage voltage);
 
-  public void setFeedVelocity(AngularVelocity velocity);
-
   public void setPositionVoltage(Voltage voltage);
 
   public void setCurrentPosition(double positionRotations);
 
   public default void stop() {
     setIntakeVelocity(Volts.of(0));
-    setFeedVelocity(RadiansPerSecond.of(0));
     setPositionVoltage(Volts.of(0));
   }
 }

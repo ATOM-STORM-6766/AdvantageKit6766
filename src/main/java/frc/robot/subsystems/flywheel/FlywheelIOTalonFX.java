@@ -17,7 +17,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   protected final TalonFX motor0;
   protected final TalonFX motor1;
   protected final TalonFX motor2;
-  private final TalonFX shootFeedMotor;
 
   private final StatusSignal<AngularVelocity> velocitySignal0;
   private final StatusSignal<Voltage> voltsSignal0;
@@ -31,10 +30,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Voltage> voltsSignal2;
   private final StatusSignal<Current> currentTorqueSignal2;
 
-  private final StatusSignal<AngularVelocity> velocitySignalFeeder;
-  private final StatusSignal<Voltage> voltsSignalFeeder;
-  private final StatusSignal<Current> currentTorqueSignalFeeder;
-
   private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
       new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
 
@@ -45,7 +40,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     motor0 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID0, Constants.kCANBus);
     motor1 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID1, Constants.kCANBus);
     motor2 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID2, Constants.kCANBus);
-    shootFeedMotor = new TalonFX(FlywheelConstants.kShooterFeedMotorCanID, Constants.kCANBus);
 
     velocitySignal0 = motor0.getVelocity();
     voltsSignal0 = motor0.getMotorVoltage();
@@ -59,14 +53,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     voltsSignal2 = motor2.getMotorVoltage();
     currentTorqueSignal2 = motor2.getTorqueCurrent();
 
-    velocitySignalFeeder = shootFeedMotor.getVelocity();
-    voltsSignalFeeder = shootFeedMotor.getMotorVoltage();
-    currentTorqueSignalFeeder = shootFeedMotor.getTorqueCurrent();
-
     motor0.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
     motor1.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
     motor2.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
-    shootFeedMotor.getConfigurator().apply(FlywheelConstants.getFeederTalonFXConfig());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50,
@@ -78,15 +67,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         currentTorqueSignal1,
         velocitySignal2,
         voltsSignal2,
-        currentTorqueSignal2,
-        velocitySignalFeeder,
-        voltsSignalFeeder,
-        currentTorqueSignalFeeder);
+        currentTorqueSignal2);
 
     motor0.optimizeBusUtilization();
     motor1.optimizeBusUtilization();
     motor2.optimizeBusUtilization();
-    shootFeedMotor.optimizeBusUtilization();
   }
 
   @Override
@@ -100,10 +85,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         currentTorqueSignal1,
         velocitySignal2,
         voltsSignal2,
-        currentTorqueSignal2,
-        velocitySignalFeeder,
-        voltsSignalFeeder,
-        currentTorqueSignalFeeder);
+        currentTorqueSignal2);
 
     inputs.velocity0 = velocitySignal0.getValue();
     inputs.appliedVolts0 = voltsSignal0.getValue();
@@ -116,10 +98,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     inputs.velocity2 = velocitySignal2.getValue();
     inputs.appliedVolts2 = voltsSignal2.getValue();
     inputs.currentTorqueAmps2 = currentTorqueSignal2.getValue();
-
-    inputs.velocityFeeder = velocitySignalFeeder.getValue();
-    inputs.appliedVoltsFeeder = voltsSignalFeeder.getValue();
-    inputs.currentTorqueAmpsFeeder = currentTorqueSignalFeeder.getValue();
   }
 
   @Override
@@ -130,16 +108,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   }
 
   @Override
-  public void setFeederVelocity(AngularVelocity velocity) {
-    shootFeedMotor.setControl(velocityControl.withVelocity(velocity));
-  }
-
-  @Override
   public void stop() {
     motor0.setControl(new CoastOut());
     motor1.setControl(new CoastOut());
     motor2.setControl(new CoastOut());
-    shootFeedMotor.setControl(new CoastOut());
   }
 
   @Override // 我深知这不优雅，谁能拯救我

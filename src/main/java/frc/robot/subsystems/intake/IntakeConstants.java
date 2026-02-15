@@ -12,7 +12,6 @@ public class IntakeConstants {
 
   public static final int intakeMotorID = 20;
   public static final int positionMotorID = 21;
-  public static final int feedMotorID = 22;
   public static final double maxRotation = 0.314698;
   public static final double minRotation = 0.0;
   public static final double positionGearRatio =

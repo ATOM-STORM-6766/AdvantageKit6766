@@ -15,16 +15,12 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.util.GenericShooterResolver;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class AimCommand {
-  private static final LoggedTunableNumber autoAimHoodPitchDeg =
-      new LoggedTunableNumber("AutoAim/HoodPitchDeg", 25.0);
-
   private static final AtomicReference<ShooterSetpoint> lastValidSetpoint =
       new AtomicReference<>(createDefaultSetpoint());
 

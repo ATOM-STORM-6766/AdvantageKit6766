@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -103,21 +102,6 @@ public class Intake extends SubsystemBase {
 
   public Command setIntakeVelocityCommand(Voltage voltage) {
     return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
-  }
-
-  public Command setFeedVelocityCommand(AngularVelocity velocity) {
-    return runOnce(() -> io.setFeedVelocity(velocity)).withName("Intake Set Feed Velocity");
-  }
-
-  @Deprecated
-  public Command setFeedIntakeVelocityCommand(
-      double intakeVoltage, double feedVelocityRotationPerSec) { // TODO 需要修改
-    return runOnce(
-            () -> {
-              io.setIntakeVelocity(Volts.of(intakeVoltage));
-              io.setFeedVelocity(RotationsPerSecond.of(feedVelocityRotationPerSec));
-            })
-        .withName("Intake Set Feed and Intake Velocity");
   }
 
   public Command setPosCommand(Angle targetAngle) {

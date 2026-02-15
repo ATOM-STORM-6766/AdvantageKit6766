@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
@@ -14,13 +13,11 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private final TalonFX intakeMotor;
   private final TalonFX positionMotor;
-  private final TalonFX feedMotor;
 
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<Current> positionCurrentSignal;
   private final StatusSignal<AngularVelocity> positionVelocitySignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
-  private final StatusSignal<AngularVelocity> feedVelocitySignal;
 
   private final MotionMagicExpoVoltage positionControl =
       new MotionMagicExpoVoltage(0.0).withEnableFOC(true).withUseTimesync(true);
@@ -28,23 +25,17 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final VoltageOut velocityControl =
       new VoltageOut(3.648).withEnableFOC(true).withUseTimesync(true);
 
-  private final MotionMagicVelocityVoltage feedVelocityControl =
-      new MotionMagicVelocityVoltage(0).withUseTimesync(true);
-
   public IntakeIOTalonFX() {
     intakeMotor = new TalonFX(IntakeConstants.intakeMotorID, IntakeConstants.canBus);
     positionMotor = new TalonFX(IntakeConstants.positionMotorID, IntakeConstants.canBus);
-    feedMotor = new TalonFX(IntakeConstants.feedMotorID, IntakeConstants.canBus);
 
     intakeMotor.getConfigurator().apply(IntakeConstants.getTalonFXConfig());
     positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig());
-    feedMotor.getConfigurator().apply(IntakeConstants.getTalonFXConfig());
 
     positionSignal = positionMotor.getPosition();
     positionCurrentSignal = positionMotor.getTorqueCurrent();
     positionVelocitySignal = positionMotor.getVelocity();
     velocitySignal = intakeMotor.getVelocity();
-    feedVelocitySignal = feedMotor.getVelocity();
   }
 
   @Override
@@ -53,13 +44,11 @@ public class IntakeIOTalonFX implements IntakeIO {
     positionCurrentSignal.refresh();
     positionVelocitySignal.refresh();
     velocitySignal.refresh();
-    feedVelocitySignal.refresh();
 
     inputs.intakePosition = positionSignal.getValue();
     inputs.positionCurrent = positionCurrentSignal.getValue();
     inputs.positionVelocity = positionVelocitySignal.getValue();
     inputs.intakeVelocity = velocitySignal.getValue();
-    inputs.feedVelocity = feedVelocitySignal.getValue();
   }
 
   @Override
@@ -70,14 +59,6 @@ public class IntakeIOTalonFX implements IntakeIO {
   @Override
   public void setIntakeVelocity(Voltage voltage) {
     intakeMotor.setControl(velocityControl.withOutput(voltage));
-  }
-
-  @Override
-  public void setFeedVelocity(AngularVelocity velocity) {
-    feedMotor.setControl(
-        feedVelocityControl.withVelocity(
-            velocity)); // setControl(feedVelocityControl.withVelocity(velocityRadPerSec));
-    // //TODO
   }
 
   @Override

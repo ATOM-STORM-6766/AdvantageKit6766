@@ -9,7 +9,6 @@ public class FlywheelConstants {
   public static final int kFlywheelMotorCanID0 = 11;
   public static final int kFlywheelMotorCanID1 = 12;
   public static final int kFlywheelMotorCanID2 = 13;
-  public static final int kShooterFeedMotorCanID = 14;
 
   public static final int kLimitSwitchID0 = 0;
   public static final int kLimitSwitchID1 = 1;
@@ -51,37 +50,6 @@ public class FlywheelConstants {
     // Current limits (real robot only)
     if (RobotBase.isReal()) {
       config.CurrentLimits.StatorCurrentLimit = 50.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.CurrentLimits.SupplyCurrentLimit = 20.0;
-      config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
-    }
-
-    return config;
-  }
-
-  public static TalonFXConfiguration getFeederTalonFXConfig() {
-    var config = new TalonFXConfiguration();
-
-    // Motor output
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-    // PID + Feedforward configuration 这里为原来的没铜轮的值
-    config.Slot0.kP = 5;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.01;
-    config.Slot0.kS = 8;
-    config.Slot0.kV = 0.4; // Ampere per RPS //volts per RPS
-
-    config.MotionMagic.MotionMagicAcceleration = 100.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 80.0;
-    config.MotionMagic.MotionMagicJerk = 1000.0;
-
-    // Current limits (real robot only)
-    if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 40.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
       config.CurrentLimits.SupplyCurrentLimit = 20.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
