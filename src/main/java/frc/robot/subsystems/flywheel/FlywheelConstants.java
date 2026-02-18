@@ -30,11 +30,11 @@ public class FlywheelConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // PID + Feedforward configuration 这里为原来的没铜轮的值
-    config.Slot0.kP = 5;
+    config.Slot0.kP = 5.5;
     config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.01;
-    config.Slot0.kS = 8;
-    config.Slot0.kV = 0.4; // Ampere per RPS //volts per RPS
+    config.Slot0.kD = 0.0;
+    config.Slot0.kS = 3;
+    config.Slot0.kV = 0.2; // Ampere per RPS //volts per RPS
 
     // Boost slot
     config.Slot1.kP = 0.0;
@@ -49,9 +49,9 @@ public class FlywheelConstants {
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 50.0;
+      config.CurrentLimits.StatorCurrentLimit = 120.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.CurrentLimits.SupplyCurrentLimit = 20.0;
+      config.CurrentLimits.SupplyCurrentLimit = 80.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;

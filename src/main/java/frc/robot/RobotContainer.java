@@ -10,7 +10,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.vision.VisionConstants.*;
@@ -52,6 +52,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -77,6 +78,13 @@ public class RobotContainer {
 
   // 仪表板输入
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private static final LoggedTunableNumber intakeFeeder =
+      new LoggedTunableNumber("Feeder/Intake", 0.0);
+  private static final LoggedTunableNumber shooterFeeder =
+      new LoggedTunableNumber("Feeder/Shooter", 0.0);
+  private static final LoggedTunableNumber intakePos =
+      new LoggedTunableNumber("Intake/Position", 10.0);
 
   /** 机器人容器，包含子系统、操作接口设备以及指令。 */
   public RobotContainer() {
@@ -216,7 +224,7 @@ public class RobotContainer {
         .whileTrue(
             Commands.parallel(
                 m_intake.setIntakeVelocityCommand(Volts.of(8.0)),
-                m_intake.setPosCommand(Rotation.of(0))))
+                m_intake.setPosCommand(() -> Degrees.of(intakePos.get()))))
         .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
 
     // 按住左肩键时自瞄目标
@@ -228,15 +236,18 @@ public class RobotContainer {
                 () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
-        .onFalse(Commands.parallel(flywheel.stopCommand()));
+        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     // 按下 y 键时送球
     controller
         .y()
         .whileTrue(
-            feeder.setFeederVelocityCommand(
-                () -> RotationsPerSecond.of(60), () -> RotationsPerSecond.of(20)))
-        .onFalse(Commands.parallel(feeder.stopCommand()));
+            Commands.parallel(
+                feeder.setFeederVelocityCommand(
+                    () -> RotationsPerSecond.of(intakeFeeder.get()),
+                    () -> RotationsPerSecond.of(shooterFeeder.get())),
+                m_intake.testSinPositionCommand()))
+        .onFalse(Commands.parallel(feeder.stopCommand(), flywheel.stopCommand()));
   }
 
   /**

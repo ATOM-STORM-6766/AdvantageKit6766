@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -104,21 +105,25 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
   }
 
-  public Command setPosCommand(Angle targetAngle) {
-    return Commands.runOnce(() -> io.setIntakePosition(targetAngle))
+  public Command setPosCommand(Supplier<Angle> targetAngle) {
+    return Commands.run(() -> setIntakePositionImpl(targetAngle.get()))
         .withName("Intake Set Position");
   }
 
   public Command testSinPositionCommand() {
     return Commands.run(
             () ->
-                io.setIntakePosition(
-                    Degrees.of(35.0 - 25.0 * Math.cos(Timer.getFPGATimestamp() * 3))))
+                setIntakePositionImpl(Degrees.of(0 + 40 * Math.cos(Timer.getFPGATimestamp() * 3))))
         .withName("Intake Test Sin Position"); // TODO
   }
 
   public Command stopCommand() {
     return runOnce(() -> io.stop()).withName("Intake Stop");
+  }
+
+  private void setIntakePositionImpl(Angle targetAngle) {
+    Logger.recordOutput("Intake/API/setpoint", targetAngle);
+    io.setIntakePosition(targetAngle);
   }
 
   private boolean isCalibrationStalled() {

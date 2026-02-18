@@ -8,10 +8,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class AimCommand {
+  private static final LoggedTunableNumber hoodPos = new LoggedTunableNumber("Hood/Position", 30.0);
+  private static final LoggedTunableNumber flywheelRPS =
+      new LoggedTunableNumber("Flywheel/RPS", 0.0);
+
   public static Command prepare(
       RobotContainer container,
       DoubleSupplier hoodPitchRadSupplier,
@@ -32,14 +37,21 @@ public class AimCommand {
                 container
                     .getFeeder()
                     .setFeederVelocityCommand(
-                        () -> RotationsPerSecond.of(-5), () -> RotationsPerSecond.of(0.0))
-                    .withTimeout(0.3)
+                        () -> RotationsPerSecond.of(0.0), () -> RotationsPerSecond.of(-80.0))
+                    .withTimeout(0.6)
                     .andThen(container.getFeeder().stopCommand()),
 
                 // 设置飞轮速度
                 container
                     .getFlywheel()
-                    .setVelocity(container.getAimSubsystem()::getFlywheelSetpoint)))
+                    .setVelocity(
+                        container.getAimSubsystem()::getFlywheelSetpoint
+                        // () -> new FlywheelSetpoint(
+                        // RotationsPerSecond.of(flywheelRPS.get()),
+                        // RotationsPerSecond.of(flywheelRPS.get()),
+                        // RotationsPerSecond.of(flywheelRPS.get()))
+
+                        )))
         .withName("Prepare Aim");
   }
 
@@ -57,13 +69,15 @@ public class AimCommand {
                 container.getAimSubsystem()),
             Commands.sequence(
                 // 等待自瞄解算完成
-                Commands.waitUntil(container.getAimSubsystem()::isSetpointValid),
+                // Commands.waitUntil(container.getAimSubsystem()::isSetpointValid),
 
                 // 准备自动瞄准时的底盘和 Hood 旋转和飞轮速度
                 prepare(
                     container,
                     container.getAimSubsystem()::getHoodPitchRad,
                     container.getAimSubsystem()::getRobotYawRad,
+                    // () -> Degrees.of(hoodPos.get()).in(Radians),
+                    // () -> RobotState.getInstance().getRobotPose().getRotation(),
                     xSupplier,
                     ySupplier)))
         .withName("Auto Aim At Target");

@@ -61,8 +61,7 @@ public class GenericShooterResolver {
             .times(robotFieldSpeeds.omegaRadiansPerSecond);
 
     Translation2d turretFieldVelXY =
-        new Translation2d(robotFieldSpeeds.vxMetersPerSecond, robotFieldSpeeds.vyMetersPerSecond)
-            .plus(tangentialVel);
+        new Translation2d(robotFieldSpeeds.vxMetersPerSecond, robotFieldSpeeds.vyMetersPerSecond);
 
     Translation2d targetXY = new Translation2d(targetPosition.getX(), targetPosition.getY());
 
