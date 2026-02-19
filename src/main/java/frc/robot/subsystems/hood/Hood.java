@@ -1,11 +1,16 @@
 package frc.robot.subsystems.hood;
 
-import edu.wpi.first.math.MathUtil;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
@@ -34,42 +39,37 @@ public class Hood extends SubsystemBase {
     return state == State.INITIALIZED;
   }
 
-  public Command positionSetpointCommand(DoubleSupplier setpoint) {
+  public Command positionSetpointCommand(Supplier<Angle> setpoint) {
     return run(() -> {
-          double target = clampToRange(setpoint.getAsDouble());
+          Angle target = setpoint.get();
           setPositionSetpointImpl(target);
         })
         .withName("Hood positionSetpointCommand");
   }
 
-  public Command waitForPosition(DoubleSupplier setpoint, double toleranceRadians) {
+  public Command waitForPosition(Supplier<Angle> setpoint, Angle tolerance) {
     return new WaitUntilCommand(
             () -> {
-              double target = clampToRange(setpoint.getAsDouble());
-              return Math.abs(inputs.positionRad - target) < toleranceRadians;
+              Angle target = setpoint.get();
+              return inputs.position.minus(target).abs(Radians) < tolerance.in(Radians);
             })
         .withName("Hood wait for position");
   }
 
   public Command resetToLimitCommand() {
-    return run(() -> io.setOpenloopVoltage(HoodConstants.kCalibrationVoltage))
+    return run(() -> io.setOpenloopVoltage(Volts.of(HoodConstants.kCalibrationVoltage)))
         .until(this::isCalibrationStalled)
         .andThen(
             runOnce(
                 () -> {
-                  io.setOpenloopVoltage(0.0);
-                  io.setRotorPosition(HoodConstants.kHoodMinPositionRadians);
+                  io.setOpenloopVoltage(Volts.of(0.0));
+                  io.setRotorPosition(HoodConstants.kHoodMinPosition);
                   state = State.INITIALIZED;
                 }))
         .withName("Hood Reset to Limit");
   }
 
-  private double clampToRange(double setpoint) {
-    return MathUtil.clamp(
-        setpoint, HoodConstants.kHoodMinPositionRadians, HoodConstants.kHoodMaxPositionRadians);
-  }
-
-  private void setPositionSetpointImpl(double setpoint) {
+  private void setPositionSetpointImpl(Angle setpoint) {
     Logger.recordOutput("Hood/API/setPositionSetpoint/setpoint", setpoint);
     io.setPositionSetpoint(setpoint);
   }
@@ -77,8 +77,8 @@ public class Hood extends SubsystemBase {
   private boolean isCalibrationStalled() {
     boolean currentOverThreshold =
         calibrationCurrentDebouncer.calculate(
-            Math.abs(inputs.currentStatorAmps) >= HoodConstants.kCalibrationCurrentThreshold);
-    return Math.abs(inputs.velocityRadPerSec)
+            inputs.currentStatorAmps.abs(Amps) >= HoodConstants.kCalibrationCurrentThreshold);
+    return inputs.velocity.abs(RadiansPerSecond)
             <= HoodConstants.kCalibrationVelocityThresholdRadPerSec
         && currentOverThreshold;
   }

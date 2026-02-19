@@ -1,11 +1,13 @@
 package frc.robot.subsystems.aim;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
@@ -52,7 +54,7 @@ public class AimSubsystem extends SubsystemBase {
     if (setpoint.isValid) {
       lastValidSetpoint = setpoint;
       Logger.recordOutput("Aiming/DesiredRobotYawDeg", Math.toDegrees(setpoint.robotYaw));
-      Logger.recordOutput("Aiming/HoodPitchDeg", Math.toDegrees(setpoint.hoodPitch));
+      Logger.recordOutput("Aiming/HoodPitch", setpoint.hoodPitch);
       Logger.recordOutput("Aiming/TimeOfFlight", setpoint.timeOfFlightSeconds);
       Logger.recordOutput("Aiming/FlywheelRps", setpoint.flywheelRps);
       if (setpoint.virtualTarget != null) {
@@ -69,7 +71,7 @@ public class AimSubsystem extends SubsystemBase {
         RotationsPerSecond.of(lastValidSetpoint.flywheelRps));
   }
 
-  public double getHoodPitchRad() {
+  public Angle getHoodPitch() {
     return lastValidSetpoint.hoodPitch;
   }
 
@@ -84,6 +86,7 @@ public class AimSubsystem extends SubsystemBase {
   private static ShooterSetpoint createDefaultSetpoint() {
     ShooterSetpoint s = new ShooterSetpoint();
     s.isValid = false;
+    s.hoodPitch = Degrees.of(0.0);
     return s;
   }
 }

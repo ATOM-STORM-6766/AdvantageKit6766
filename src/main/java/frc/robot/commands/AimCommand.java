@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -19,7 +20,7 @@ public class AimCommand {
 
   public static Command prepare(
       RobotContainer container,
-      DoubleSupplier hoodPitchRadSupplier,
+      Supplier<Angle> hoodPitchSupplier,
       Supplier<Rotation2d> robotYawRadSupplier,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier) {
@@ -29,7 +30,7 @@ public class AimCommand {
                 container.getDrive(), xSupplier, ySupplier, robotYawRadSupplier),
 
             // 启动 Hood 旋转
-            container.getHood().positionSetpointCommand(hoodPitchRadSupplier),
+            container.getHood().positionSetpointCommand(hoodPitchSupplier),
 
             // 启动 Flywheel 旋转
             Commands.sequence(
@@ -74,7 +75,7 @@ public class AimCommand {
                 // 准备自动瞄准时的底盘和 Hood 旋转和飞轮速度
                 prepare(
                     container,
-                    container.getAimSubsystem()::getHoodPitchRad,
+                    container.getAimSubsystem()::getHoodPitch,
                     container.getAimSubsystem()::getRobotYawRad,
                     // () -> Degrees.of(hoodPos.get()).in(Radians),
                     // () -> RobotState.getInstance().getRobotPose().getRotation(),

@@ -1,5 +1,9 @@
 package frc.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
@@ -30,7 +34,7 @@ public class HoodIOSim extends HoodIOTalonFX {
     lastUpdateTimestamp = Timer.getFPGATimestamp();
 
     // 模拟初始位置是随机的
-    mechanismSim.setState(Units.degreesToRadians(30), 0.0);
+    mechanismSim.setState(Degrees.of(30).in(Radians), 0.0);
 
     simNotifier = new Notifier(this::updateSimState);
     simNotifier.startPeriodic(0.005);
@@ -51,8 +55,9 @@ public class HoodIOSim extends HoodIOTalonFX {
     super.readInputs(inputs);
 
     if (simulatedStall) {
-      inputs.currentStatorAmps = SIM_STALL_CURRENT_AMPS;
-      inputs.currentSupplyAmps = Math.max(inputs.currentSupplyAmps, SIM_STALL_CURRENT_AMPS);
+      inputs.currentStatorAmps = Amps.of(SIM_STALL_CURRENT_AMPS);
+      double supplyAmps = Math.max(inputs.currentSupplyAmps.in(Amps), SIM_STALL_CURRENT_AMPS);
+      inputs.currentSupplyAmps = Amps.of(supplyAmps);
     }
   }
 
@@ -69,8 +74,8 @@ public class HoodIOSim extends HoodIOTalonFX {
     lastUpdateTimestamp = timestamp;
 
     double simPositionRads = mechanismSim.getAngularPositionRad();
-    double minAngle = HoodConstants.kHoodMinPositionRadians;
-    double maxAngle = HoodConstants.kHoodMaxPositionRadians;
+    double minAngle = HoodConstants.kHoodMinPosition.in(Radians);
+    double maxAngle = HoodConstants.kHoodMaxPosition.in(Radians);
 
     if (simPositionRads < minAngle) {
       simPositionRads = minAngle;

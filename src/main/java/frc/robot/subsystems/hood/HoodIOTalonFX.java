@@ -1,6 +1,10 @@
 package frc.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -51,22 +55,23 @@ public class HoodIOTalonFX implements HoodIO {
         BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Radians);
     double hoodPositionRadians = (hoodRotorPositionRadians / HoodConstants.kHoodGearRatio);
 
-    inputs.positionRad = hoodPositionRadians;
-    inputs.positionDegrees = Units.radiansToDegrees(hoodPositionRadians);
-    inputs.velocityRadPerSec =
-        Units.radiansToRotations(velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
-    inputs.velocityDegreesPerSec =
-        Units.radiansToDegrees(velocitySignal.getValueAsDouble() / HoodConstants.kHoodGearRatio);
-    inputs.appliedVolts = voltsSignal.getValueAsDouble();
-    inputs.currentStatorAmps = currentStatorSignal.getValueAsDouble();
-    inputs.currentSupplyAmps = currentSupplySignal.getValueAsDouble();
+    Angle hoodPosition = Radians.of(hoodPositionRadians);
+    inputs.position = hoodPosition;
+    double hoodVelocityRadPerSec =
+        velocitySignal.getValue().in(RadiansPerSecond) / HoodConstants.kHoodGearRatio;
+    inputs.velocity = Degrees.per(Second).of(Units.radiansToDegrees(hoodVelocityRadPerSec));
+    inputs.appliedVolts = voltsSignal.getValue();
+    inputs.currentStatorAmps = currentStatorSignal.getValue();
+    inputs.currentSupplyAmps = currentSupplySignal.getValue();
   }
 
   @Override
-  public void setPositionSetpoint(double setpoint) {
+  public void setPositionSetpoint(Angle setpoint) {
     double setpointRadians =
         MathUtil.clamp(
-            setpoint, HoodConstants.kHoodMinPositionRadians, HoodConstants.kHoodMaxPositionRadians);
+            setpoint.in(Radians),
+            HoodConstants.kHoodMinPosition.in(Radians),
+            HoodConstants.kHoodMaxPosition.in(Radians));
     double setpointRotations = Units.radiansToRotations(setpointRadians);
     double setpointRotor = setpointRotations * HoodConstants.kHoodGearRatio;
 
@@ -74,13 +79,13 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setOpenloopVoltage(double voltage) {
-    hoodMotor.setControl(voltageControl.withOutput(voltage));
+  public void setOpenloopVoltage(Voltage voltage) {
+    hoodMotor.setControl(voltageControl.withOutput(voltage.in(Volts)));
   }
 
   @Override
-  public void setRotorPosition(double hoodPositionRadians) {
-    double positionRotations = Units.radiansToRotations(hoodPositionRadians);
+  public void setRotorPosition(Angle hoodPosition) {
+    double positionRotations = Units.radiansToRotations(hoodPosition.in(Radians));
     double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
     hoodMotor.setPosition(positionRotor);
   }

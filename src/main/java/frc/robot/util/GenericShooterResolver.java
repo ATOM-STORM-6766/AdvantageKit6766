@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -8,6 +10,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.RobotState;
 
 public class GenericShooterResolver {
@@ -29,7 +32,7 @@ public class GenericShooterResolver {
 
   public static class ShooterSetpoint {
     public double robotYaw;
-    public double hoodPitch;
+    public Angle hoodPitch;
     public double flywheelRps;
     public double timeOfFlightSeconds;
     public boolean isValid;
@@ -38,6 +41,7 @@ public class GenericShooterResolver {
     public static ShooterSetpoint invalid() {
       ShooterSetpoint s = new ShooterSetpoint();
       s.isValid = false;
+      s.hoodPitch = Degrees.of(0.0);
       return s;
     }
   }
@@ -61,7 +65,8 @@ public class GenericShooterResolver {
             .times(robotFieldSpeeds.omegaRadiansPerSecond);
 
     Translation2d turretFieldVelXY =
-        new Translation2d(robotFieldSpeeds.vxMetersPerSecond, robotFieldSpeeds.vyMetersPerSecond);
+        new Translation2d(robotFieldSpeeds.vxMetersPerSecond, robotFieldSpeeds.vyMetersPerSecond)
+            .plus(tangentialVel);
 
     Translation2d targetXY = new Translation2d(targetPosition.getX(), targetPosition.getY());
 
@@ -100,7 +105,7 @@ public class GenericShooterResolver {
         new Translation3d(virtualTargetXY.getX(), virtualTargetXY.getY(), targetPosition.getZ());
 
     result.robotYaw = targetXY.minus(lookaheadRobotCenter).getAngle().getRadians();
-    result.hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getRadians();
+    result.hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getMeasure();
     result.flywheelRps = config.flywheelRpsMap.get(distanceMeters);
     result.isValid = true;
 

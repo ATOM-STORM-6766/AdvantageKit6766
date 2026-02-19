@@ -1,7 +1,12 @@
 package frc.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class HoodConstants {
@@ -11,8 +16,8 @@ public class HoodConstants {
   // Gear ratio: motor rotations per output rotation
   public static final double kHoodGearRatio = 105;
 
-  public static final double kHoodMinPositionRadians = Math.toRadians(14.0);
-  public static final double kHoodMaxPositionRadians = Math.toRadians(39.0);
+  public static final Angle kHoodMinPosition = Degrees.of(14.0);
+  public static final Angle kHoodMaxPosition = Degrees.of(39.0);
 
   // Calibration parameters for limit-based reset
   public static final double kCalibrationVoltage = -1.5;
@@ -38,7 +43,8 @@ public class HoodConstants {
     config.MotionMagic.MotionMagicCruiseVelocity = 10.0; // rotations/sec
 
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kHoodMaxPositionRadians * kHoodGearRatio;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+        Units.radiansToRotations(kHoodMaxPosition.in(Radians)) * kHoodGearRatio;
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

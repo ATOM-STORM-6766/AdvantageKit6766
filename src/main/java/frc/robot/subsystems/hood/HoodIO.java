@@ -1,30 +1,31 @@
 package frc.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface HoodIO {
-  enum CalibrationState {
-    NOT_CALIBRATED,
-    CALIBRATING,
-    CALIBRATED
-  }
-
   @AutoLog
   class HoodInputs {
-    public double positionRad = 0.0;
-    public double positionDegrees = 0.0;
-    public double velocityRadPerSec = 0.0;
-    public double velocityDegreesPerSec = 0.0;
-    public double appliedVolts = 0.0;
-    public double currentStatorAmps = 0.0;
-    public double currentSupplyAmps = 0.0;
+    public Angle position = Degrees.of(0.0);
+    public AngularVelocity velocity = Degrees.per(Second).of(0.0);
+    public Voltage appliedVolts = Volts.of(0.0);
+    public Current currentStatorAmps = Amps.of(0.0);
+    public Current currentSupplyAmps = Amps.of(0.0);
   }
 
   default void readInputs(HoodIO.HoodInputs inputs) {}
 
-  default void setPositionSetpoint(double setpoint) {}
+  default void setPositionSetpoint(Angle setpoint) {}
 
-  default void setOpenloopVoltage(double voltage) {}
+  default void setOpenloopVoltage(Voltage voltage) {}
 
-  default void setRotorPosition(double hoodPositionRadians) {}
+  default void setRotorPosition(Angle hoodPosition) {}
 }
