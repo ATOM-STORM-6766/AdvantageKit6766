@@ -37,7 +37,7 @@ public class Flywheel extends SubsystemBase {
   }
 
   public Command stopCommand() {
-    return run(() -> io.stop()).withName("Flywheel Stop");
+    return runOnce(() -> io.stop()).withName("Flywheel Stop");
   }
 
   public Command waitForVelocity(Supplier<FlywheelSetpoint> setpointSupplier, double toleranceRps) {
@@ -62,6 +62,13 @@ public class Flywheel extends SubsystemBase {
     Logger.recordOutput("Flywheel/API/setVelocity/rps0", setpoint.motor0());
     Logger.recordOutput("Flywheel/API/setVelocity/rps1", setpoint.motor1());
     Logger.recordOutput("Flywheel/API/setVelocity/rps2", setpoint.motor2());
+    // io.setFlywheelWithBoost(
+    //     setpoint,
+    //     new boolean[] {
+    //       limitSwitchInputs.limitSwitch0,
+    //       limitSwitchInputs.limitSwitch1,
+    //       limitSwitchInputs.limitSwitch2
+    //     });
     io.setFlywheelVelocity(setpoint);
   }
 }

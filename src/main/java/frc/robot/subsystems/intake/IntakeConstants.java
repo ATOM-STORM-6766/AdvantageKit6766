@@ -12,7 +12,7 @@ public class IntakeConstants {
 
   public static final int intakeMotorID = 20;
   public static final int positionMotorID = 21;
-  public static final double maxRotation = 0.314698;
+  public static final double maxRotation = 0.314698 + 0.041;
   public static final double minRotation = 0.0;
   public static final double positionGearRatio =
       60.0 / 8 * 58 / 20 * 30 / 15; // 43.5 注意int和float的除号"/"区别

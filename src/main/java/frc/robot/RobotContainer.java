@@ -17,6 +17,8 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import choreo.Choreo;
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -80,11 +82,11 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   private static final LoggedTunableNumber intakeFeeder =
-      new LoggedTunableNumber("Feeder/Intake", 0.0);
+      new LoggedTunableNumber("Feeder/Intake", 20.0);
   private static final LoggedTunableNumber shooterFeeder =
-      new LoggedTunableNumber("Feeder/Shooter", 0.0);
+      new LoggedTunableNumber("Feeder/Shooter", 80.0);
   private static final LoggedTunableNumber intakePos =
-      new LoggedTunableNumber("Intake/Position", 10.0);
+      new LoggedTunableNumber("Intake/Position", 0.0);
 
   /** 机器人容器，包含子系统、操作接口设备以及指令。 */
   public RobotContainer() {
@@ -106,7 +108,7 @@ public class RobotContainer {
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
 
         hood = new Hood(new HoodIOTalonFX());
-        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO(0, 1, 2));
+        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
@@ -127,7 +129,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         hood = new Hood(new HoodIOSim());
-        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO(0, 1, 2));
+        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
         break;
@@ -145,7 +147,7 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         hood = new Hood(new HoodIOSim());
-        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO(0, 1, 2));
+        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
         break;
@@ -218,6 +220,17 @@ public class RobotContainer {
     // 按下 X 键时切换至 X 模式
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
+    // 按下 B 键时将陀螺仪重置到 0°
+    controller
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                    drive)
+                .ignoringDisable(true));
+
     // 按住右肩键时启动 intake 吸球
     controller
         .rightBumper()
@@ -247,7 +260,20 @@ public class RobotContainer {
                     () -> RotationsPerSecond.of(intakeFeeder.get()),
                     () -> RotationsPerSecond.of(shooterFeeder.get())),
                 m_intake.testSinPositionCommand()))
-        .onFalse(Commands.parallel(feeder.stopCommand(), flywheel.stopCommand()));
+        .onFalse(
+            Commands.parallel(
+                feeder
+                    .setFeederVelocityCommand(
+                        () -> RotationsPerSecond.of(-20.0), () -> RotationsPerSecond.of(-80.0))
+                    .withTimeout(1)
+                    .andThen(feeder.stopCommand()),
+                m_intake.stopCommand()));
+
+    controller
+        .a()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive, () -> 0.0, () -> 0.0, () -> Rotation2d.kZero));
   }
 
   /**

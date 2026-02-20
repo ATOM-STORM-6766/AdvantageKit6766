@@ -111,9 +111,16 @@ public class Intake extends SubsystemBase {
   }
 
   public Command testSinPositionCommand() {
-    return Commands.run(
-            () ->
-                setIntakePositionImpl(Degrees.of(0 + 40 * Math.cos(Timer.getFPGATimestamp() * 3))))
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              timer.reset();
+              timer.start();
+            },
+            () -> {
+              var t = timer.get();
+              setIntakePositionImpl(Degrees.of(t % 1 < 0.5 ? Math.min(t / 10, 1) * 20 + 40 : 0));
+            })
         .withName("Intake Test Sin Position"); // TODO
   }
 

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -34,13 +35,25 @@ public class AimCommand {
 
             // 启动 Flywheel 旋转
             Commands.sequence(
-                // 先反转喂料 0.3s，清理卡球
-                container
-                    .getFeeder()
-                    .setFeederVelocityCommand(
-                        () -> RotationsPerSecond.of(0.0), () -> RotationsPerSecond.of(-80.0))
-                    .withTimeout(0.6)
-                    .andThen(container.getFeeder().stopCommand()),
+                Commands.parallel
+                    // 先反转喂料 0.6s，清理卡球
+                    (
+                        container // feed退弹
+                            .getFeeder()
+                            .setFeederVelocityCommand(
+                                () -> RotationsPerSecond.of(0.0),
+                                () -> RotationsPerSecond.of(-80.0))
+                            .andThen(container.getFeeder().stopCommand()),
+                        container // flywheel退弹
+                            .getFlywheel()
+                            .setVelocity(
+                                () ->
+                                    new FlywheelSetpoint(
+                                        RotationsPerSecond.of(-30.0),
+                                        RotationsPerSecond.of(-30.0),
+                                        RotationsPerSecond.of(-30.0)))
+                            .andThen(container.getFlywheel().stopCommand()))
+                    .withTimeout(0.6),
 
                 // 设置飞轮速度
                 container

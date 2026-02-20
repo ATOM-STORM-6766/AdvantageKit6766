@@ -1,5 +1,6 @@
 package frc.robot.subsystems.flywheel;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.function.BooleanSupplier;
 
@@ -8,18 +9,24 @@ public class LimitSwitchDIO implements LimitSwitchIO {
   private final DigitalInput digitalInput0;
   private final DigitalInput digitalInput1;
   private final DigitalInput digitalInput2;
+  private final Debouncer boostHoldDebouncer0 =
+      new Debouncer(FlywheelConstants.kFlywheelBoostHoldTimeSec, Debouncer.DebounceType.kFalling);
+  private final Debouncer boostHoldDebouncer1 =
+      new Debouncer(FlywheelConstants.kFlywheelBoostHoldTimeSec, Debouncer.DebounceType.kFalling);
+  private final Debouncer boostHoldDebouncer2 =
+      new Debouncer(FlywheelConstants.kFlywheelBoostHoldTimeSec, Debouncer.DebounceType.kFalling);
 
-  public LimitSwitchDIO(int dioPort0, int dioPort1, int dioPort2) {
-    digitalInput0 = new DigitalInput(dioPort0);
-    digitalInput1 = new DigitalInput(dioPort1);
-    digitalInput2 = new DigitalInput(dioPort2);
+  public LimitSwitchDIO() {
+    digitalInput0 = new DigitalInput(FlywheelConstants.kLimitSwitchID0);
+    digitalInput1 = new DigitalInput(FlywheelConstants.kLimitSwitchID1);
+    digitalInput2 = new DigitalInput(FlywheelConstants.kLimitSwitchID2);
   }
 
   @Override
   public void updateInputs(LimitSwitchInputs inputs) {
-    inputs.limitSwitch0 = digitalInput0.get();
-    inputs.limitSwitch1 = digitalInput1.get();
-    inputs.limitSwitch2 = digitalInput2.get();
+    inputs.limitSwitch0 = boostHoldDebouncer0.calculate(digitalInput0.get());
+    inputs.limitSwitch1 = boostHoldDebouncer1.calculate(digitalInput1.get());
+    inputs.limitSwitch2 = boostHoldDebouncer2.calculate(digitalInput2.get());
   }
 
   @Override
