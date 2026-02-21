@@ -11,6 +11,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.vision.VisionConstants.*;
@@ -255,11 +256,17 @@ public class RobotContainer {
     controller
         .y()
         .whileTrue(
-            Commands.parallel(
-                feeder.setFeederVelocityCommand(
-                    () -> RotationsPerSecond.of(intakeFeeder.get()),
-                    () -> RotationsPerSecond.of(shooterFeeder.get())),
-                m_intake.testSinPositionCommand()))
+            Commands.sequence(
+                Commands.sequence(
+                    feeder.setFeederVelocityCommand(
+                        () -> RotationsPerSecond.of(0.0), () -> RotationsPerSecond.of(-80.0)),
+                    Commands.waitSeconds(0.6),
+                    feeder.stopCommand()),
+                Commands.parallel(
+                    feeder.setFeederVelocityCommand(
+                        () -> RotationsPerSecond.of(intakeFeeder.get()),
+                        () -> RotationsPerSecond.of(shooterFeeder.get())),
+                    m_intake.testSinPositionCommand())))
         .onFalse(
             Commands.parallel(
                 feeder
@@ -273,7 +280,11 @@ public class RobotContainer {
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
-                drive, () -> 0.0, () -> 0.0, () -> Rotation2d.kZero));
+                drive,
+                () -> 0.0,
+                () -> 0.0,
+                () -> Rotation2d.kZero,
+                () -> RadiansPerSecond.of(0.0)));
   }
 
   /**

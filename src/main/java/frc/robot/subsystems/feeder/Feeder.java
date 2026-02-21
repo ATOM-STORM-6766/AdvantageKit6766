@@ -22,10 +22,11 @@ public class Feeder extends SubsystemBase {
 
   public Command setFeederVelocityCommand(
       Supplier<AngularVelocity> intakeSupplier, Supplier<AngularVelocity> shooterSupplier) {
-    return run(() -> {
-          setIntakeVelocityImpl(intakeSupplier.get());
-          setShooterVelocityImpl(shooterSupplier.get());
-        })
+    return runOnce(
+            () -> {
+              setIntakeVelocityImpl(intakeSupplier.get());
+              setShooterVelocityImpl(shooterSupplier.get());
+            })
         .withName("Feeder Feeder Velocity Control");
   }
 

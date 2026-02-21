@@ -13,10 +13,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degree;
+
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
 
 /**
@@ -36,6 +39,14 @@ public final class Constants {
     ShooterConfig config = new ShooterConfig();
 
     config.robotCenterToTurret = new Translation3d(-0.235, 0.0, 0.63);
+
+    config.minRange = 1.50;
+    config.maxRange = 5.00;
+
+    config.minHoodPitchDegrees = HoodConstants.kHoodMinPosition.in(Degree);
+    config.maxHoodPitchDegrees = HoodConstants.kHoodMaxPosition.in(Degree);
+
+    config.maxFlywheelRps = 100;
 
     config.hoodPitchRadiansMap.put(1.50, Rotation2d.fromDegrees(25.0));
     config.hoodPitchRadiansMap.put(1.90, Rotation2d.fromDegrees(27.0));

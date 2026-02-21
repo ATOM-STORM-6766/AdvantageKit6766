@@ -10,6 +10,8 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -20,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -102,7 +105,8 @@ public class DriveCommands {
                           : drive.getRotation()));
             },
             drive),
-        joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> headRotation)
+        joystickDriveAtAngle(
+                drive, xSupplier, ySupplier, () -> headRotation, () -> RadiansPerSecond.of(0.0))
             .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
         () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0);
   }
@@ -112,7 +116,8 @@ public class DriveCommands {
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      Supplier<Rotation2d> rotationSupplier) {
+      Supplier<Rotation2d> rotationSupplier,
+      Supplier<AngularVelocity> omegaFeedforwardSupplier) {
 
     // 创建 PID 控制器
     ProfiledPIDController angleController =
@@ -135,13 +140,14 @@ public class DriveCommands {
               double omega =
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
+              double omegaFeedforward = omegaFeedforwardSupplier.get().in(RadiansPerSecond) * 1.5;
 
               // 转换为场相对速度并发送指令
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                      omega);
+                      omega + omegaFeedforward);
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
                       && DriverStation.getAlliance().get() == Alliance.Red;

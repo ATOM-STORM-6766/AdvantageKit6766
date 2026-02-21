@@ -1,6 +1,8 @@
 package frc.robot.subsystems.aim;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -8,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
@@ -53,7 +56,8 @@ public class AimSubsystem extends SubsystemBase {
 
     if (setpoint.isValid) {
       lastValidSetpoint = setpoint;
-      Logger.recordOutput("Aiming/DesiredRobotYawDeg", Math.toDegrees(setpoint.robotYaw));
+      Logger.recordOutput("Aiming/DesiredRobotYaw", setpoint.robotYaw);
+      Logger.recordOutput("Aiming/DesiredRobotYawRate", setpoint.robotYawRate);
       Logger.recordOutput("Aiming/HoodPitch", setpoint.hoodPitch);
       Logger.recordOutput("Aiming/TimeOfFlight", setpoint.timeOfFlightSeconds);
       Logger.recordOutput("Aiming/FlywheelRps", setpoint.flywheelRps);
@@ -66,9 +70,9 @@ public class AimSubsystem extends SubsystemBase {
 
   public FlywheelSetpoint getFlywheelSetpoint() {
     return new FlywheelSetpoint(
-        RotationsPerSecond.of(lastValidSetpoint.flywheelRps),
-        RotationsPerSecond.of(lastValidSetpoint.flywheelRps),
-        RotationsPerSecond.of(lastValidSetpoint.flywheelRps));
+        lastValidSetpoint.flywheelRps,
+        lastValidSetpoint.flywheelRps,
+        lastValidSetpoint.flywheelRps);
   }
 
   public Angle getHoodPitch() {
@@ -76,7 +80,11 @@ public class AimSubsystem extends SubsystemBase {
   }
 
   public Rotation2d getRobotYawRad() {
-    return Rotation2d.fromRadians(lastValidSetpoint.robotYaw);
+    return Rotation2d.fromRadians(lastValidSetpoint.robotYaw.in(Radians));
+  }
+
+  public AngularVelocity getRobotYawRateRadPerSec() {
+    return lastValidSetpoint.robotYawRate;
   }
 
   public boolean isSetpointValid() {
@@ -87,6 +95,9 @@ public class AimSubsystem extends SubsystemBase {
     ShooterSetpoint s = new ShooterSetpoint();
     s.isValid = false;
     s.hoodPitch = Degrees.of(0.0);
-    return s;
+    s.robotYaw = Degrees.of(0.0);
+    s.robotYawRate = RadiansPerSecond.of(0.0);
+    s.flywheelRps = RotationsPerSecond.of(0.0);
+    return ShooterSetpoint.invalid();
   }
 }
