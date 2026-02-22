@@ -43,7 +43,7 @@ public class GenericShooterResolver {
 
     private final LinearFilter driveAngleFilter =
         LinearFilter.movingAverage((int) (0.8 / loopPeriodSecs));
-    private Rotation2d lastDriveAngle = Rotation2d.fromRadians(0.0);
+    private Rotation2d lastDriveAngle = null;
   }
 
   public static class ShooterSetpoint {
@@ -127,6 +127,7 @@ public class GenericShooterResolver {
     Translation2d yawTargetVector = targetXY.minus(lookaheadRobotCenter);
 
     Rotation2d driveAngle = yawTargetVector.getAngle();
+    if (config.lastDriveAngle == null) config.lastDriveAngle = driveAngle;
     double filteredDriveAngleRate =
         config.driveAngleFilter.calculate(
             driveAngle.minus(config.lastDriveAngle).getRadians() / config.loopPeriodSecs);
