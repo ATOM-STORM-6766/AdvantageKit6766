@@ -5,6 +5,8 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import com.ctre.phoenix6.signals.StripTypeValue;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 public class LightConstants {
     public static final int candleCanID = 50;
     public static final int kCandleLightNum = 68;
@@ -39,8 +41,20 @@ public class LightConstants {
             default -> kGreen;
         };
     }
-
     public static RGBWColor onboardColor = kGreen;
+    public static RGBWColor defaultColor;
+
+    static {
+        // 根据联盟设置默认颜色
+        DriverStation.Alliance alliance = DriverStation.getAlliance().get();
+        if (alliance == DriverStation.Alliance.Red){
+            defaultColor = kRed;
+        }else if (alliance == DriverStation.Alliance.Blue){
+            defaultColor = kBlue;
+        }else{
+            defaultColor = kWhite;
+        }
+    }
 
     public static CANdleConfiguration getLightConfig(){
         var config = new CANdleConfiguration();

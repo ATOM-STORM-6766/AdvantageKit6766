@@ -20,15 +20,7 @@ public class Light extends SubsystemBase{
         }
         candle.setControl(new SolidColor(0,7).withColor(LightConstants.onboardColor));
         // 根据联盟设置灯光颜色
-        DriverStation.Alliance alliance = DriverStation.getAlliance().get();
-        if (alliance == DriverStation.Alliance.Red){
-            candle.setControl (new SolidColor(8,67).withColor(LightConstants.kRed));
-        }else if (alliance == DriverStation.Alliance.Blue){
-            candle.setControl (new SolidColor(8,67).withColor(LightConstants.kBlue));
-        }else{
-            candle.setControl (new SolidColor(8,67).withColor(LightConstants.kWhite));
-        }
-        
+        candle.setControl(new SolidColor(8,67).withColor(LightConstants.defaultColor));        
     }
 
     // 设置左侧灯光颜色

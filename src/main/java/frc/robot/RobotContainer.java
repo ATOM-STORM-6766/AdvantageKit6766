@@ -16,6 +16,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import java.lang.ModuleLayer.Controller;
+
 import choreo.Choreo;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -227,6 +229,8 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    light.setDefaultCommand(light.setStateCommand(Light.LightState.ALLIANCE));
+
     // 按下 X 键时切换至 X 模式
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
@@ -246,6 +250,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.parallel(
+                light.setStateCommand(Light.LightState.INTAKE),
                 m_intake.setIntakeVelocityCommand(Volts.of(8.0)),
                 m_intake.setPosCommand(() -> Degrees.of(intakePos.get()))))
         .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
@@ -254,11 +259,13 @@ public class RobotContainer {
     controller
         .leftBumper()
         .whileTrue(
-            AimCommand.autoAimAtTarget(
-                this,
-                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX()))
+            Commands.parallel(
+                light.setStateCommand(Light.LightState.AIM),
+                AimCommand.autoAimAtTarget(
+                    this,
+                    () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                    () -> -controller.getLeftY(),
+                    () -> -controller.getLeftX())))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     // 按下 y 键时送球
@@ -272,6 +279,7 @@ public class RobotContainer {
                     Commands.waitSeconds(0.6),
                     feeder.stopCommand()),
                 Commands.parallel(
+                    light.setStateCommand(Light.LightState.SHOOTING),
                     feeder.setFeederVelocityCommand(
                         () -> RotationsPerSecond.of(intakeFeeder.get()),
                         () -> RotationsPerSecond.of(shooterFeeder.get())),
@@ -294,7 +302,12 @@ public class RobotContainer {
                 () -> 0.0,
                 () -> Rotation2d.kZero,
                 () -> RadiansPerSecond.of(0.0)));
+    //error测试
+    controller
+        .povUp()
+        .whileTrue(light.setStateCommand(Light.LightState.ERROR));
   }
+
 
   /**
    * 用此方法将自动阶段的指令传递给 {@link Robot} 主类。
