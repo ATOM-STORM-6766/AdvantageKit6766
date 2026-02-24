@@ -16,6 +16,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import java.lang.ModuleLayer.Controller;
+
 import choreo.Choreo;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -54,6 +56,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.subsystems.light.Light;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -75,6 +78,7 @@ public class RobotContainer {
   private final Hood hood;
   private final Intake m_intake;
   private final AimSubsystem aimSubsystem = new AimSubsystem();
+  private final Light light;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -112,6 +116,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
+        light = new Light();
         break;
 
       case SIM:
@@ -133,6 +138,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
+        light = new Light();
         break;
 
       default:
@@ -151,6 +157,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
+        light = new Light();
         break;
     }
 
@@ -204,6 +211,10 @@ public class RobotContainer {
     return drive;
   }
 
+  public Light getLight() {
+    return light;
+  }
+
   /**
    * 使用此方法定义按键到指令的映射。可以实例化 {@link GenericHID} 或其子类 （如 {@link edu.wpi.first.wpilibj.Joystick} 或
    * {@link XboxController}），然后传递给 {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}
@@ -217,6 +228,8 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
+    light.setDefaultCommand(light.setStateCommand(Light.LightState.ALLIANCE));
 
     // 按下 X 键时切换至 X 模式
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -237,6 +250,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.parallel(
+                light.setStateCommand(Light.LightState.INTAKE),
                 m_intake.setIntakeVelocityCommand(Volts.of(8.0)),
                 m_intake.setPosCommand(() -> Degrees.of(intakePos.get()))))
         .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
@@ -245,11 +259,13 @@ public class RobotContainer {
     controller
         .leftBumper()
         .whileTrue(
-            AimCommand.autoAimAtTarget(
-                this,
-                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX()))
+            Commands.parallel(
+                light.setStateCommand(Light.LightState.AIM),
+                AimCommand.autoAimAtTarget(
+                    this,
+                    () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                    () -> -controller.getLeftY(),
+                    () -> -controller.getLeftX())))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     // 按下 y 键时送球
@@ -263,6 +279,7 @@ public class RobotContainer {
                     Commands.waitSeconds(0.6),
                     feeder.stopCommand()),
                 Commands.parallel(
+                    light.setStateCommand(Light.LightState.SHOOTING),
                     feeder.setFeederVelocityCommand(
                         () -> RotationsPerSecond.of(intakeFeeder.get()),
                         () -> RotationsPerSecond.of(shooterFeeder.get())),
@@ -285,7 +302,12 @@ public class RobotContainer {
                 () -> 0.0,
                 () -> Rotation2d.kZero,
                 () -> RadiansPerSecond.of(0.0)));
+    //error测试
+    controller
+        .povUp()
+        .whileTrue(light.setStateCommand(Light.LightState.ERROR));
   }
+
 
   /**
    * 用此方法将自动阶段的指令传递给 {@link Robot} 主类。
