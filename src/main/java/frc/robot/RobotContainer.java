@@ -54,6 +54,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.subsystems.light.Light;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -75,6 +76,7 @@ public class RobotContainer {
   private final Hood hood;
   private final Intake m_intake;
   private final AimSubsystem aimSubsystem = new AimSubsystem();
+  private final Light light;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -112,6 +114,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
+        light = new Light();
         break;
 
       case SIM:
@@ -133,6 +136,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
+        light = new Light();
         break;
 
       default:
@@ -151,6 +155,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
+        light = new Light();
         break;
     }
 
@@ -202,6 +207,10 @@ public class RobotContainer {
 
   public Drive getDrive() {
     return drive;
+  }
+
+  public Light getLight() {
+    return light;
   }
 
   /**
