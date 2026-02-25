@@ -119,7 +119,7 @@ public class Intake extends SubsystemBase {
             },
             () -> {
               var t = timer.get();
-              setIntakePositionImpl(Degrees.of(t % 1 < 0.5 ? Math.min(t / 10, 1) * 20 + 40 : 0));
+              setIntakePositionImpl(Degrees.of(t % 0.5 < 0.25 ? Math.min(t / 4, 1) * 20 + 40 : 0));
             })
         .withName("Intake Test Sin Position"); // TODO
   }

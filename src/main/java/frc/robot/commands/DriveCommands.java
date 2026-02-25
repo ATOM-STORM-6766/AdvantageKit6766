@@ -75,40 +75,42 @@ public class DriveCommands {
     // Timer timer = new Timer();
 
     return Commands.either(
-        Commands.run(
-            () -> {
-              // 获取线速度
-              Translation2d linearVelocity =
-                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+            Commands.run(
+                () -> {
+                  // 获取线速度
+                  Translation2d linearVelocity =
+                      getLinearVelocityFromJoysticks(
+                          xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-              headRotation = drive.getRotation();
-              // 对旋转输入应用死区
-              double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+                  headRotation = drive.getRotation();
+                  // 对旋转输入应用死区
+                  double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
-              // 将旋转输入平方以获得更精细的控制
-              omega = Math.copySign(omega * omega, omega);
+                  // 将旋转输入平方以获得更精细的控制
+                  omega = Math.copySign(omega * omega, omega);
 
-              // 转换为场相对速度并发送指令
-              ChassisSpeeds speeds =
-                  new ChassisSpeeds(
-                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                      omega * drive.getMaxAngularSpeedRadPerSec());
-              boolean isFlipped =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get() == Alliance.Red;
-              drive.runVelocity(
-                  ChassisSpeeds.fromFieldRelativeSpeeds(
-                      speeds,
-                      isFlipped
-                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                          : drive.getRotation()));
-            },
-            drive),
-        joystickDriveAtAngle(
-                drive, xSupplier, ySupplier, () -> headRotation, () -> RadiansPerSecond.of(0.0))
-            .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
-        () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0);
+                  // 转换为场相对速度并发送指令
+                  ChassisSpeeds speeds =
+                      new ChassisSpeeds(
+                          linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                          linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                          omega * drive.getMaxAngularSpeedRadPerSec());
+                  boolean isFlipped =
+                      DriverStation.getAlliance().isPresent()
+                          && DriverStation.getAlliance().get() == Alliance.Red;
+                  drive.runVelocity(
+                      ChassisSpeeds.fromFieldRelativeSpeeds(
+                          speeds,
+                          isFlipped
+                              ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                              : drive.getRotation()));
+                },
+                drive),
+            joystickDriveAtAngle(
+                    drive, xSupplier, ySupplier, () -> headRotation, () -> RadiansPerSecond.of(0.0))
+                .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
+            () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0)
+        .withName("Joystick Drive");
   }
 
   /** 使用摇杆进行线速度控制、用 PID 进行角速度控制的场相对驾驶指令。 适用场景包括自动对准某个角度、瞄准视觉目标或通过摇杆控制绝对朝向。 */
@@ -140,7 +142,7 @@ public class DriveCommands {
               double omega =
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
-              double omegaFeedforward = omegaFeedforwardSupplier.get().in(RadiansPerSecond) * 1.5;
+              double omegaFeedforward = omegaFeedforwardSupplier.get().in(RadiansPerSecond) * 2.5;
 
               // 转换为场相对速度并发送指令
               ChassisSpeeds speeds =
@@ -162,6 +164,23 @@ public class DriveCommands {
 
         // 指令开始时重置 PID 控制器
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  // 在限制范围内，将底盘角度旋转到45、135、225、315中最近的一个
+  public static Command snapToNearest45Degrees(
+      Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+    var targetRotation = new Rotation2d[] {new Rotation2d()};
+
+    return joystickDriveAtAngle(
+            drive, xSupplier, ySupplier, () -> targetRotation[0], () -> RadiansPerSecond.of(0.0))
+        .beforeStarting(
+            () -> {
+              Rotation2d currentAngle = drive.getRotation();
+              double targetAngleDegrees =
+                  Math.round((currentAngle.getDegrees() - 45.0) / 90.0) * 90.0 + 45.0;
+              targetRotation[0] = Rotation2d.fromDegrees(targetAngleDegrees);
+            })
+        .withName("Snap To Nearest 45 Degrees");
   }
 
   /**

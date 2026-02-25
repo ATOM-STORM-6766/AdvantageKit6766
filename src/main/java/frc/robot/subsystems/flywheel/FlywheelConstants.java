@@ -16,7 +16,7 @@ public class FlywheelConstants {
 
   public static final double kFlywheelBoost = 36.832850575486965 * 10.5; // A/rps
 
-  public static final double kFlywheelBoostHoldTimeSec = 0.25;
+  public static final double kFlywheelBoostHoldTimeSec = 0.75;
   // Gear ratio: motor rotations per output rotation
   // Example: For a 2:1 gearbox, set this to 2.0
   public static final double kFlywheelGearRatio = 1.0;
@@ -48,6 +48,8 @@ public class FlywheelConstants {
     config.MotionMagic.MotionMagicAcceleration = 100.0;
     config.MotionMagic.MotionMagicCruiseVelocity = 80.0;
     config.MotionMagic.MotionMagicJerk = 1000.0;
+
+    config.Feedback.SensorToMechanismRatio = 1.5;
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {

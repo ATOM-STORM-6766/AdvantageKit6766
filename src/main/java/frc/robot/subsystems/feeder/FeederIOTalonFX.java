@@ -1,10 +1,12 @@
 package frc.robot.subsystems.feeder;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -27,8 +29,7 @@ public class FeederIOTalonFX implements FeederIO {
   private final MotionMagicVelocityTorqueCurrentFOC shooterVelocityControl =
       new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
 
-  private final MotionMagicVelocityVoltage intakeVelocityControl =
-      new MotionMagicVelocityVoltage(0).withUseTimesync(true);
+  private final DutyCycleOut intakeVelocityControl = new DutyCycleOut(0).withUseTimesync(true);
 
   public FeederIOTalonFX() {
     shooterFeedMotor = new TalonFX(FeederConstants.kShooterFeedMotorCanID, Constants.kCANBus);
@@ -84,7 +85,7 @@ public class FeederIOTalonFX implements FeederIO {
 
   @Override
   public void setIntakeVelocity(AngularVelocity velocity) {
-    intakeFeedMotor.setControl(intakeVelocityControl.withVelocity(velocity));
+    intakeFeedMotor.setControl(intakeVelocityControl.withOutput(velocity.in(RPM) / 6065));
   }
 
   @Override

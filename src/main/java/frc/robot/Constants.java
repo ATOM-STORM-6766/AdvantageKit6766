@@ -16,8 +16,13 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degree;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
@@ -52,36 +57,48 @@ public final class Constants {
     config.hoodPitchRadiansMap.put(1.90, Rotation2d.fromDegrees(27.0));
     config.hoodPitchRadiansMap.put(2.30, Rotation2d.fromDegrees(29.0));
     config.hoodPitchRadiansMap.put(2.70, Rotation2d.fromDegrees(30.0));
-    config.hoodPitchRadiansMap.put(3.10, Rotation2d.fromDegrees(32.0));
-    config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(33.0));
-    config.hoodPitchRadiansMap.put(3.90, Rotation2d.fromDegrees(35.0));
-    config.hoodPitchRadiansMap.put(4.30, Rotation2d.fromDegrees(36.0));
-    config.hoodPitchRadiansMap.put(4.70, Rotation2d.fromDegrees(37.0));
-    config.hoodPitchRadiansMap.put(5.00, Rotation2d.fromDegrees(37.5));
+    config.hoodPitchRadiansMap.put(3.10, Rotation2d.fromDegrees(33.0));
+    config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(36.0));
+    config.hoodPitchRadiansMap.put(3.90, Rotation2d.fromDegrees(37.0));
+    config.hoodPitchRadiansMap.put(4.30, Rotation2d.fromDegrees(37.0));
+    // config.hoodPitchRadiansMap.put(4.70, Rotation2d.fromDegrees(37.0));
+    // config.hoodPitchRadiansMap.put(5.00, Rotation2d.fromDegrees(37.5));
 
     config.flywheelRpsMap.put(1.50, 47.0);
-    config.flywheelRpsMap.put(1.90, 58.0);
+    config.flywheelRpsMap.put(1.90, 48.0);
     config.flywheelRpsMap.put(2.30, 51.0);
     config.flywheelRpsMap.put(2.70, 54.0);
-    config.flywheelRpsMap.put(3.10, 55.0);
-    config.flywheelRpsMap.put(3.50, 58.0);
-    config.flywheelRpsMap.put(3.90, 59.0);
-    config.flywheelRpsMap.put(4.30, 61.0);
-    config.flywheelRpsMap.put(4.70, 62.5);
-    config.flywheelRpsMap.put(5.00, 63.5);
+    config.flywheelRpsMap.put(3.10, 56.0);
+    config.flywheelRpsMap.put(3.50, 59.0);
+    config.flywheelRpsMap.put(3.90, 61.0);
+    config.flywheelRpsMap.put(4.30, 62.0);
+    // config.flywheelRpsMap.put(4.70, 62.5);
+    // config.flywheelRpsMap.put(5.00, 63.5);
 
-    config.timeOfFlightSecondsMap.put(1.50, 0.83);
-    config.timeOfFlightSecondsMap.put(1.90, 0.86);
-    config.timeOfFlightSecondsMap.put(2.30, 0.89);
-    config.timeOfFlightSecondsMap.put(2.70, 1.03);
-    config.timeOfFlightSecondsMap.put(3.10, 1.13);
-    config.timeOfFlightSecondsMap.put(3.50, 1.09);
-    config.timeOfFlightSecondsMap.put(3.90, 1.18);
-    config.timeOfFlightSecondsMap.put(4.30, 1.20);
-    config.timeOfFlightSecondsMap.put(4.70, 1.22);
-    config.timeOfFlightSecondsMap.put(5.00, 1.23);
+    config.timeOfFlightSecondsMap.put(1.50, 0.98);
+    config.timeOfFlightSecondsMap.put(1.90, 0.97);
+    config.timeOfFlightSecondsMap.put(2.30, 1.02);
+    config.timeOfFlightSecondsMap.put(2.70, 1.05);
+    config.timeOfFlightSecondsMap.put(3.10, 1.16);
+    config.timeOfFlightSecondsMap.put(3.50, 1.18);
+    config.timeOfFlightSecondsMap.put(3.90, 1.19);
+    config.timeOfFlightSecondsMap.put(4.30, 1.25);
+    // config.timeOfFlightSecondsMap.put(4.70, 1.22);
+    // config.timeOfFlightSecondsMap.put(5.00, 1.23);
 
     return config;
+  }
+
+  public static class AutoConstants {
+    private static PIDController trans = new PIDController(5, 0, 0);
+    private static ProfiledPIDController rotation =
+        new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(13.200, 36.366));
+    public static HolonomicDriveController holonomicController =
+        new HolonomicDriveController(trans, trans, rotation);
+
+    static {
+      holonomicController.setTolerance(new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(1)));
+    }
   }
 
   public static enum Mode {

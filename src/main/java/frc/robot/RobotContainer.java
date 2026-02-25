@@ -11,28 +11,33 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import java.lang.ModuleLayer.Controller;
-
-import choreo.Choreo;
-import com.pathplanner.lib.auto.AutoBuilder;
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoFactory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.FollowChoreoPathCommand;
+import frc.robot.commands.PassCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.aim.AimSubsystem;
+import frc.robot.subsystems.aim.PassSubsystem;
+import frc.robot.subsystems.clamber.Clamber;
+import frc.robot.subsystems.clamber.ClamberIO;
+import frc.robot.subsystems.clamber.ClamberIOSim;
+import frc.robot.subsystems.clamber.ClamberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -56,10 +61,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.robot.subsystems.light.Light;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * 该类用于声明机器人中的主要内容。由于 Command-based 属于“声明式”范式， {@link Robot} 的 periodic 方法中（除调度器调用外）不应包含太多机器人逻辑。
@@ -68,6 +72,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // 子系统
   private final Drive drive;
+  private final Clamber clamber;
+
+  private AutoFactory autoFactory;
+  private final AutoChooser autoChooser;
 
   @SuppressWarnings("unused")
   private final Vision vision;
@@ -78,18 +86,15 @@ public class RobotContainer {
   private final Hood hood;
   private final Intake m_intake;
   private final AimSubsystem aimSubsystem = new AimSubsystem();
-  private final Light light;
+  private final PassSubsystem passSubsystem = new PassSubsystem();
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
 
-  // 仪表板输入
-  private final LoggedDashboardChooser<Command> autoChooser;
-
   private static final LoggedTunableNumber intakeFeeder =
-      new LoggedTunableNumber("Feeder/Intake", 20.0);
+      new LoggedTunableNumber("Feeder/Intake", 48.0);
   private static final LoggedTunableNumber shooterFeeder =
-      new LoggedTunableNumber("Feeder/Shooter", 80.0);
+      new LoggedTunableNumber("Feeder/Shooter", 90.0);
   private static final LoggedTunableNumber intakePos =
       new LoggedTunableNumber("Intake/Position", 0.0);
 
@@ -116,7 +121,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
-        light = new Light();
+        clamber = new Clamber(new ClamberIOTalonFX());
         break;
 
       case SIM:
@@ -138,7 +143,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
-        light = new Light();
+        clamber = new Clamber(new ClamberIOSim());
         break;
 
       default:
@@ -157,34 +162,88 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
-        light = new Light();
+        clamber = new Clamber(new ClamberIO() {});
         break;
     }
 
     // 设置自动例程
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // 设置 SysId 例程
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption("Intake SysId", m_intake.runSysId());
-    autoChooser.addOption(
-        "test", new FollowChoreoPathCommand(drive, Choreo.loadTrajectory("test")));
+    autoChooser = new AutoChooser();
+    autoFactory = null;
+    SmartDashboard.putData("Auto Choices", autoChooser);
+    updateAutoChooser();
 
     // 配置按键绑定
     configureButtonBindings();
+  }
+
+  public void updateAutoChooser() {
+    if (autoFactory == null && DriverStation.getAlliance().isPresent()) {
+      configureAutoChooser();
+      SmartDashboard.putData("Auto Choices", autoChooser);
+    }
+  }
+
+  private void configureAutoChooser() {
+    autoFactory =
+        new AutoFactory(
+            drive::getPose,
+            drive::setPose,
+            drive::followTrajectory,
+            DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+            drive,
+            (trajectory, isFinsh) -> {
+              Logger.recordOutput("Odometry/Trajectory", trajectory.getPoses());
+              Logger.recordOutput("Odometry/TrajectoryIsFinished", isFinsh);
+            });
+
+    autoFactory.bind(
+        "intake",
+        Commands.parallel(
+            m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+            m_intake.setPosCommand(() -> Degrees.of(0))));
+
+    autoFactory.bind("stopIntake", m_intake.stopCommand());
+    var resetCmd =
+        Commands.parallel(m_intake.resetToLimitCommand().alongWith(hood.resetToLimitCommand()));
+    var shootCmd =
+        AimCommand.autoAimAtTarget(
+                this,
+                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                () -> 0.0,
+                () -> 0.0)
+            .asProxy();
+    var stopShootCmd = Commands.parallel(flywheel.stopCommand(), feeder.stopCommand());
+    var climbCmd =
+        clamber.runPercentCommand(0.6).withTimeout(5).andThen(clamber.runPercentCommand(0.1));
+
+    var p2Cmd =
+        autoFactory
+            .trajectoryCmd("p2")
+            .beforeStarting(autoFactory.resetOdometry("p2"))
+            .withName("P2 Trajectory");
+    // 设置 SysId 例程
+    autoChooser.addCmd(
+        "Drive Wheel Radius Characterization",
+        () -> DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addCmd(
+        "Drive Simple FF Characterization", () -> DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addCmd(
+        "Drive SysId (Quasistatic Forward)",
+        () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addCmd(
+        "Drive SysId (Quasistatic Reverse)",
+        () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addCmd(
+        "Drive SysId (Dynamic Forward)", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addCmd(
+        "Drive SysId (Dynamic Reverse)", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addCmd("Intake SysId", () -> m_intake.runSysId());
+
+    autoChooser.addCmd(
+        "P2",
+        () ->
+            Commands.sequence( // resetCmd,
+                p2Cmd, shootCmd.withTimeout(6), stopShootCmd));
   }
 
   public Hood getHood() {
@@ -203,17 +262,47 @@ public class RobotContainer {
     return m_intake;
   }
 
+  public Clamber getClamber() {
+    return clamber;
+  }
+
   public AimSubsystem getAimSubsystem() {
     return aimSubsystem;
+  }
+
+  public PassSubsystem getPassSubsystem() {
+    return passSubsystem;
   }
 
   public Drive getDrive() {
     return drive;
   }
 
-  public Light getLight() {
-    return light;
-  }
+  //   private void configureNamedCommands() {
+  //     NamedCommands.registerCommand(
+  //         "reset", m_intake.resetToLimitCommand().alongWith(hood.resetToLimitCommand()));
+  //     NamedCommands.registerCommand(
+  //         "intake",
+  //         Commands.parallel(
+  //             m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+  //             m_intake.setPosCommand(() -> Degrees.of(0))));
+  //     NamedCommands.registerCommand("stopIntake", m_intake.stopCommand());
+  //     NamedCommands.registerCommand(
+  //         "shoot",
+  //         AimCommand.autoAimAtTarget(
+  //             this,
+  //             () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+  //             () -> -controller.getLeftY(),
+  //             () -> -controller.getLeftX()));
+  //     NamedCommands.registerCommand(
+  //         "stopShoot", Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+  //     NamedCommands.registerCommand("climb", clamber.runPercentCommand(0.6));
+
+  //     // NamedCommands.registerCommand(
+  //     //     "p2",
+  //     //     FollowChoreoPathCommand.createAutoRoutine(
+  //     //         drive, Choreo.<SwerveSample>loadTrajectory("p2").orElseThrow(), Map.of()));
+  //   }
 
   /**
    * 使用此方法定义按键到指令的映射。可以实例化 {@link GenericHID} 或其子类 （如 {@link edu.wpi.first.wpilibj.Joystick} 或
@@ -229,14 +318,18 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    light.setDefaultCommand(light.setStateCommand(Light.LightState.ALLIANCE));
-
-    // 按下 X 键时切换至 X 模式
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // 按下 B 键时将陀螺仪重置到 0°
     controller
-        .b()
+        .rightTrigger()
+        .whileTrue(
+            DriveCommands.snapToNearest45Degrees(
+                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+
+    // 按下 back 键时切换至 X 模式
+    controller.back().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    // 按下 y 键时将陀螺仪重置到 0°
+    controller
+        .start()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -250,17 +343,15 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.parallel(
-                light.setStateCommand(Light.LightState.INTAKE),
-                m_intake.setIntakeVelocityCommand(Volts.of(8.0)),
-                m_intake.setPosCommand(() -> Degrees.of(intakePos.get()))))
+                m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+                m_intake.setPosCommand(() -> Degrees.of(0))))
         .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
 
-    // 按住左肩键时自瞄目标
+    // 按住a时自瞄目标
     controller
-        .leftBumper()
+        .a()
         .whileTrue(
             Commands.parallel(
-                light.setStateCommand(Light.LightState.AIM),
                 AimCommand.autoAimAtTarget(
                     this,
                     () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
@@ -268,18 +359,18 @@ public class RobotContainer {
                     () -> -controller.getLeftX())))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
-    // 按下 y 键时送球
+    // 按下 x 键时送球
     controller
-        .y()
+        .x()
+        .or(controller.y())
         .whileTrue(
             Commands.sequence(
-                Commands.sequence(
-                    feeder.setFeederVelocityCommand(
-                        () -> RotationsPerSecond.of(0.0), () -> RotationsPerSecond.of(-80.0)),
-                    Commands.waitSeconds(0.6),
-                    feeder.stopCommand()),
+                // Commands.sequence(
+                //     feeder.setFeederVelocityCommand(
+                //         () -> RotationsPerSecond.of(0.0), () -> RotationsPerSecond.of(-80.0)),
+                //     Commands.waitSeconds(0.6),
+                //     feeder.stopCommand()),
                 Commands.parallel(
-                    light.setStateCommand(Light.LightState.SHOOTING),
                     feeder.setFeederVelocityCommand(
                         () -> RotationsPerSecond.of(intakeFeeder.get()),
                         () -> RotationsPerSecond.of(shooterFeeder.get())),
@@ -293,21 +384,24 @@ public class RobotContainer {
                     .andThen(feeder.stopCommand()),
                 m_intake.stopCommand()));
 
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> 0.0,
-                () -> 0.0,
-                () -> Rotation2d.kZero,
-                () -> RadiansPerSecond.of(0.0)));
-    //error测试
-    controller
-        .povUp()
-        .whileTrue(light.setStateCommand(Light.LightState.ERROR));
-  }
+    // 按住左肩键时爬升
+    controller.leftBumper().whileTrue(clamber.runPercentCommand(0.6));
 
+    // 按住左扳机键时反向爬升（放松）
+    controller.leftTrigger().whileTrue(clamber.runPercentCommand(-0.6));
+
+    // 按住 b 键时传球
+    controller
+        .b()
+        .whileTrue(
+            PassCommand.passAtTarget(
+                this,
+                () ->
+                    AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), // TODO: 修改为实际的传球目标点
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX()))
+        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+  }
 
   /**
    * 用此方法将自动阶段的指令传递给 {@link Robot} 主类。
@@ -315,6 +409,6 @@ public class RobotContainer {
    * @return 自动阶段需要运行的指令
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return autoChooser.selectedCommand();
   }
 }
