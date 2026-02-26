@@ -1,8 +1,5 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
@@ -11,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -58,12 +54,13 @@ public class AimCommand {
                 // 设置飞轮速度
                 container
                     .getFlywheel()
-                    .setVelocity(
-                        () ->
-                            new FlywheelSetpoint(
-                                RotationsPerSecond.of(flywheelRPS.get()),
-                                RotationsPerSecond.of(flywheelRPS.get()),
-                                RotationsPerSecond.of(flywheelRPS.get())))))
+                    .setVelocity(container.getAimSubsystem()::getFlywheelSetpoint)))
+        // .setVelocity(
+        //     () ->
+        //         new FlywheelSetpoint(
+        //             RotationsPerSecond.of(flywheelRPS.get()),
+        //             RotationsPerSecond.of(flywheelRPS.get()),
+        //             RotationsPerSecond.of(flywheelRPS.get())))))
         .withName("Prepare Aim");
   }
 
@@ -83,8 +80,8 @@ public class AimCommand {
             // 准备自动瞄准时的底盘和 Hood 旋转和飞轮速度
             prepare(
                 container,
-                // container.getAimSubsystem()::getHoodPitch,
-                () -> Degrees.of(hoodPos.get()),
+                container.getAimSubsystem()::getHoodPitch,
+                // () -> Degrees.of(hoodPos.get()),
                 container.getAimSubsystem()::getRobotYawRad,
                 container.getAimSubsystem()::getRobotYawRateRadPerSec,
                 // () -> RobotState.getInstance().getRobotPose().getRotation(),

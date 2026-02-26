@@ -19,6 +19,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.FollowPoint;
 import frc.robot.commands.PassCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.aim.AimSubsystem;
@@ -203,16 +205,33 @@ public class RobotContainer {
             m_intake.setPosCommand(() -> Degrees.of(0))));
 
     autoFactory.bind("stopIntake", m_intake.stopCommand());
+
     var resetCmd =
         Commands.parallel(m_intake.resetToLimitCommand().alongWith(hood.resetToLimitCommand()));
+    var intakeCmd =
+        Commands.parallel(
+                m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+                m_intake.setPosCommand(() -> Degrees.of(intakePos.get())))
+            .withName("Intake");
+    var feedCmd =
+        Commands.race(
+                feeder.setFeederVelocityCommand(
+                    () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
+                m_intake.testSinPositionCommand())
+            .beforeStarting(Commands.waitSeconds(2));
     var shootCmd =
+        // Commands.parallel(
         AimCommand.autoAimAtTarget(
-                this,
-                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
-                () -> 0.0,
-                () -> 0.0)
-            .asProxy();
-    var stopShootCmd = Commands.parallel(flywheel.stopCommand(), feeder.stopCommand());
+            this,
+            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+            () -> 0.0,
+            () -> 0.0);
+    // Commands.waitSeconds(1).andThen(feedCmd));
+    var stopShootCmd =
+        Commands.parallel(
+            flywheel.stopCommand(),
+            feeder.stopCommand(),
+            m_intake.setPosCommand(() -> Degrees.of(0)).andThen(m_intake.stopCommand()));
     var climbCmd =
         clamber.runPercentCommand(0.6).withTimeout(5).andThen(clamber.runPercentCommand(0.1));
 
@@ -221,6 +240,14 @@ public class RobotContainer {
             .trajectoryCmd("p2")
             .beforeStarting(autoFactory.resetOdometry("p2"))
             .withName("P2 Trajectory");
+    var p3_0Cmd =
+        autoFactory
+            .trajectoryCmd("p3", 0)
+            .beforeStarting(autoFactory.resetOdometry("p3"))
+            .withName("P3 Trajectory");
+    var p3_1Cmd = autoFactory.trajectoryCmd("p3", 1).withName("P3 Trajectory Part 2");
+    var p3_2Cmd = autoFactory.trajectoryCmd("p3", 2).withName("P3 Trajectory Part 3");
+
     // 设置 SysId 例程
     autoChooser.addCmd(
         "Drive Wheel Radius Characterization",
@@ -242,8 +269,62 @@ public class RobotContainer {
     autoChooser.addCmd(
         "P2",
         () ->
-            Commands.sequence( // resetCmd,
-                p2Cmd, shootCmd.withTimeout(6), stopShootCmd));
+            Commands.sequence(
+                resetCmd,
+                intakeCmd,
+                p2Cmd,
+                Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds()), drive),
+                Commands.race(feedCmd, shootCmd.withTimeout(6)),
+                stopShootCmd));
+
+    autoChooser.addCmd(
+        "P3",
+        () ->
+            Commands.sequence(
+                resetCmd,
+                intakeCmd,
+                p3_0Cmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                1.7281044721603394 , 5.964677333831787 , Rotation2d.fromDegrees(180)))),
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                0.8837900161743164,
+                                5.983599662780762,
+                                Rotation2d.fromDegrees(180)))),
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                1.7281044721603394 , 5.964677333831787 , Rotation2d.fromDegrees(180)))),
+                p3_1Cmd,
+                Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds()), drive),
+                Commands.race(feedCmd, shootCmd.withTimeout(6)),
+                stopShootCmd,
+                p3_2Cmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                1.535340428352356,
+                                3.7539849281311035,
+                                Rotation2d.fromDegrees(180))))));
+
+    autoChooser.addCmd(
+        "p2_1",
+        () ->
+            autoFactory
+                .trajectoryCmd("p2_1", 0)
+                .beforeStarting(autoFactory.resetOdometry("p2_1"))
+                .andThen(autoFactory.trajectoryCmd("p2_1", 1)));
   }
 
   public Hood getHood() {

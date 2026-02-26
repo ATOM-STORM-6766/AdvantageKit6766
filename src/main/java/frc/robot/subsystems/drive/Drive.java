@@ -19,6 +19,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -372,12 +373,22 @@ public class Drive extends SubsystemBase {
 
   public void followTrajectory(SwerveSample sample) {
     Logger.recordOutput("Odometry/TrajectorySetpoint", sample.getPose());
-    ChassisSpeeds chassisSpeeds =
+    var pose = getPose();
+    ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-                sample.vx, sample.vy, sample.omega, sample.getPose().getRotation())
-            .plus(
-                Constants.AutoConstants.holonomicController.calculate(
-                    getPose(), sample.getPose(), 0, Rotation2d.fromRadians(sample.heading)));
-    runVelocity(chassisSpeeds);
+            sample.vx + Constants.AutoConstants.transX.calculate(pose.getX(), sample.x),
+            sample.vy + Constants.AutoConstants.transY.calculate(pose.getY(), sample.y),
+            sample.omega
+                + Constants.AutoConstants.rotation.calculate(
+                    pose.getRotation().getRadians(), MathUtil.angleModulus(sample.heading)),
+            sample.getPose().getRotation());
+
+    // ChassisSpeeds chassisSpeeds =
+    //     ChassisSpeeds.fromFieldRelativeSpeeds(
+    //             sample.vx, sample.vy, sample.omega, sample.getPose().getRotation())
+    //         .plus(
+    //             Constants.AutoConstants.holonomicController.calculate(
+    //                 getPose(), sample.getPose(), 0, Rotation2d.fromRadians(sample.heading)));
+    runVelocity(speeds);
   }
 }

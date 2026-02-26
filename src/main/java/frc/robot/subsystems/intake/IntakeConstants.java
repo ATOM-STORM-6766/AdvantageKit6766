@@ -67,8 +67,8 @@ public class IntakeConstants {
     config.Slot0.kV = 0.0;
     config.Slot0.kA = 0.05;
     config.Slot0.kG = 0.3;
-    config.MotionMagic.MotionMagicExpo_kV = 0.0;
-    config.MotionMagic.MotionMagicExpo_kA = 0.0;
+    config.MotionMagic.MotionMagicExpo_kV = 0.5;
+    config.MotionMagic.MotionMagicExpo_kA = 0.2;
 
     if (RobotBase.isReal()) {
       config.CurrentLimits.StatorCurrentLimit = 60.0;

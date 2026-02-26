@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 5.0;
+  private static final double ANGLE_KP = 2.0;
   private static final double ANGLE_KD = 0.1;
   private static final double ANGLE_MAX_VELOCITY = 13.200;
   private static final double ANGLE_MAX_ACCELERATION = 36.366 / 2;
@@ -87,7 +87,7 @@ public class DriveCommands {
                   double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
                   // 将旋转输入平方以获得更精细的控制
-                  omega = Math.copySign(omega * omega, omega);
+                  omega = Math.copySign(omega * omega, omega) * 0.5;
 
                   // 转换为场相对速度并发送指令
                   ChassisSpeeds speeds =

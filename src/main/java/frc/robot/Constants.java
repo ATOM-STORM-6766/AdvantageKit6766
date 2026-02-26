@@ -69,8 +69,8 @@ public final class Constants {
     config.flywheelRpsMap.put(2.30, 51.0);
     config.flywheelRpsMap.put(2.70, 54.0);
     config.flywheelRpsMap.put(3.10, 56.0);
-    config.flywheelRpsMap.put(3.50, 59.0);
-    config.flywheelRpsMap.put(3.90, 61.0);
+    config.flywheelRpsMap.put(3.50, 57.3);
+    config.flywheelRpsMap.put(3.90, 59.0);
     config.flywheelRpsMap.put(4.30, 62.0);
     // config.flywheelRpsMap.put(4.70, 62.5);
     // config.flywheelRpsMap.put(5.00, 63.5);
@@ -90,13 +90,20 @@ public final class Constants {
   }
 
   public static class AutoConstants {
-    private static PIDController trans = new PIDController(5, 0, 0);
-    private static ProfiledPIDController rotation =
-        new ProfiledPIDController(5, 0, 0, new TrapezoidProfile.Constraints(13.200, 36.366));
+    public static PIDController transX = new PIDController(0.08, 0, 0.001);
+    public static PIDController transY = new PIDController(0.06, 0, 0.001);
+    public static PIDController rotation = new PIDController(0.015, 0, 0.005);
+    public static ProfiledPIDController rotation2 =
+        new ProfiledPIDController(
+            0.025, 0, 0.001, new TrapezoidProfile.Constraints(13.200, 36.366));
     public static HolonomicDriveController holonomicController =
-        new HolonomicDriveController(trans, trans, rotation);
+        new HolonomicDriveController(transX, transY, rotation2);
 
     static {
+      rotation.enableContinuousInput(-Math.PI, Math.PI);
+      rotation.setTolerance(Math.toRadians(2));
+      rotation2.enableContinuousInput(-Math.PI, Math.PI);
+      rotation2.setTolerance(Math.toRadians(2));
       holonomicController.setTolerance(new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(1)));
     }
   }

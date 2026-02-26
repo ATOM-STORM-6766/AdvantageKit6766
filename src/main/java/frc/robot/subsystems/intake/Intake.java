@@ -106,7 +106,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command setPosCommand(Supplier<Angle> targetAngle) {
-    return Commands.run(() -> setIntakePositionImpl(targetAngle.get()))
+    return Commands.runOnce(() -> setIntakePositionImpl(targetAngle.get()))
         .withName("Intake Set Position");
   }
 

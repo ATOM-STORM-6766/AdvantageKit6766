@@ -2,6 +2,7 @@ package frc.robot.subsystems.feeder;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -22,7 +23,7 @@ public class Feeder extends SubsystemBase {
 
   public Command setFeederVelocityCommand(
       Supplier<AngularVelocity> intakeSupplier, Supplier<AngularVelocity> shooterSupplier) {
-    return runOnce(
+    return Commands.runOnce(
             () -> {
               setIntakeVelocityImpl(intakeSupplier.get());
               setShooterVelocityImpl(shooterSupplier.get());
