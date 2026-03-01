@@ -49,7 +49,7 @@ public class FlywheelConstants {
     config.MotionMagic.MotionMagicCruiseVelocity = 80.0;
     config.MotionMagic.MotionMagicJerk = 1000.0;
 
-    config.Feedback.SensorToMechanismRatio = 1.5;
+    config.Feedback.SensorToMechanismRatio = 1.2;
 
     // Current limits (real robot only)
     if (RobotBase.isReal()) {
