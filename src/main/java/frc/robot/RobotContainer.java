@@ -59,6 +59,8 @@ import frc.robot.subsystems.hood.HoodIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.light.Light;
+import frc.robot.subsystems.light.Light.LightState;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -89,6 +91,7 @@ public class RobotContainer {
   private final Intake m_intake;
   private final AimSubsystem aimSubsystem = new AimSubsystem();
   private final PassSubsystem passSubsystem = new PassSubsystem();
+  private final Light light;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -124,6 +127,7 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
         clamber = new Clamber(new ClamberIOTalonFX());
+        light = new Light();
         break;
 
       case SIM:
@@ -146,6 +150,7 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
         clamber = new Clamber(new ClamberIOSim());
+        light = new Light();
         break;
 
       default:
@@ -165,6 +170,7 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
         clamber = new Clamber(new ClamberIO() {});
+        light = new Light();
         break;
     }
 
@@ -289,7 +295,9 @@ public class RobotContainer {
                     () ->
                         AllianceFlipUtil.apply(
                             new Pose2d(
-                                1.7281044721603394 , 5.964677333831787 , Rotation2d.fromDegrees(180)))),
+                                1.7281044721603394,
+                                5.964677333831787,
+                                Rotation2d.fromDegrees(180)))),
                 new FollowPoint(
                     drive,
                     () ->
@@ -303,7 +311,9 @@ public class RobotContainer {
                     () ->
                         AllianceFlipUtil.apply(
                             new Pose2d(
-                                1.7281044721603394 , 5.964677333831787 , Rotation2d.fromDegrees(180)))),
+                                1.7281044721603394,
+                                5.964677333831787,
+                                Rotation2d.fromDegrees(180)))),
                 p3_1Cmd,
                 Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds()), drive),
                 Commands.race(feedCmd, shootCmd.withTimeout(6)),
@@ -359,6 +369,10 @@ public class RobotContainer {
     return drive;
   }
 
+  public Light getLight() {
+    return light;
+  }
+
   //   private void configureNamedCommands() {
   //     NamedCommands.registerCommand(
   //         "reset", m_intake.resetToLimitCommand().alongWith(hood.resetToLimitCommand()));
@@ -399,6 +413,23 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    // 默认命令：当没有其它命令占用 light 时持续运行，
+    // 如果 intake/aim/shoot 三个按键都没有按下，则把 state 设回联盟颜色
+    // light.setDefaultCommand(
+    //     Commands.run(
+    //         () -> {
+    //           // CommandXboxController's Trigger doesn't expose a direct get() here,
+    //           // use the underlying HID raw button numbers: A=1, X=3, Y=4, RB=6
+    //           boolean intakePressed = controller.getHID().getRawButton(6);
+    //           boolean aimPressed = controller.getHID().getRawButton(1);
+    //           boolean shootPressed =
+    //               controller.getHID().getRawButton(3) || controller.getHID().getRawButton(4);
+    //           if (!intakePressed && !aimPressed && !shootPressed) {
+    //             light.setState(Light.LightState.ALLIANCE);
+    //           }
+    //         },
+    //         light));
+
     controller
         .rightTrigger()
         .whileTrue(
@@ -433,11 +464,17 @@ public class RobotContainer {
         .a()
         .whileTrue(
             Commands.parallel(
+                // 进入瞄准模式时先把灯设为 AIM
+                light.setStateCommand(LightState.AIM),
+                // 启动自动瞄准逻辑
                 AimCommand.autoAimAtTarget(
                     this,
                     () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
                     () -> -controller.getLeftY(),
-                    () -> -controller.getLeftX())))
+                    () -> -controller.getLeftX()),
+                // 在解析器报告可射击（isSetpointValid == true）时，将灯切换为 SHOOT
+                Commands.waitUntil(aimSubsystem::isSetpointValid)
+                    .andThen(Commands.runOnce(() -> light.setState(LightState.READY)))))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     // 按下 x 键时送球
@@ -448,7 +485,8 @@ public class RobotContainer {
             Commands.sequence(
                 // Commands.sequence(
                 //     feeder.setFeederVelocityCommand(
-                //         () -> RotationsPerSecond.of(0.0), () -> RotationsPerSecond.of(-80.0)),
+                //         () -> RotationsPerSecond.of(0.0), () ->
+                // RotationsPerSecond.of(-80.0)),
                 //     Commands.waitSeconds(0.6),
                 //     feeder.stopCommand()),
                 Commands.parallel(
