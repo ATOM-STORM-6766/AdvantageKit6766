@@ -10,10 +10,9 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,7 +21,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -106,8 +104,7 @@ public class DriveCommands {
                               : drive.getRotation()));
                 },
                 drive),
-            joystickDriveAtAngle(
-                    drive, xSupplier, ySupplier, () -> headRotation, () -> RadiansPerSecond.of(0.0))
+            joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> headRotation)
                 .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
             () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0)
         .withName("Joystick Drive");
@@ -118,8 +115,7 @@ public class DriveCommands {
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      Supplier<Rotation2d> rotationSupplier,
-      Supplier<AngularVelocity> omegaFeedforwardSupplier) {
+      Supplier<Rotation2d> rotationSupplier) {
 
     // 创建 PID 控制器
     ProfiledPIDController angleController =
@@ -130,6 +126,8 @@ public class DriveCommands {
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
     angleController.setTolerance(Units.degreesToRadians(2.0));
+
+    SimpleMotorFeedforward angleFeedforward = new SimpleMotorFeedforward(0.0, 0.9, 0.2);
 
     // 构造指令
     return Commands.run(
@@ -142,7 +140,11 @@ public class DriveCommands {
               double omega =
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
-              double omegaFeedforward = omegaFeedforwardSupplier.get().in(RadiansPerSecond) * 2.5;
+
+              // 旋转角速度目标值 (弧度/秒)
+              double omegaSetpoint = angleController.getSetpoint().velocity;
+
+              double omegaFeedforward = angleFeedforward.calculate(omegaSetpoint);
 
               // 转换为场相对速度并发送指令
               ChassisSpeeds speeds =
@@ -171,8 +173,7 @@ public class DriveCommands {
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
     var targetRotation = new Rotation2d[] {new Rotation2d()};
 
-    return joystickDriveAtAngle(
-            drive, xSupplier, ySupplier, () -> targetRotation[0], () -> RadiansPerSecond.of(0.0))
+    return joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> targetRotation[0])
         .beforeStarting(
             () -> {
               Rotation2d currentAngle = drive.getRotation();

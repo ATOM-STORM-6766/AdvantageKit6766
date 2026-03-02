@@ -6,8 +6,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class FieldConstants {
-  public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  public static AprilTagFieldLayout aprilTagLayout = // TODO: 更新为正确的布局
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
   public static final double fieldWidth = aprilTagLayout.getFieldWidth();
   public static final double fieldLength = aprilTagLayout.getFieldLength();
 

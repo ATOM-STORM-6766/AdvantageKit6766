@@ -42,8 +42,6 @@ public class FollowChoreoPathCommand extends Command {
   private Trajectory<SwerveSample> m_trajectory;
   private BooleanSupplier m_isRed =
       () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
-  private boolean isActive = false;
-
   /**
    * Create an auto routine that handles path splitting and events.
    *
@@ -122,7 +120,6 @@ public class FollowChoreoPathCommand extends Command {
 
   @Override
   public void initialize() {
-    isActive = true;
     m_trajectory = m_isRed.getAsBoolean() ? trajectory.flipped() : trajectory;
     timer.reset();
     timer.start();
@@ -157,6 +154,5 @@ public class FollowChoreoPathCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     timer.stop();
-    isActive = false;
   }
 }

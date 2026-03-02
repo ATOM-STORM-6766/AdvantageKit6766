@@ -223,7 +223,7 @@ public class RobotContainer {
         Commands.race(
                 feeder.setFeederVelocityCommand(
                     () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
-                m_intake.testSinPositionCommand())
+                m_intake.WaveIntakeCommand())
             .beforeStarting(Commands.waitSeconds(2));
     var shootCmd =
         // Commands.parallel(
@@ -290,14 +290,6 @@ public class RobotContainer {
                 resetCmd,
                 intakeCmd,
                 p3_0Cmd,
-                new FollowPoint(
-                    drive,
-                    () ->
-                        AllianceFlipUtil.apply(
-                            new Pose2d(
-                                1.7281044721603394,
-                                5.964677333831787,
-                                Rotation2d.fromDegrees(180)))),
                 new FollowPoint(
                     drive,
                     () ->
@@ -493,7 +485,7 @@ public class RobotContainer {
                     feeder.setFeederVelocityCommand(
                         () -> RotationsPerSecond.of(intakeFeeder.get()),
                         () -> RotationsPerSecond.of(shooterFeeder.get())),
-                    m_intake.testSinPositionCommand())))
+                    m_intake.WaveIntakeCommand())))
         .onFalse(
             Commands.parallel(
                 feeder

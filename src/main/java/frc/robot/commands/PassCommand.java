@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -16,13 +15,12 @@ public class PassCommand {
       RobotContainer container,
       Supplier<Angle> hoodPitchSupplier,
       Supplier<Rotation2d> robotYaw,
-      Supplier<AngularVelocity> robotYawRate,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier) {
     return Commands.parallel(
             // 启动底盘旋转 (同时允许驾驶员控制 X/Y 平移)
             DriveCommands.joystickDriveAtAngle(
-                container.getDrive(), xSupplier, ySupplier, robotYaw, robotYawRate),
+                container.getDrive(), xSupplier, ySupplier, robotYaw),
 
             // 启动 Hood 旋转到指定角度
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
@@ -50,7 +48,6 @@ public class PassCommand {
                 container,
                 container.getPassSubsystem()::getHoodPitch,
                 container.getPassSubsystem()::getRobotYawRad,
-                container.getPassSubsystem()::getRobotYawRateRadPerSec,
                 xSupplier,
                 ySupplier))
         .withName("Pass At Target");

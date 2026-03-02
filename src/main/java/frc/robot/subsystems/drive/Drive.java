@@ -224,8 +224,7 @@ public class Drive extends SubsystemBase {
 
   public void runVelocityWithCenter(ChassisSpeeds speeds, Translation2d centerOfRotation) {
     // 计算各模块设定值
-    ChassisSpeeds discreteSpeeds =
-        speeds; // ChassisSpeeds.discretize(speeds, 0.02); //TODO 测试延迟补偿是否有效
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02); // 测试延迟补偿有效
     SwerveModuleState[] setpointStates =
         kinematics.toSwerveModuleStates(discreteSpeeds, centerOfRotation);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);

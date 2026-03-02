@@ -110,7 +110,7 @@ public class Intake extends SubsystemBase {
         .withName("Intake Set Position");
   }
 
-  public Command testSinPositionCommand() {
+  public Command WaveIntakeCommand() {
     Timer timer = new Timer();
     return Commands.startRun(
             () -> {
@@ -121,7 +121,7 @@ public class Intake extends SubsystemBase {
               var t = timer.get();
               setIntakePositionImpl(Degrees.of(t % 0.5 < 0.25 ? Math.min(t / 4, 1) * 20 + 40 : 0));
             })
-        .withName("Intake Test Sin Position"); // TODO
+        .withName("Intake Wave");
   }
 
   public Command stopCommand() {

@@ -16,8 +16,6 @@ public class AimCommand {
   private static final LoggedTunableNumber hoodPos = new LoggedTunableNumber("Hood/Position", 30.0);
   private static final LoggedTunableNumber flywheelRPS =
       new LoggedTunableNumber("Flywheel/RPS", 0.0);
-  private static final LoggedTunableNumber driveAimSpeed =
-      new LoggedTunableNumber("Aim/DriveAimSpeed", 0.5);
 
   public static Command prepare(
       RobotContainer container,
@@ -30,10 +28,9 @@ public class AimCommand {
             // 启动底盘旋转
             DriveCommands.joystickDriveAtAngle(
                 container.getDrive(),
-                () -> xSupplier.getAsDouble() * driveAimSpeed.get(),
-                () -> ySupplier.getAsDouble() * driveAimSpeed.get(),
-                robotYaw,
-                robotYawRate),
+                () -> xSupplier.getAsDouble() * 0.6,
+                () -> ySupplier.getAsDouble() * 0.6,
+                robotYaw),
 
             // 启动 Hood 旋转
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
