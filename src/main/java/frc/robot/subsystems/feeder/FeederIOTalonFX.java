@@ -61,21 +61,23 @@ public class FeederIOTalonFX implements FeederIO {
 
   @Override
   public void readInputs(FeederInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        shooterVelocitySignal,
-        shooterVoltsSignal,
-        shooterCurrentSignal,
-        intakeVelocitySignal,
-        intakeVoltsSignal,
-        intakeCurrentSignal);
+    if (BaseStatusSignal.waitForAll(
+            0.0,
+            shooterVelocitySignal,
+            shooterVoltsSignal,
+            shooterCurrentSignal,
+            intakeVelocitySignal,
+            intakeVoltsSignal,
+            intakeCurrentSignal)
+        .isOK()) {
+      inputs.shooterVelocity = shooterVelocitySignal.getValue();
+      inputs.shooterAppliedVolts = shooterVoltsSignal.getValue();
+      inputs.shooterTorqueCurrent = shooterCurrentSignal.getValue();
 
-    inputs.shooterVelocity = shooterVelocitySignal.getValue();
-    inputs.shooterAppliedVolts = shooterVoltsSignal.getValue();
-    inputs.shooterTorqueCurrent = shooterCurrentSignal.getValue();
-
-    inputs.intakeVelocity = intakeVelocitySignal.getValue();
-    inputs.intakeAppliedVolts = intakeVoltsSignal.getValue();
-    inputs.intakeTorqueCurrent = intakeCurrentSignal.getValue();
+      inputs.intakeVelocity = intakeVelocitySignal.getValue();
+      inputs.intakeAppliedVolts = intakeVoltsSignal.getValue();
+      inputs.intakeTorqueCurrent = intakeCurrentSignal.getValue();
+    }
   }
 
   @Override

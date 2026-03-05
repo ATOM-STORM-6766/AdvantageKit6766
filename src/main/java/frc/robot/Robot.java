@@ -86,6 +86,9 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
 
+    // Disable LiveWindow to improve performance
+    edu.wpi.first.wpilibj.livewindow.LiveWindow.disableAllTelemetry();
+
     // Check for valid swerve config
     var modules =
         new SwerveModuleConstants[] {
