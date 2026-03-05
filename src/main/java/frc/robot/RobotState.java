@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
@@ -37,9 +36,10 @@ public class RobotState {
     Translation2d deltaTranslation =
         new Translation2d(
             field.vxMetersPerSecond * lookaheadSeconds, field.vyMetersPerSecond * lookaheadSeconds);
-    Rotation2d deltaRotation = new Rotation2d(field.omegaRadiansPerSecond * lookaheadSeconds);
+    // Rotation2d deltaRotation = new Rotation2d(field.omegaRadiansPerSecond * lookaheadSeconds);
     return new Pose2d(
-        current.getTranslation().plus(deltaTranslation), current.getRotation().plus(deltaRotation));
+        current.getTranslation().plus(deltaTranslation),
+        current.getRotation()); // .plus(deltaRotation));
   }
 
   public ChassisSpeeds getFieldRelativeSpeeds() {

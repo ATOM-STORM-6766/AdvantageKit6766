@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
@@ -29,7 +30,7 @@ public class IntakeIOTalonFX implements IntakeIO {
     intakeMotor = new TalonFX(IntakeConstants.intakeMotorID, IntakeConstants.canBus);
     positionMotor = new TalonFX(IntakeConstants.positionMotorID, IntakeConstants.canBus);
 
-    intakeMotor.getConfigurator().apply(IntakeConstants.getTalonFXConfig());
+    // intakeMotor.getConfigurator().apply(IntakeConstants.getTalonFXConfig()); TODO
     positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig());
 
     positionSignal = positionMotor.getPosition();
@@ -67,7 +68,12 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public void setCurrentPosition(double positionRotations) {
+  public void setPosition(double positionRotations) {
     positionMotor.setPosition(positionRotations);
+  }
+
+  @Override
+  public void setPositionCurrent(Current current) {
+    positionMotor.setControl(new TorqueCurrentFOC(current));
   }
 }

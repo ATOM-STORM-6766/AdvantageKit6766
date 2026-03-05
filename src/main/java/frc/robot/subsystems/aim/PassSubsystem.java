@@ -45,7 +45,7 @@ public class PassSubsystem extends SubsystemBase {
     var robotPose = RobotState.getInstance().getRobotPose();
     var robotSpeeds = RobotState.getInstance().getFieldRelativeSpeeds();
 
-    ShooterConfig passConfig = Constants.SHOOTER_CONFIG; // TODO: Create specific config for passing
+    ShooterConfig passConfig = Constants.PASS_CONFIG;
 
     ShooterSetpoint setpoint =
         GenericShooterResolver.resolve(robotPose, robotSpeeds, target, passConfig);

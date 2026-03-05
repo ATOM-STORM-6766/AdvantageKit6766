@@ -47,6 +47,11 @@ public class AllianceFlipUtil {
     return new Pose3d(apply(pose.getTranslation()), apply(pose.getRotation()));
   }
 
+  public static Translation3d mirror(Translation3d translation) {
+    return new Translation3d(
+        translation.getX(), FieldConstants.fieldWidth - translation.getY(), translation.getZ());
+  }
+
   public static boolean shouldFlip() {
     return DriverStation.getAlliance().isPresent()
         && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;

@@ -28,8 +28,13 @@ public class ClamberIOTalonFX implements ClamberIO {
     var config = new TalonFXConfiguration();
     config.MotorOutput.Inverted = ClamberConstants.kInverted;
     config.MotorOutput.NeutralMode = ClamberConstants.kNeutralMode;
+    config.Feedback.SensorToMechanismRatio = ClamberConstants.kGearRatio;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = ClamberConstants.kCurrentLimit;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.01;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ClamberConstants.maxPosition;
 
     motor.getConfigurator().apply(config);
 
@@ -43,6 +48,7 @@ public class ClamberIOTalonFX implements ClamberIO {
         50.0, position, velocity, appliedVolts, supplyCurrent, torqueCurrent);
 
     motor.optimizeBusUtilization();
+    motor.setPosition(ClamberConstants.maxPosition);
   }
 
   @Override

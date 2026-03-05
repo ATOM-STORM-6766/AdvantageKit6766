@@ -28,7 +28,9 @@ public interface IntakeIO {
 
   public void setPositionVoltage(Voltage voltage);
 
-  public void setCurrentPosition(double positionRotations);
+  public void setPosition(double positionRotations);
+
+  public void setPositionCurrent(Current current);
 
   public default void stop() {
     setIntakeVelocity(Volts.of(0));

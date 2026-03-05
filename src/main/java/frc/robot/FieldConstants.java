@@ -2,6 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
@@ -24,6 +27,11 @@ public class FieldConstants {
     public static final Translation3d topCenterPoint =
         new Translation3d(
             aprilTagLayout.getTagPose(26).get().getX() + width / 2.0, fieldWidth / 2.0, height);
+
+    public static final Translation2d passPoint =
+        new Translation2d(2.7938103675842285, 5.905640125274658);
+
+    public static final Pose2d tower = new Pose2d(2.0, fieldWidth / 2, Rotation2d.k180deg);
   }
 
   public static AprilTagFieldLayout getAprilTagLayout() {

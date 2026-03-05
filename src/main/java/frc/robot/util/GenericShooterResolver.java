@@ -41,6 +41,8 @@ public class GenericShooterResolver {
 
     public double loopPeriodSecs = 0.02;
 
+    public boolean restrictToAllianceForward = true;
+
     private final LinearFilter driveAngleFilter =
         LinearFilter.movingAverage((int) (0.8 / loopPeriodSecs));
     private Rotation2d lastDriveAngle = null;
@@ -91,7 +93,8 @@ public class GenericShooterResolver {
     Translation2d targetXY = new Translation2d(targetPosition.getX(), targetPosition.getY());
 
     double distanceMeters = targetXY.getDistance(turretFieldPosXY);
-    if (distanceMeters < config.minRange || distanceMeters > config.maxRange) {
+    if (config.restrictToAllianceForward
+        && (distanceMeters < config.minRange || distanceMeters > config.maxRange)) {
       return ShooterSetpoint.invalid();
     }
 
@@ -147,11 +150,13 @@ public class GenericShooterResolver {
       return ShooterSetpoint.invalid();
     }
 
-    // 如果虚拟目标点出现在车后面，返回无效
-    if (AllianceFlipUtil.shouldFlip()
-        ? (virtualTargetXY.getX() > RobotState.getInstance().getRobotPose().getX())
-        : (virtualTargetXY.getX() < RobotState.getInstance().getRobotPose().getX())) {
-      return ShooterSetpoint.invalid();
+    // 如果启用了方向限制，且虚拟目标点出现在车后面，返回无效
+    if (config.restrictToAllianceForward) {
+      if (AllianceFlipUtil.shouldFlip()
+          ? (virtualTargetXY.getX() > RobotState.getInstance().getRobotPose().getX())
+          : (virtualTargetXY.getX() < RobotState.getInstance().getRobotPose().getX())) {
+        return ShooterSetpoint.invalid();
+      }
     }
 
     result.robotYaw = robotYaw;

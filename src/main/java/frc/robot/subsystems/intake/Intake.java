@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -90,14 +91,17 @@ public class Intake extends SubsystemBase {
   }
 
   public Command resetToLimitCommand() {
-    return run(() -> io.setPositionVoltage(Volts.of(1)))
-        .until(this::isCalibrationStalled)
-        .andThen(
-            () -> {
-              io.setPositionVoltage(Volts.of(0));
-              io.setCurrentPosition(IntakeConstants.maxRotation);
-              state = State.INITIALIZED;
-            })
+    return Commands.either(
+            run(() -> io.setPositionCurrent(Amp.of(3))) // io.setPositionVoltage(Volts.of(1))
+                .until(this::isCalibrationStalled)
+                .andThen(
+                    () -> {
+                      io.setPositionVoltage(Volts.of(0));
+                      io.setPosition(IntakeConstants.maxRotation);
+                      state = State.INITIALIZED;
+                    }),
+            Commands.none(),
+            () -> state == State.UNINITIALIZED)
         .withName("Intake Reset to Limit");
   }
 
@@ -119,7 +123,7 @@ public class Intake extends SubsystemBase {
             },
             () -> {
               var t = timer.get();
-              setIntakePositionImpl(Degrees.of(t % 0.5 < 0.25 ? Math.min(t / 4, 1) * 20 + 40 : 0));
+              setIntakePositionImpl(Degrees.of(t % 1 < 0.5 ? Math.min(t / 4, 1) * 20 + 40 : 0));
             })
         .withName("Intake Wave");
   }

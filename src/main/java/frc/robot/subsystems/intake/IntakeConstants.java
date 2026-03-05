@@ -12,13 +12,13 @@ public class IntakeConstants {
 
   public static final int intakeMotorID = 20;
   public static final int positionMotorID = 21;
-  public static final double maxRotation = 0.314698 + 0.041;
+  public static final double maxRotation = 0.314698; // + 0.041;
   public static final double minRotation = 0.0;
   public static final double positionGearRatio =
       60.0 / 8 * 58 / 20 * 30 / 15; // 43.5 注意int和float的除号"/"区别
 
   public static final double kCalibrationVoltage = 1.0;
-  public static final double kCalibrationCurrentThreshold = 12.0; // Amperes
+  public static final double kCalibrationCurrentThreshold = 2.0; // Amperes
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.025;
 
   public static TalonFXConfiguration getTalonFXConfig() {
@@ -54,7 +54,7 @@ public class IntakeConstants {
     var config = new TalonFXConfiguration();
 
     config.Feedback.SensorToMechanismRatio = positionGearRatio;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxRotation;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;

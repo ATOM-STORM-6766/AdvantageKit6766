@@ -39,52 +39,60 @@ public final class Constants {
   public static final CANBus kCANBus = new CANBus("rio");
 
   public static final ShooterConfig SHOOTER_CONFIG = createShooterConfig();
+  public static final ShooterConfig PASS_CONFIG = createPassConfig();
+
+  private static ShooterConfig createPassConfig() {
+    ShooterConfig config = createShooterConfig();
+    config.restrictToAllianceForward = false;
+    return config;
+  }
 
   private static ShooterConfig createShooterConfig() {
     ShooterConfig config = new ShooterConfig();
 
     config.robotCenterToTurret = new Translation3d(-0.235, 0.0, 0.63);
 
-    config.minRange = 1.50;
-    config.maxRange = 5.00;
-
     config.minHoodPitchDegrees = HoodConstants.kHoodMinPosition.in(Degree);
     config.maxHoodPitchDegrees = HoodConstants.kHoodMaxPosition.in(Degree);
 
-    config.maxFlywheelRps = 100;
+    config.maxFlywheelRps = 100 / 1.2;
 
     config.hoodPitchRadiansMap.put(1.50, Rotation2d.fromDegrees(25.0));
-    config.hoodPitchRadiansMap.put(1.90, Rotation2d.fromDegrees(27.0));
-    config.hoodPitchRadiansMap.put(2.30, Rotation2d.fromDegrees(29.0));
+    config.hoodPitchRadiansMap.put(1.90, Rotation2d.fromDegrees(25.5));
+    config.hoodPitchRadiansMap.put(2.30, Rotation2d.fromDegrees(28.0));
     config.hoodPitchRadiansMap.put(2.70, Rotation2d.fromDegrees(30.0));
-    config.hoodPitchRadiansMap.put(3.10, Rotation2d.fromDegrees(33.0));
-    config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(36.0));
-    config.hoodPitchRadiansMap.put(3.90, Rotation2d.fromDegrees(37.0));
-    config.hoodPitchRadiansMap.put(4.30, Rotation2d.fromDegrees(37.0));
-    // config.hoodPitchRadiansMap.put(4.70, Rotation2d.fromDegrees(37.0));
-    // config.hoodPitchRadiansMap.put(5.00, Rotation2d.fromDegrees(37.5));
+    config.hoodPitchRadiansMap.put(3.10, Rotation2d.fromDegrees(30.0));
+    config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(30.0));
+    config.hoodPitchRadiansMap.put(3.90, Rotation2d.fromDegrees(34.0));
+    config.hoodPitchRadiansMap.put(4.30, Rotation2d.fromDegrees(35.0));
+    config.hoodPitchRadiansMap.put(4.70, Rotation2d.fromDegrees(35.0));
+    config.hoodPitchRadiansMap.put(5.10, Rotation2d.fromDegrees(35.0));
 
-    config.flywheelRpsMap.put(1.50, 47.0);
-    config.flywheelRpsMap.put(1.90, 48.0);
-    config.flywheelRpsMap.put(2.30, 51.0);
-    config.flywheelRpsMap.put(2.70, 54.0);
-    config.flywheelRpsMap.put(3.10, 56.0);
-    config.flywheelRpsMap.put(3.50, 57.3);
-    config.flywheelRpsMap.put(3.90, 59.0);
+    config.flywheelRpsMap.put(1.50, 43.0);
+    config.flywheelRpsMap.put(1.90, 47.0);
+    config.flywheelRpsMap.put(2.30, 50.5);
+    config.flywheelRpsMap.put(2.70, 51.0);
+    config.flywheelRpsMap.put(3.10, 55.5);
+    config.flywheelRpsMap.put(3.50, 55.5);
+    config.flywheelRpsMap.put(3.90, 55.0);
     config.flywheelRpsMap.put(4.30, 62.0);
-    // config.flywheelRpsMap.put(4.70, 62.5);
-    // config.flywheelRpsMap.put(5.00, 63.5);
+    config.flywheelRpsMap.put(4.70, 61.5);
+    config.flywheelRpsMap.put(5.10, 64.0);
 
-    config.timeOfFlightSecondsMap.put(1.50, 0.98);
-    config.timeOfFlightSecondsMap.put(1.90, 0.97);
-    config.timeOfFlightSecondsMap.put(2.30, 1.02);
-    config.timeOfFlightSecondsMap.put(2.70, 1.05);
-    config.timeOfFlightSecondsMap.put(3.10, 1.16);
-    config.timeOfFlightSecondsMap.put(3.50, 1.18);
-    config.timeOfFlightSecondsMap.put(3.90, 1.19);
-    config.timeOfFlightSecondsMap.put(4.30, 1.25);
-    // config.timeOfFlightSecondsMap.put(4.70, 1.22);
-    // config.timeOfFlightSecondsMap.put(5.00, 1.23);
+    config.timeOfFlightSecondsMap.put(1.50, 0.95);
+    config.timeOfFlightSecondsMap.put(1.90, 0.98);
+    config.timeOfFlightSecondsMap.put(2.30, 1.10);
+    config.timeOfFlightSecondsMap.put(2.70, 1.11);
+    config.timeOfFlightSecondsMap.put(3.10, 1.26);
+    config.timeOfFlightSecondsMap.put(3.50, 1.28);
+    config.timeOfFlightSecondsMap.put(3.90, 1.29);
+    config.timeOfFlightSecondsMap.put(4.30, 1.35);
+    config.timeOfFlightSecondsMap.put(4.70, 1.35);
+    config.timeOfFlightSecondsMap.put(5.10, 1.36);
+
+    // TODO 必须与实际的插值表范围相匹配
+    config.minRange = 1.5;
+    config.maxRange = 5.1;
 
     return config;
   }

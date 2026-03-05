@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -97,8 +98,15 @@ public class IntakeIOSim implements IntakeIO {
   }
 
   @Override
-  public void setCurrentPosition(double positionRotations) {
+  public void setPosition(double positionRotations) {
     positionSim.setState(
         Units.rotationsToRadians(positionRotations), positionSim.getAngularVelocityRadPerSec());
+  }
+
+  @Override
+  public void setPositionCurrent(Current current) {
+    // 这里我们简单地将电流转换为电压，实际情况可能需要更复杂的模型
+    double voltage = current.in(Amps) * 0.5; // 假设每安培对应0.5伏特
+    setPositionVoltage(Volts.of(voltage));
   }
 }

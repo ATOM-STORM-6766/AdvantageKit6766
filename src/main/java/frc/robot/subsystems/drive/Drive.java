@@ -153,6 +153,9 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Logger.recordOutput(
+        "Drive/CurrentCommand",
+        this.getCurrentCommand() != null ? this.getCurrentCommand().getName() : "No Command");
     odometryLock.lock(); // 防止在读取数据时更新里程计
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
