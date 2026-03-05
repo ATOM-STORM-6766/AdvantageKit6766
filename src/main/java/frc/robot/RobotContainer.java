@@ -217,7 +217,7 @@ public class RobotContainer {
                 feeder.setFeederVelocityCommand(
                     () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
                 m_intake.WaveIntakeCommand())
-            .beforeStarting(Commands.waitSeconds(2));
+            .beforeStarting(Commands.waitSeconds(1));
     var shootCmd =
         // Commands.parallel(
         AimCommand.autoAimAtTarget(
@@ -243,7 +243,7 @@ public class RobotContainer {
                             RotationsPerSecond.of(49))),
                 hood.positionSetpointCommand(() -> Degrees.of(30)),
                 feedCmd)
-            .withTimeout(4);
+            .withTimeout(3);
 
     var p2Cmd =
         autoFactory
@@ -294,7 +294,13 @@ public class RobotContainer {
                 intakeCmd,
                 p2Cmd,
                 Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds()), drive),
-                Commands.race(feedCmd, shootCmd.withTimeout(6)),
+                Commands.race(
+                    Commands.race(
+                            feeder.setFeederVelocityCommand(
+                                () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
+                            m_intake.WaveIntakeCommand())
+                        .beforeStarting(Commands.waitSeconds(2)),
+                    shootCmd.withTimeout(6)),
                 stopShootCmd));
 
     autoChooser.addCmd(
@@ -322,7 +328,13 @@ public class RobotContainer {
                                 Rotation2d.fromDegrees(180)))),
                 p3_1Cmd,
                 Commands.runOnce(() -> drive.runVelocity(new ChassisSpeeds()), drive),
-                Commands.race(feedCmd, shootCmd.withTimeout(6)),
+                Commands.parallel(
+                    Commands.race(
+                            feeder.setFeederVelocityCommand(
+                                () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
+                            m_intake.WaveIntakeCommand())
+                        .beforeStarting(Commands.waitSeconds(2)),
+                    shootCmd.withTimeout(6)),
                 stopShootCmd,
                 p3_2Cmd,
                 new FollowPoint(
@@ -374,7 +386,7 @@ public class RobotContainer {
                                     () -> RotationsPerSecond.of(48),
                                     () -> RotationsPerSecond.of(90)),
                                 m_intake.WaveIntakeCommand())
-                            .beforeStarting(Commands.waitSeconds(2)))
+                            .beforeStarting(Commands.waitSeconds(1)))
                     .withTimeout(6),
                 stopShootCmd));
 
