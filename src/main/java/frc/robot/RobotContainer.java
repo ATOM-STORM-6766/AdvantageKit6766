@@ -61,8 +61,6 @@ import frc.robot.subsystems.hood.HoodIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.light.Light;
-import frc.robot.subsystems.light.Light.LightState;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -92,7 +90,6 @@ public class RobotContainer {
   private final Intake m_intake;
   private final AimSubsystem aimSubsystem = new AimSubsystem();
   private final PassSubsystem passSubsystem = new PassSubsystem();
-  private final Light light;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -122,7 +119,6 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOTalonFX());
         m_intake = new Intake(new IntakeIOTalonFX());
         clamber = new Clamber(new ClamberIOTalonFX());
-        light = new Light();
         break;
 
       case SIM:
@@ -145,7 +141,6 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOSim());
         clamber = new Clamber(new ClamberIOSim());
-        light = new Light();
         break;
 
       default:
@@ -165,7 +160,6 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOSim());
         m_intake = new Intake(new IntakeIOTalonFX());
         clamber = new Clamber(new ClamberIO() {});
-        light = new Light();
         break;
     }
 
@@ -482,17 +476,11 @@ public class RobotContainer {
         .a()
         .whileTrue(
             Commands.parallel(
-                // 进入瞄准模式时先把灯设为 AIM
-                light.setStateCommand(LightState.AIM),
-                // 启动自动瞄准逻辑
                 AimCommand.autoAimAtTarget(
                     this,
                     () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
                     () -> -controller.getLeftY(),
-                    () -> -controller.getLeftX()),
-                // 在解析器报告可射击（isSetpointValid == true）时，将灯切换为 SHOOT
-                Commands.waitUntil(aimSubsystem::isSetpointValid)
-                    .andThen(Commands.runOnce(() -> light.setState(LightState.READY)))))
+                    () -> -controller.getLeftX())))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     // 按下 x 键 或者 square 键时送球
