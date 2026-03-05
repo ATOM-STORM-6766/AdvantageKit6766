@@ -527,11 +527,17 @@ public class RobotContainer {
                 this,
                 () -> {
                   var target = new Translation3d(FieldConstants.Hub.passPoint);
+                  // 首先将传球基准点根据当前的联盟应用翻转，获取该点在全局(蓝方)绝对坐标系中的起始位置
+                  target = AllianceFlipUtil.apply(target);
+
+                  // 判断当前机器人全局 Y 坐标在哪半场，如果在另一半场，将传球点镜像过去
                   target =
-                      drive.getPose().getTranslation().getY() < FieldConstants.fieldWidth / 2
+                      AllianceFlipUtil.apply(drive.getPose()).getTranslation().getY()
+                              > FieldConstants.fieldWidth / 2
                           ? target
                           : AllianceFlipUtil.mirror(target);
-                  return AllianceFlipUtil.apply(target);
+
+                  return target;
                 },
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
@@ -547,6 +553,21 @@ public class RobotContainer {
                     () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(0))))
         .onFalse(m_intake.stopCommand().alongWith(feeder.stopCommand()));
     // DriveCommands.joystickDriveAtAngle(drive, () -> 0, () -> 0, () -> Rotation2d.k180deg));
+
+    // 按住 b 键时自动跟随到 hub 的塔顶位置
+    controller
+        .b()
+        .whileTrue(
+            new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.tower))
+                .onlyIf(
+                    () ->
+                        drive
+                                .getPose()
+                                .getTranslation()
+                                .getDistance(
+                                    AllianceFlipUtil.apply(
+                                        FieldConstants.Hub.tower.getTranslation()))
+                            < 1.6));
   }
 
   /**

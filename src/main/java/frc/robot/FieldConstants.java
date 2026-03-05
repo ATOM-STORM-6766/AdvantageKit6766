@@ -31,7 +31,8 @@ public class FieldConstants {
     public static final Translation2d passPoint =
         new Translation2d(2.7938103675842285, 5.905640125274658);
 
-    public static final Pose2d tower = new Pose2d(2.0, fieldWidth / 2, Rotation2d.k180deg);
+    public static final Pose2d tower =
+        new Pose2d(1.7, aprilTagLayout.getTagPose(31).get().getY(), Rotation2d.k180deg);
   }
 
   public static AprilTagFieldLayout getAprilTagLayout() {
