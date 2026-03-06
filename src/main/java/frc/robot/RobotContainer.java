@@ -369,7 +369,6 @@ public class RobotContainer {
                                 2.695476770401001,
                                 2.67116117477417,
                                 Rotation2d.fromRadians(0.6565357014663004)))),
-                Commands.runOnce(drive::stop, drive),
                 Commands.parallel(
                         AimCommand.autoAimAtTarget(
                             this,
