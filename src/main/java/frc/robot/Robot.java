@@ -22,9 +22,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LoggedTunableBoolean;
-
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -260,12 +257,12 @@ public class Robot extends LoggedRobot {
                     .resetToLimitCommand()
                     .unless(robotContainer.getIntake()::isInitialized))
             .withName("Reset To Limit");
-    
-    var feederAndFlywheelReset = new ParallelCommandGroup(
-            robotContainer.getFeeder().stopCommand(),
-            robotContainer
-                .getFlywheel().stopCommand())
-        .withName("Reset Feeder and Flywheel");
+
+    var feederAndFlywheelReset =
+        new ParallelCommandGroup(
+                robotContainer.getFeeder().stopCommand(),
+                robotContainer.getFlywheel().stopCommand())
+            .withName("Reset Feeder and Flywheel");
 
     CommandScheduler.getInstance().schedule(resetCommand.andThen(feederAndFlywheelReset));
 
