@@ -374,6 +374,14 @@ public class RobotContainer {
                                 2.8975112438201904,
                                 Rotation2d.fromDegrees(-90)))),
                 p4_2Cmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                2.695476770401001,
+                                2.67116117477417,
+                                Rotation2d.fromRadians(0.6565357014663004)))),
                 Commands.runOnce(drive::stop, drive),
                 Commands.parallel(
                         AimCommand.autoAimAtTarget(
@@ -550,7 +558,7 @@ public class RobotContainer {
             Commands.parallel(
                 m_intake.setIntakeVelocityCommand(Volts.of(-10)),
                 feeder.setFeederVelocityCommand(
-                    () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(0))))
+                    () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(-40))))
         .onFalse(m_intake.stopCommand().alongWith(feeder.stopCommand()));
     // DriveCommands.joystickDriveAtAngle(drive, () -> 0, () -> 0, () -> Rotation2d.k180deg));
 
