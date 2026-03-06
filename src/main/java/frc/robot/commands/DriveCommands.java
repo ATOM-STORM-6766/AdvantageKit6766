@@ -212,7 +212,7 @@ public class DriveCommands {
             () -> {
               Rotation2d currentAngle = drive.getRotation();
               double targetAngleDegrees =
-                  Math.round((currentAngle.getDegrees() - 30.0) / 90.0) * 90.0 + 30.0;
+                  Math.round((currentAngle.getDegrees() - 45.0) / 90.0) * 90.0 + 45.0;
               headRotation = Rotation2d.fromDegrees(targetAngleDegrees);
             })
         .withName("Snap To Nearest 30 Degrees");

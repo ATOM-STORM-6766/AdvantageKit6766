@@ -32,7 +32,7 @@ public class FieldConstants {
         new Translation2d(2.7938103675842285, 5.905640125274658);
 
     public static final Pose2d tower =
-        new Pose2d(1.63, aprilTagLayout.getTagPose(31).get().getY(), Rotation2d.k180deg);
+        new Pose2d(1.58, aprilTagLayout.getTagPose(31).get().getY(), Rotation2d.k180deg);
   }
 
   public static AprilTagFieldLayout getAprilTagLayout() {
