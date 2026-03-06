@@ -440,9 +440,9 @@ public class RobotContainer {
         "p2_1",
         () ->
             autoFactory
-                .trajectoryCmd("p2_1", 0)
-                .beforeStarting(autoFactory.resetOdometry("p2_1"))
-                .andThen(autoFactory.trajectoryCmd("p2_1", 1)));
+                .trajectoryCmd("t5", 0)
+                .beforeStarting(autoFactory.resetOdometry("t5"))
+                .andThen(autoFactory.trajectoryCmd("t5", 1)));
   }
 
   public Hood getHood() {
