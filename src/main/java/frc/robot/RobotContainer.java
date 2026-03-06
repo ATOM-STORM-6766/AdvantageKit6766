@@ -200,7 +200,7 @@ public class RobotContainer {
     // autoFactory.bind(
     //     "intake",
     //     Commands.parallel(
-    //         m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+    //         m_intake.setIntakeVelocityCommand(Volts.of(10)),
     //         m_intake.setPosCommand(() -> Degrees.of(0))));
 
     // autoFactory.bind("stopIntake", m_intake.stopCommand());
@@ -209,7 +209,7 @@ public class RobotContainer {
         Commands.parallel(m_intake.resetToLimitCommand().alongWith(hood.resetToLimitCommand()));
     var intakeCmd =
         Commands.parallel(
-                m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+                m_intake.setIntakeVelocityCommand(Volts.of(10)),
                 m_intake.setPosCommand(() -> Degrees.of(0)))
             .withName("Intake");
     var feedCmd =
@@ -265,26 +265,13 @@ public class RobotContainer {
     var p4_1Cmd = autoFactory.trajectoryCmd("p4", 1).withName("P4 Trajectory Part 2");
     var p4_2Cmd = autoFactory.trajectoryCmd("p4", 2).withName("P4 Trajectory Part 3");
 
-    // 设置 SysId 例程
-    // autoChooser.addCmd(
-    //     "Drive Wheel Radius Characterization",
-    //     () -> DriveCommands.wheelRadiusCharacterization(drive));
-    // autoChooser.addCmd(
-    //     "Drive Simple FF Characterization", () ->
-    // DriveCommands.feedforwardCharacterization(drive));
-    // autoChooser.addCmd(
-    //     "Drive SysId (Quasistatic Forward)",
-    //     () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addCmd(
-    //     "Drive SysId (Quasistatic Reverse)",
-    //     () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addCmd(
-    //     "Drive SysId (Dynamic Forward)", () ->
-    // drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addCmd(
-    //     "Drive SysId (Dynamic Reverse)", () ->
-    // drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addCmd("Intake SysId", () -> m_intake.runSysId());
+    var p6_0Cmd =
+        autoFactory
+            .trajectoryCmd("p6", 0)
+            .beforeStarting(autoFactory.resetOdometry("p6"))
+            .withName("P6 Trajectory Part 1");
+    var p6_1Cmd = autoFactory.trajectoryCmd("p6", 1).withName("P6 Trajectory Part 2");
+    var p6_2Cmd = autoFactory.trajectoryCmd("p6", 2).withName("P6 Trajectory Part 3");
 
     autoChooser.addCmd(
         "P2",
@@ -399,6 +386,58 @@ public class RobotContainer {
                 stopShootCmd));
 
     autoChooser.addCmd(
+        "P6",
+        () ->
+            Commands.sequence(
+                resetCmd,
+                intakeCmd,
+                shootAtPosition,
+                Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
+                m_intake.setPosCommand(() -> Degrees.of(0)),
+                p6_0Cmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                7.664889812469482,
+                                5.9223713874816895,
+                                Rotation2d.fromDegrees(-90)))),
+                p6_1Cmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                7.664889812469482,
+                                5.9223713874816895,
+                                Rotation2d.fromDegrees(-90)))),
+                p6_2Cmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                3.5140202045440674,
+                                5.620737552642822,
+                                Rotation2d.fromRadians(-0.9667225715055064)))),
+                Commands.runOnce(drive::stop, drive),
+                Commands.parallel(
+                        AimCommand.autoAimAtTarget(
+                            this,
+                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                            () -> 0.0,
+                            () -> 0.0),
+                        Commands.parallel(
+                                feeder.setFeederVelocityCommand(
+                                    () -> RotationsPerSecond.of(48),
+                                    () -> RotationsPerSecond.of(90)),
+                                m_intake.WaveIntakeCommand())
+                            .beforeStarting(Commands.waitSeconds(1)))
+                    .withTimeout(6),
+                stopShootCmd));
+
+    autoChooser.addCmd(
         "p2_1",
         () ->
             autoFactory
@@ -487,7 +526,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.parallel(
-                m_intake.setIntakeVelocityCommand(Volts.of(9.6)),
+                m_intake.setIntakeVelocityCommand(Volts.of(10)),
                 m_intake.setPosCommand(() -> Degrees.of(0))))
         .onFalse(Commands.parallel(m_intake.stopCommand(), feeder.stopCommand()));
 
