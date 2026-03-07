@@ -243,7 +243,7 @@ public class RobotContainer {
                             RotationsPerSecond.of(49))),
                 hood.positionSetpointCommand(() -> Degrees.of(30)),
                 feedCmd)
-            .withTimeout(3);
+            .withTimeout(3.5);
 
     var p2Cmd =
         autoFactory
@@ -272,6 +272,16 @@ public class RobotContainer {
             .withName("P6 Trajectory Part 1");
     var p6_1Cmd = autoFactory.trajectoryCmd("p6", 1).withName("P6 Trajectory Part 2");
     var p6_2Cmd = autoFactory.trajectoryCmd("p6", 2).withName("P6 Trajectory Part 3");
+
+    var p6_0_mirrorCmd =
+        autoFactory
+            .trajectoryCmd("p6_mirror", 0)
+            .beforeStarting(autoFactory.resetOdometry("p6_mirror"))
+            .withName("P6 Mirror Trajectory Part 1");
+    var p6_1_mirrorCmd =
+        autoFactory.trajectoryCmd("p6_mirror", 1).withName("P6 Mirror Trajectory Part 2");
+    var p6_2_mirrorCmd =
+        autoFactory.trajectoryCmd("p6_mirror", 2).withName("P6 Mirror Trajectory Part 3");
 
     autoChooser.addCmd(
         "P2",
@@ -420,6 +430,58 @@ public class RobotContainer {
                                 3.5140202045440674,
                                 5.620737552642822,
                                 Rotation2d.fromRadians(-0.9667225715055064)))),
+                Commands.runOnce(drive::stop, drive),
+                Commands.parallel(
+                        AimCommand.autoAimAtTarget(
+                            this,
+                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                            () -> 0.0,
+                            () -> 0.0),
+                        Commands.parallel(
+                                feeder.setFeederVelocityCommand(
+                                    () -> RotationsPerSecond.of(48),
+                                    () -> RotationsPerSecond.of(90)),
+                                m_intake.WaveIntakeCommand())
+                            .beforeStarting(Commands.waitSeconds(1)))
+                    .withTimeout(6),
+                stopShootCmd));
+
+    autoChooser.addCmd(
+        "P6_mirror",
+        () ->
+            Commands.sequence(
+                resetCmd,
+                intakeCmd,
+                shootAtPosition,
+                Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
+                m_intake.setPosCommand(() -> Degrees.of(0)),
+                p6_0_mirrorCmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                7.664889812469482,
+                                2.1466286125183114,
+                                Rotation2d.fromDegrees(90)))),
+                p6_1_mirrorCmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                7.664889812469482,
+                                2.1466286125183114,
+                                Rotation2d.fromDegrees(90)))),
+                p6_2_mirrorCmd,
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                3.5140202045440674,
+                                2.4482624473571786,
+                                Rotation2d.fromRadians(0.9667225715055064)))),
                 Commands.runOnce(drive::stop, drive),
                 Commands.parallel(
                         AimCommand.autoAimAtTarget(

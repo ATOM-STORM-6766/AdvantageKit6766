@@ -61,6 +61,38 @@ public class AimCommand {
         .withName("Prepare Aim");
   }
 
+  public static Command noMove(
+      RobotContainer container,
+      Supplier<Angle> hoodPitchSupplier,
+      Supplier<Rotation2d> robotYaw,
+      Supplier<AngularVelocity> robotYawRate) {
+    return Commands.parallel(
+            // 启动 Hood 旋转
+            container.getHood().positionSetpointCommand(hoodPitchSupplier),
+
+            // 设置飞轮速度
+            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelSetpoint))
+        .withName("Prepare Aim No Move");
+  }
+
+  public static Command noMoveShootAtTarget(
+      RobotContainer container, Supplier<Translation3d> targetSupplier) {
+    return Commands.parallel(
+            // 设置自动目标（冲突时会被清除）
+            Commands.startEnd(
+                () -> container.getAimSubsystem().setTargetSupplier(targetSupplier),
+                container.getAimSubsystem()::clearTargetSupplier,
+                container.getAimSubsystem()),
+
+            // 启动 Hood 旋转和飞轮速度
+            noMove(
+                container,
+                container.getAimSubsystem()::getHoodPitch,
+                container.getAimSubsystem()::getRobotYawRad,
+                container.getAimSubsystem()::getRobotYawRateRadPerSec))
+        .withName("No Move Shoot At Target");
+  }
+
   public static Command autoAimAtTarget(
       RobotContainer container,
       Supplier<Translation3d> targetSupplier,
