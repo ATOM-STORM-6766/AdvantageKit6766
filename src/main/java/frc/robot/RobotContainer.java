@@ -676,6 +676,31 @@ public class RobotContainer {
                                     AllianceFlipUtil.apply(
                                         FieldConstants.Hub.tower.getTranslation()))
                             < 1.6));
+
+    controller
+        .pov(90)
+        .whileTrue(
+            new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.blink))
+                .andThen(
+                    Commands.parallel(
+                        Commands.run(drive::stopWithX, drive),
+                        AimCommand.noMoveShootAtTarget(
+                            this,
+                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
+        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+    controller
+        .pov(270)
+        .whileTrue(
+            new FollowPoint(
+                    drive,
+                    () -> AllianceFlipUtil.apply(AllianceFlipUtil.mirror(FieldConstants.Hub.blink)))
+                .andThen(
+                    Commands.parallel(
+                        Commands.run(drive::stopWithX, drive),
+                        AimCommand.noMoveShootAtTarget(
+                            this,
+                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
+        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
   }
 
   /**

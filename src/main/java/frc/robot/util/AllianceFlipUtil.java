@@ -52,6 +52,21 @@ public class AllianceFlipUtil {
         translation.getX(), FieldConstants.fieldWidth - translation.getY(), translation.getZ());
   }
 
+  // public static Rotation3d mirror(Rotation3d rotation) {
+  //   return rotation.rotateBy(new Rotation3d(0.0, Math.PI, 0.0));
+  // }
+
+  // public static Pose3d mirror(Pose3d pose) {
+  //   return new Pose3d(mirror(pose.getTranslation()), mirror(pose.getRotation()));
+  // }
+
+  public static Pose2d mirror(Pose2d pose) {
+    return new Pose2d(
+        pose.getX(),
+        FieldConstants.fieldWidth - pose.getY(),
+        Rotation2d.fromDegrees(-pose.getRotation().getDegrees()));
+  }
+
   public static boolean shouldFlip() {
     return DriverStation.getAlliance().isPresent()
         && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
