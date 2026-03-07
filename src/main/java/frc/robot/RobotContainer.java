@@ -681,6 +681,13 @@ public class RobotContainer {
         .pov(90)
         .whileTrue(
             new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.blink))
+                .raceWith(
+                    flywheel.setVelocity(
+                        () ->
+                            new FlywheelSetpoint(
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20))))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
@@ -694,6 +701,13 @@ public class RobotContainer {
             new FollowPoint(
                     drive,
                     () -> AllianceFlipUtil.apply(AllianceFlipUtil.mirror(FieldConstants.Hub.blink)))
+                .raceWith(
+                    flywheel.setVelocity(
+                        () ->
+                            new FlywheelSetpoint(
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20))))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
