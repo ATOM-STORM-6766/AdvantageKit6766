@@ -409,8 +409,8 @@ public class RobotContainer {
                     () ->
                         AllianceFlipUtil.apply(
                             new Pose2d(
-                                7.664889812469482,
-                                5.9223713874816895,
+                                7.8589396476745605 ,
+                                7.029058456420898,
                                 Rotation2d.fromDegrees(-90)))),
                 p6_1Cmd,
                 new FollowPoint(
@@ -418,8 +418,8 @@ public class RobotContainer {
                     () ->
                         AllianceFlipUtil.apply(
                             new Pose2d(
-                                7.664889812469482,
-                                5.9223713874816895,
+                                7.664889812469482 ,
+                                5.1983232498168945 ,
                                 Rotation2d.fromDegrees(-90)))),
                 p6_2Cmd,
                 new FollowPoint(
@@ -427,8 +427,8 @@ public class RobotContainer {
                     () ->
                         AllianceFlipUtil.apply(
                             new Pose2d(
-                                3.5140202045440674,
-                                5.620737552642822,
+                                7.8589396476745605 ,
+                                7.029058456420898,
                                 Rotation2d.fromRadians(-0.9667225715055064)))),
                 Commands.runOnce(drive::stop, drive),
                 Commands.parallel(
