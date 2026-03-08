@@ -400,9 +400,9 @@ public class RobotContainer {
             Commands.sequence(
                 resetCmd,
                 intakeCmd,
-                shootAtPosition,
-                Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
-                m_intake.setPosCommand(() -> Degrees.of(0)),
+                // shootAtPosition,
+                // Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
+                // m_intake.setPosCommand(() -> Degrees.of(0)),
                 p6_0Cmd,
                 new FollowPoint(
                     drive,
