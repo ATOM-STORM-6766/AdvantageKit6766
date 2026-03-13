@@ -444,7 +444,15 @@ public class RobotContainer {
                                 m_intake.WaveIntakeCommand())
                             .beforeStarting(Commands.waitSeconds(1)))
                     .withTimeout(6),
-                stopShootCmd));
+                stopShootCmd.alongWith(
+                    new FollowPoint(
+                        drive,
+                        () ->
+                            AllianceFlipUtil.apply(
+                                new Pose2d(
+                                    5.5501532554626465,
+                                    5.673675060272217,
+                                    Rotation2d.fromRadians(-1.2068177253516055)))))));
 
     autoChooser.addCmd(
         "P6_mirror",

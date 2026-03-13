@@ -27,6 +27,7 @@ public class Hood extends SubsystemBase {
 
   public Hood(final HoodIO io) {
     this.io = io;
+    setDefaultCommand(positionSetpointCommand(() -> HoodConstants.kHoodMaxPosition));
   }
 
   @Override
