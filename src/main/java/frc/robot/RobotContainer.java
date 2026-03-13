@@ -457,8 +457,7 @@ public class RobotContainer {
                 intakeCmd,
                 pose1Cmd,
                 p6_1Cmd,
-                pose2Cmd
-            ));
+                pose2Cmd));
 
     autoChooser.addCmd(
         "P6_mirror",
