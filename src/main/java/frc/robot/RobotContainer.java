@@ -454,10 +454,18 @@ public class RobotContainer {
                                     5.5501532554626465,
                                     5.673675060272217,
                                     Rotation2d.fromRadians(-1.2068177253516055))))),
-                intakeCmd,
-                pose1Cmd,
-                p6_1Cmd,
-                pose2Cmd));
+                Commands.parallel(
+                        m_intake.setIntakeVelocityCommand(Volts.of(10)),
+                        m_intake.setPosCommand(() -> Degrees.of(0)))
+                    .withName("Intake"),
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                7.8589396476745605,
+                                7.029058456420898,
+                                Rotation2d.fromDegrees(-90))))));
 
     autoChooser.addCmd(
         "P6_mirror",
