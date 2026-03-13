@@ -244,6 +244,28 @@ public class RobotContainer {
                 hood.positionSetpointCommand(() -> Degrees.of(30)),
                 feedCmd)
             .withTimeout(3.5);
+    var pose1Cmd =
+        new FollowPoint(
+            drive,
+            () ->
+                AllianceFlipUtil.apply(
+                    new Pose2d(
+                        7.8589396476745605, 7.029058456420898, Rotation2d.fromDegrees(-90))));
+    var pose2Cmd =
+        new FollowPoint(
+            drive,
+            () ->
+                AllianceFlipUtil.apply(
+                    new Pose2d(7.532529354095459, 5.936294078826904, Rotation2d.fromDegrees(-90))));
+    var pose3Cmd =
+        new FollowPoint(
+            drive,
+            () ->
+                AllianceFlipUtil.apply(
+                    new Pose2d(
+                        3.5140202045440674,
+                        5.620737552642822,
+                        Rotation2d.fromRadians(-0.9667225715055064))));
 
     var p2Cmd =
         autoFactory
@@ -404,32 +426,11 @@ public class RobotContainer {
                 // Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
                 // m_intake.setPosCommand(() -> Degrees.of(0)),
                 p6_0Cmd,
-                new FollowPoint(
-                    drive,
-                    () ->
-                        AllianceFlipUtil.apply(
-                            new Pose2d(
-                                7.8589396476745605,
-                                7.029058456420898,
-                                Rotation2d.fromDegrees(-90)))),
+                pose1Cmd,
                 p6_1Cmd,
-                new FollowPoint(
-                    drive,
-                    () ->
-                        AllianceFlipUtil.apply(
-                            new Pose2d(
-                                7.532529354095459,
-                                5.936294078826904,
-                                Rotation2d.fromDegrees(-90)))),
+                pose2Cmd,
                 p6_2Cmd,
-                new FollowPoint(
-                    drive,
-                    () ->
-                        AllianceFlipUtil.apply(
-                            new Pose2d(
-                                3.5140202045440674,
-                                5.620737552642822,
-                                Rotation2d.fromRadians(-0.9667225715055064)))),
+                pose3Cmd,
                 Commands.runOnce(drive::stop, drive),
                 Commands.parallel(
                         AimCommand.autoAimAtTarget(
@@ -452,7 +453,12 @@ public class RobotContainer {
                                 new Pose2d(
                                     5.5501532554626465,
                                     5.673675060272217,
-                                    Rotation2d.fromRadians(-1.2068177253516055)))))));
+                                    Rotation2d.fromRadians(-1.2068177253516055))))),
+                intakeCmd,
+                pose1Cmd,
+                p6_1Cmd,
+                pose2Cmd
+            ));
 
     autoChooser.addCmd(
         "P6_mirror",
