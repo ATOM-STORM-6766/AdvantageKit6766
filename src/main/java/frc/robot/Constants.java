@@ -68,16 +68,16 @@ public final class Constants {
     config.hoodPitchRadiansMap.put(4.70, Rotation2d.fromDegrees(35.0));
     config.hoodPitchRadiansMap.put(5.10, Rotation2d.fromDegrees(35.0));
 
-    config.flywheelRpsMap.put(1.50, 43.0 + 2.5);
-    config.flywheelRpsMap.put(1.90, 47.0 + 2.5);
-    config.flywheelRpsMap.put(2.30, 50.5 + 2.5);
-    config.flywheelRpsMap.put(2.70, 51.0 + 2.5);
-    config.flywheelRpsMap.put(3.10, 55.5 + 2.5);
-    config.flywheelRpsMap.put(3.50, 55.5 + 2.5);
-    config.flywheelRpsMap.put(3.90, 55.0 + 2.5);
-    config.flywheelRpsMap.put(4.30, 62.0 + 2.5);
-    config.flywheelRpsMap.put(4.70, 61.5 + 2.5);
-    config.flywheelRpsMap.put(5.10, 64.0 + 2.5);
+    config.flywheelRpsMap.put(1.50, 43.0 + 2);
+    config.flywheelRpsMap.put(1.90, 47.0 + 2);
+    config.flywheelRpsMap.put(2.30, 50.5 + 2);
+    config.flywheelRpsMap.put(2.70, 51.0 + 2);
+    config.flywheelRpsMap.put(3.10, 55.5 + 2);
+    config.flywheelRpsMap.put(3.50, 55.5 + 2);
+    config.flywheelRpsMap.put(3.90, 55.0 + 2);
+    config.flywheelRpsMap.put(4.30, 62.0 + 2);
+    config.flywheelRpsMap.put(4.70, 61.5 + 2);
+    config.flywheelRpsMap.put(5.10, 64.0 + 2);
 
     config.timeOfFlightSecondsMap.put(1.50, 0.95);
     config.timeOfFlightSecondsMap.put(1.90, 0.98);
