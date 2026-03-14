@@ -463,8 +463,8 @@ public class RobotContainer {
                     () ->
                         AllianceFlipUtil.apply(
                             new Pose2d(
-                                7.8589396476745605,
-                                7.029058456420898,
+                                7.664889812469482,
+                                5.1983232498168945,
                                 Rotation2d.fromDegrees(-90))))));
 
     autoChooser.addCmd(
@@ -473,9 +473,9 @@ public class RobotContainer {
             Commands.sequence(
                 resetCmd,
                 intakeCmd,
-                shootAtPosition,
-                Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
-                m_intake.setPosCommand(() -> Degrees.of(0)),
+                // shootAtPosition,
+                // Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
+                // m_intake.setPosCommand(() -> Degrees.of(0)),
                 p6_0_mirrorCmd,
                 new FollowPoint(
                     drive,
@@ -517,7 +517,27 @@ public class RobotContainer {
                                 m_intake.WaveIntakeCommand())
                             .beforeStarting(Commands.waitSeconds(1)))
                     .withTimeout(6),
-                stopShootCmd));
+                stopShootCmd.alongWith(
+                    new FollowPoint(
+                        drive,
+                        () ->
+                            AllianceFlipUtil.apply(
+                                new Pose2d(
+                                    5.5501532554626465,
+                                    2.395324939727784,
+                                    Rotation2d.fromRadians(1.2068177253516055))))),
+                Commands.parallel(
+                        m_intake.setIntakeVelocityCommand(Volts.of(10)),
+                        m_intake.setPosCommand(() -> Degrees.of(0)))
+                    .withName("Intake"),
+                new FollowPoint(
+                    drive,
+                    () ->
+                        AllianceFlipUtil.apply(
+                            new Pose2d(
+                                7.664889812469482,
+                                2.1466286125183114,
+                                Rotation2d.fromDegrees(-90))))));
 
     autoChooser.addCmd(
         "p2_1",
