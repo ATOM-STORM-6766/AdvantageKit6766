@@ -537,7 +537,7 @@ public class RobotContainer {
                             new Pose2d(
                                 7.664889812469482,
                                 2.1466286125183114,
-                                Rotation2d.fromDegrees(-90))))));
+                                Rotation2d.fromDegrees(90))))));
 
     autoChooser.addCmd(
         "p2_1",
