@@ -14,7 +14,7 @@ public class FlywheelConstants {
   public static final int kLimitSwitchID1 = 1;
   public static final int kLimitSwitchID2 = 2;
 
-  public static final double kFlywheelBoost = 1.35; // A/rps
+  public static final double kFlywheelBoost = 1.3; // A/rps
 
   public static final double kFlywheelBoostHoldTimeSec = 0.17;
   // Gear ratio: motor rotations per output rotation

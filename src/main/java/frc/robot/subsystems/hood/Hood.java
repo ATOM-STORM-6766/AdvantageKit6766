@@ -1,6 +1,8 @@
 package frc.robot.subsystems.hood;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -27,7 +29,7 @@ public class Hood extends SubsystemBase {
 
   public Hood(final HoodIO io) {
     this.io = io;
-    setDefaultCommand(positionSetpointCommand(() -> HoodConstants.kHoodMaxPosition));
+    setDefaultCommand(positionSetpointCommand(() -> Degrees.of(15.0)));
   }
 
   @Override
