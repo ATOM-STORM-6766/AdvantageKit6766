@@ -60,12 +60,10 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final CANcoder cancoder;
 
   // Voltage control requests
-  private final VoltageOut voltageRequest =
-      new VoltageOut(0).withEnableFOC(true).withUseTimesync(true);
-  private final PositionVoltage positionVoltageRequest =
-      new PositionVoltage(0.0).withEnableFOC(true).withUseTimesync(true);
-  private final VelocityVoltage velocityVoltageRequest =
-      new VelocityVoltage(0.0).withEnableFOC(true).withUseTimesync(true);
+  private final VoltageOut voltageRequest = new VoltageOut(0);
+  private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
+  private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
+
   // Torque-current control requests
   private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
@@ -193,10 +191,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   public void updateInputs(ModuleIOInputs inputs) {
     // Refresh all signals
     var driveStatus =
-        BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
+        BaseStatusSignal.waitForAll(
+            0.0, drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
     var turnStatus =
-        BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
-    var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
+        BaseStatusSignal.waitForAll(0.0, turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
+    var turnEncoderStatus = BaseStatusSignal.waitForAll(0.0, turnAbsolutePosition);
 
     // Update drive inputs
     inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
@@ -215,16 +214,21 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
     // Update odometry inputs
-    inputs.odometryTimestamps =
-        timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryDrivePositionsRad =
-        drivePositionQueue.stream()
-            .mapToDouble((Double value) -> Units.rotationsToRadians(value))
-            .toArray();
-    inputs.odometryTurnPositions =
-        turnPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromRotations(value))
-            .toArray(Rotation2d[]::new);
+    Object[] timestamps = timestampQueue.toArray();
+    inputs.odometryTimestamps = new double[timestamps.length];
+    for (int i = 0; i < timestamps.length; i++) {
+      inputs.odometryTimestamps[i] = (Double) timestamps[i];
+    }
+    Object[] drivePositions = drivePositionQueue.toArray();
+    inputs.odometryDrivePositionsRad = new double[drivePositions.length];
+    for (int i = 0; i < drivePositions.length; i++) {
+      inputs.odometryDrivePositionsRad[i] = Units.rotationsToRadians((Double) drivePositions[i]);
+    }
+    Object[] turnPositions = turnPositionQueue.toArray();
+    inputs.odometryTurnPositions = new Rotation2d[turnPositions.length];
+    for (int i = 0; i < turnPositions.length; i++) {
+      inputs.odometryTurnPositions[i] = Rotation2d.fromRotations((Double) turnPositions[i]);
+    }
     timestampQueue.clear();
     drivePositionQueue.clear();
     turnPositionQueue.clear();

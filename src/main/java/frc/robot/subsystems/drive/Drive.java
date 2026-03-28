@@ -10,19 +10,16 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
+import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.CANBus;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,18 +32,16 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.RobotState;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -66,22 +61,23 @@ public class Drive extends SubsystemBase {
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
   // PathPlanner 配置常量
-  private static final double ROBOT_MASS_KG = 74.088;
-  private static final double ROBOT_MOI = 6.883;
-  private static final double WHEEL_COF = 1.2;
-  private static final RobotConfig PP_CONFIG =
-      new RobotConfig(
-          ROBOT_MASS_KG,
-          ROBOT_MOI,
-          new ModuleConfig(
-              TunerConstants.FrontLeft.WheelRadius,
-              TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-              WHEEL_COF,
-              DCMotor.getKrakenX60Foc(1)
-                  .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
-              TunerConstants.FrontLeft.SlipCurrent,
-              1),
-          getModuleTranslations());
+  // private static final double ROBOT_MASS_KG = 74.088;
+  // private static final double ROBOT_MOI = 6.883;
+  // private static final double WHEEL_COF = 1.2;
+
+  // private static final RobotConfig PP_CONFIG =
+  //     new RobotConfig(
+  //         ROBOT_MASS_KG,
+  //         ROBOT_MOI,
+  //         new ModuleConfig(
+  //             TunerConstants.FrontLeft.WheelRadius,
+  //             TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
+  //             WHEEL_COF,
+  //             DCMotor.getKrakenX60Foc(1)
+  //                 .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
+  //             TunerConstants.FrontLeft.SlipCurrent,
+  //             1),
+  //         getModuleTranslations());
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -122,26 +118,26 @@ public class Drive extends SubsystemBase {
     PhoenixOdometryThread.getInstance().start();
 
     // 为 PathPlanner 配置 AutoBuilder
-    AutoBuilder.configure(
-        this::getPose,
-        this::setPose,
-        this::getChassisSpeeds,
-        this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(3, 0.0, 0.5), new PIDConstants(0.0, 0.0, 0)),
-        PP_CONFIG,
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-        this);
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
-          Logger.recordOutput(
-              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-        });
+    // AutoBuilder.configure(
+    //     this::getPose,
+    //     this::setPose,
+    //     this::getChassisSpeeds,
+    //     this::runVelocity,
+    //     new PPHolonomicDriveController(
+    //         new PIDConstants(0.005, 0.0, 0), new PIDConstants(1.8, 0.0, 0)),
+    //     PP_CONFIG,
+    //     () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+    //     this);
+    // Pathfinding.setPathfinder(new LocalADStarAK());
+    // PathPlannerLogging.setLogActivePathCallback(
+    //     (activePath) -> {
+    //       Logger.recordOutput(
+    //           "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+    //     });
+    // PathPlannerLogging.setLogTargetPoseCallback(
+    //     (targetPose) -> {
+    //       Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+    //     });
 
     // 配置 SysId
     sysId =
@@ -157,6 +153,9 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Logger.recordOutput(
+        "Drive/CurrentCommand",
+        this.getCurrentCommand() != null ? this.getCurrentCommand().getName() : "No Command");
     odometryLock.lock(); // 防止在读取数据时更新里程计
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -209,6 +208,10 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
+    RobotState robotState = RobotState.getInstance();
+    robotState.addRobotPose(getPose());
+    robotState.addFieldRelativeSpeeds(getFieldRelativeChassisSpeeds());
+
     // 更新陀螺仪告警
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
@@ -219,9 +222,14 @@ public class Drive extends SubsystemBase {
    * @param speeds 以米/秒为单位的速度
    */
   public void runVelocity(ChassisSpeeds speeds) {
+    runVelocityWithCenter(speeds, Translation2d.kZero);
+  }
+
+  public void runVelocityWithCenter(ChassisSpeeds speeds, Translation2d centerOfRotation) {
     // 计算各模块设定值
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02); // 测试延迟补偿有效
+    SwerveModuleState[] setpointStates =
+        kinematics.toSwerveModuleStates(discreteSpeeds, centerOfRotation);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
     // 记录未优化的设定值以及底盘设定速度
@@ -290,10 +298,15 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** 返回测得的机器人底盘速度。 */
+  /** 返回测得的机器人底盘速度（机器人相对）。 */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  /** 返回测得的机器人底盘速度（场地相对）。 */
+  public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
   }
 
   /** 返回每个模块的轮位姿（单位：弧度）。 */
@@ -328,6 +341,7 @@ public class Drive extends SubsystemBase {
   /** 重置当前里程计位姿。 */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    RobotState.getInstance().addRobotPose(pose);
   }
 
   /** 添加带时间戳的视觉测量。 */
@@ -357,5 +371,26 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  public void followTrajectory(SwerveSample sample) {
+    Logger.recordOutput("Odometry/TrajectorySetpoint", sample.getPose());
+    var pose = getPose();
+    ChassisSpeeds speeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            sample.vx + Constants.AutoConstants.transX.calculate(pose.getX(), sample.x),
+            sample.vy + Constants.AutoConstants.transY.calculate(pose.getY(), sample.y),
+            sample.omega
+                + Constants.AutoConstants.rotation.calculate(
+                    pose.getRotation().getRadians(), MathUtil.angleModulus(sample.heading)),
+            sample.getPose().getRotation());
+
+    // ChassisSpeeds chassisSpeeds =
+    //     ChassisSpeeds.fromFieldRelativeSpeeds(
+    //             sample.vx, sample.vy, sample.omega, sample.getPose().getRotation())
+    //         .plus(
+    //             Constants.AutoConstants.holonomicController.calculate(
+    //                 getPose(), sample.getPose(), 0, Rotation2d.fromRadians(sample.heading)));
+    runVelocity(speeds);
   }
 }

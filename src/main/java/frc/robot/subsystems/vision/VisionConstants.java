@@ -10,28 +10,26 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.FieldConstants;
 
 public class VisionConstants {
   // AprilTag 布局
-  public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  public static AprilTagFieldLayout aprilTagLayout = FieldConstants.getAprilTagLayout();
 
   // 摄像头名称，必须与协处理器上配置的名称一致
-  public static String camera0Name = "Front_Right";
-  public static String camera1Name = "Back_Right";
+  public static String camera0Name = "Front_Camera";
+  public static String camera1Name = "Back_Camera";
 
   // 机器人到摄像头的变换
   // （Limelight 不使用，在其 Web UI 中配置）
-  public static Transform3d robotToCamera0 = // 35度，16度
-      new Transform3d(
-          0.283021, 0.259707, 0.194947, new Rotation3d(0.0, -0.279253, -0.610865)); // 面朝正方向左
+  public static Transform3d robotToCamera0 = // 坐标已经更新前为0 后为1
+      new Transform3d(-0.049141, 0.0, 0.650000, new Rotation3d(0.0, Math.toRadians(-20), 0));
 
-  public static Transform3d robotToCamera1 = // 35度，16度
+  public static Transform3d robotToCamera1 =
       new Transform3d(
-          0.283021, -0.259707, 0.194947, new Rotation3d(0.0, -0.279253, 0.610865)); // 面朝正方向右
+          -0.328466, 0.0, 0.574812, new Rotation3d(0.0, Math.toRadians(-15.0), Math.PI));
 
   // 基础过滤阈值
   public static double maxAmbiguity = 0.3;
@@ -39,15 +37,15 @@ public class VisionConstants {
 
   // 标准差基线，基于 1 米距离且只有 1 个标签
   // （会根据距离与标签数量自动调整）
-  public static double linearStdDevBaseline = 0.002; // 单位：米
-  public static double angularStdDevBaseline = 0.006; // 单位：弧度
+  public static double linearStdDevBaseline = 0.02; // 单位：米
+  public static double angularStdDevBaseline = 0.06; // 单位：弧度
 
   // 每个摄像头的标准差乘数
   // （可根据需求调整以提高某些摄像头的权重）
   public static double[] cameraStdDevFactors =
       new double[] {
-        0.5, // 摄像头 0
-        0.5 // 摄像头 1
+        1.0, // 摄像头 0
+        1.0 // 摄像头 1
       };
 
   // MegaTag 2 观测的乘数

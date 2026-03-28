@@ -12,6 +12,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -35,10 +36,10 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 5.0;
-  private static final double ANGLE_KD = 0.4;
-  private static final double ANGLE_MAX_VELOCITY = 8.0;
-  private static final double ANGLE_MAX_ACCELERATION = 20.0;
+  private static final double ANGLE_KP = 2.0;
+  private static final double ANGLE_KD = 0.1;
+  private static final double ANGLE_MAX_VELOCITY = 13.200;
+  private static final double ANGLE_MAX_ACCELERATION = 36.366 / 2;
   private static final double FF_START_DELAY = 2.0; // 秒
   private static final double FF_RAMP_RATE = 0.1; // 伏/秒
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // 弧度/秒
@@ -71,8 +72,9 @@ public class DriveCommands {
 
     // Timer timer = new Timer();
 
-    return Commands.either(
-        Commands.run(
+    return
+    // Commands.either(
+    Commands.run(
             () -> {
               // 获取线速度
               Translation2d linearVelocity =
@@ -83,7 +85,7 @@ public class DriveCommands {
               double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
               // 将旋转输入平方以获得更精细的控制
-              omega = Math.copySign(omega * omega, omega);
+              omega = Math.copySign(omega * omega, omega) * 0.5;
 
               // 转换为场相对速度并发送指令
               ChassisSpeeds speeds =
@@ -101,10 +103,46 @@ public class DriveCommands {
                           ? drive.getRotation().plus(new Rotation2d(Math.PI))
                           : drive.getRotation()));
             },
-            drive),
-        joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> headRotation)
-            .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
-        () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0);
+            drive)
+        //     ,
+        // joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> headRotation)
+        //     .until(() -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) != 0.0),
+        // () -> MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND) == 0.0)
+        .withName("Joystick Drive");
+  }
+
+  /** 使用两个摇杆（分别控制线速度和角速度）的机器人相对驾驶指令。 */
+  public static Command joystickRobotDrive(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier) {
+
+    // Timer timer = new Timer();
+
+    return Commands.run(
+            () -> {
+              // 获取线速度
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+              headRotation = drive.getRotation();
+              // 对旋转输入应用死区
+              double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+
+              // 将旋转输入平方以获得更精细的控制
+              omega = Math.copySign(omega * omega, omega) * 0.5;
+
+              // 转换为场相对速度并发送指令
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                      omega * drive.getMaxAngularSpeedRadPerSec());
+              drive.runVelocity(speeds);
+            },
+            drive)
+        .withName("Joystick Robot Drive");
   }
 
   /** 使用摇杆进行线速度控制、用 PID 进行角速度控制的场相对驾驶指令。 适用场景包括自动对准某个角度、瞄准视觉目标或通过摇杆控制绝对朝向。 */
@@ -122,6 +160,9 @@ public class DriveCommands {
             ANGLE_KD,
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setTolerance(Units.degreesToRadians(2.0));
+
+    SimpleMotorFeedforward angleFeedforward = new SimpleMotorFeedforward(0.0, 0.1, 0.2);
 
     // 构造指令
     return Commands.run(
@@ -135,12 +176,17 @@ public class DriveCommands {
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
 
+              // 旋转角速度目标值 (弧度/秒)
+              double omegaSetpoint = angleController.getSetpoint().velocity;
+
+              double omegaFeedforward = angleFeedforward.calculate(omegaSetpoint);
+
               // 转换为场相对速度并发送指令
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                      omega);
+                      omega + omegaFeedforward);
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
                       && DriverStation.getAlliance().get() == Alliance.Red;
@@ -155,6 +201,21 @@ public class DriveCommands {
 
         // 指令开始时重置 PID 控制器
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  // 在限制范围内，将底盘角度旋转到30、120、210、300中最近的一个
+  public static Command snapToNearest30Degrees(
+      Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+
+    return joystickDriveAtAngle(drive, xSupplier, ySupplier, () -> headRotation)
+        .beforeStarting(
+            () -> {
+              Rotation2d currentAngle = drive.getRotation();
+              double targetAngleDegrees =
+                  Math.round((currentAngle.getDegrees() - 45.0) / 90.0) * 90.0 + 45.0;
+              headRotation = Rotation2d.fromDegrees(targetAngleDegrees);
+            })
+        .withName("Snap To Nearest 30 Degrees");
   }
 
   /**

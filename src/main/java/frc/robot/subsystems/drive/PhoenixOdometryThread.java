@@ -40,9 +40,15 @@ public class PhoenixOdometryThread extends Thread {
       new ReentrantLock(); // Prevents conflicts when registering signals
   private BaseStatusSignal[] phoenixSignals = new BaseStatusSignal[0];
   private final List<DoubleSupplier> genericSignals = new ArrayList<>();
-  private final List<Queue<Double>> phoenixQueues = new ArrayList<>();
-  private final List<Queue<Double>> genericQueues = new ArrayList<>();
-  private final List<Queue<Double>> timestampQueues = new ArrayList<>();
+
+  @SuppressWarnings("unchecked")
+  private Queue<Double>[] phoenixQueues = new Queue[0];
+
+  @SuppressWarnings("unchecked")
+  private Queue<Double>[] genericQueues = new Queue[0];
+
+  @SuppressWarnings("unchecked")
+  private Queue<Double>[] timestampQueues = new Queue[0];
 
   private static boolean isCANFD =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD();
@@ -62,12 +68,13 @@ public class PhoenixOdometryThread extends Thread {
 
   @Override
   public void start() {
-    if (timestampQueues.size() > 0) {
+    if (timestampQueues.length > 0) {
       super.start();
     }
   }
 
   /** Registers a Phoenix signal to be read from the thread. */
+  @SuppressWarnings("unchecked")
   public Queue<Double> registerSignal(StatusSignal<Angle> signal) {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
     signalsLock.lock();
@@ -77,7 +84,11 @@ public class PhoenixOdometryThread extends Thread {
       System.arraycopy(phoenixSignals, 0, newSignals, 0, phoenixSignals.length);
       newSignals[phoenixSignals.length] = signal;
       phoenixSignals = newSignals;
-      phoenixQueues.add(queue);
+
+      Queue<Double>[] newQueues = new Queue[phoenixQueues.length + 1];
+      System.arraycopy(phoenixQueues, 0, newQueues, 0, phoenixQueues.length);
+      newQueues[phoenixQueues.length] = queue;
+      phoenixQueues = newQueues;
     } finally {
       signalsLock.unlock();
       Drive.odometryLock.unlock();
@@ -86,13 +97,17 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   /** Registers a generic signal to be read from the thread. */
+  @SuppressWarnings("unchecked")
   public Queue<Double> registerSignal(DoubleSupplier signal) {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
     signalsLock.lock();
     Drive.odometryLock.lock();
     try {
       genericSignals.add(signal);
-      genericQueues.add(queue);
+      Queue<Double>[] newQueues = new Queue[genericQueues.length + 1];
+      System.arraycopy(genericQueues, 0, newQueues, 0, genericQueues.length);
+      newQueues[genericQueues.length] = queue;
+      genericQueues = newQueues;
     } finally {
       signalsLock.unlock();
       Drive.odometryLock.unlock();
@@ -101,11 +116,15 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   /** Returns a new queue that returns timestamp values for each sample. */
+  @SuppressWarnings("unchecked")
   public Queue<Double> makeTimestampQueue() {
     Queue<Double> queue = new ArrayBlockingQueue<>(20);
     Drive.odometryLock.lock();
     try {
-      timestampQueues.add(queue);
+      Queue<Double>[] newQueues = new Queue[timestampQueues.length + 1];
+      System.arraycopy(timestampQueues, 0, newQueues, 0, timestampQueues.length);
+      newQueues[timestampQueues.length] = queue;
+      timestampQueues = newQueues;
     } finally {
       Drive.odometryLock.unlock();
     }
@@ -150,13 +169,13 @@ public class PhoenixOdometryThread extends Thread {
 
         // Add new samples to queues
         for (int i = 0; i < phoenixSignals.length; i++) {
-          phoenixQueues.get(i).offer(phoenixSignals[i].getValueAsDouble());
+          phoenixQueues[i].offer(phoenixSignals[i].getValueAsDouble());
         }
         for (int i = 0; i < genericSignals.size(); i++) {
-          genericQueues.get(i).offer(genericSignals.get(i).getAsDouble());
+          genericQueues[i].offer(genericSignals.get(i).getAsDouble());
         }
-        for (int i = 0; i < timestampQueues.size(); i++) {
-          timestampQueues.get(i).offer(timestamp);
+        for (int i = 0; i < timestampQueues.length; i++) {
+          timestampQueues[i].offer(timestamp);
         }
       } finally {
         Drive.odometryLock.unlock();

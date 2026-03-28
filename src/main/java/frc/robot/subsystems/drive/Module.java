@@ -97,17 +97,17 @@ public class Module {
   // }
 
   /** 转向电机sysid。 */
-  public void runCharacterization(double output) {
-    io.setDriveOpenLoop(0.0);
-    io.setTurnOpenLoop(output);
-  }
+  // public void runCharacterization(double output) {
+  //   io.setDriveOpenLoop(0.0);
+  //   io.setTurnOpenLoop(output);
+  // }
 
   /** 底盘转动惯量sysid。 */
-  // public void runCharacterization(double output) {
-  //     io.setDriveOpenLoop(output);
-  //     io.setTurnPosition(new Rotation2d(constants.LocationX,
-  // constants.LocationY).plus(Rotation2d.kCCW_Pi_2));
-  // }
+  public void runCharacterization(double output) {
+    io.setDriveOpenLoop(output);
+    io.setTurnPosition(
+        new Rotation2d(constants.LocationX, constants.LocationY).plus(Rotation2d.kCCW_Pi_2));
+  }
 
   /** 禁用所有电机输出。 */
   public void stop() {
