@@ -16,11 +16,11 @@ package frc.robot;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.generated.TunerConstants;
+import frc.robot.match.TeleopPhaseTracker;
 import frc.robot.util.LoggedTunableBoolean;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -40,7 +40,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
   private static final LoggedTunableBoolean ourIsFirstActive =
       new LoggedTunableBoolean("OurIsFirstActive", true);
-  private static Timer matchTimer = new Timer();
+  private final TeleopPhaseTracker teleopPhaseTracker = new TeleopPhaseTracker();
 
   public Robot() {
     // Record metadata
@@ -85,6 +85,7 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
+    Logger.recordOutput("Robot/CurrentMode", Constants.currentMode.name());
 
     // Disable LiveWindow to improve performance
     edu.wpi.first.wpilibj.livewindow.LiveWindow.disableAllTelemetry();
@@ -112,83 +113,12 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    updateTeleopStatus();
+    teleopPhaseTracker.log(ourIsFirstActive.get());
   }
 
   @Override
   public void teleopExit() {
-    matchTimer.stop();
-    matchTimer.reset();
-  }
-
-  private void updateTeleopStatus() {
-    boolean isOurShift = false;
-    double time = matchTimer.get();
-    double currentShiftTimeRemaining = 0.0;
-
-    // Teleop is 140 seconds long (2:20 in the diagram)
-    // Map time from 0 -> 140 to the shift logic
-    // According to the image, the timeline shifts back and forth
-
-    // If the timer is stopped or has been reset, we are not actively in teleop
-    if (time == 0.0 && !matchTimer.isRunning()) {
-      isOurShift = false;
-      currentShiftTimeRemaining = 0.0;
-    } else {
-      // Logic for REEFSHIFT based on the provided image:
-      // Teleop is from 2:20 -> 0:00 (140 seconds)
-      // We will map elapsed time (0 to 140) to the remaining time (140 to 0) to match the chart.
-      double remainingTime = 140.0 - time;
-
-      // RED Alliance values are used as an example (assuming we check `ourIsFirstActive` as proxy
-      // for Red/Blue logic or simply follow one path).
-      // Here we will use the `ourIsFirstActive` boolean to decide whether we are the alliance that
-      // is active during Shift 1.
-      boolean startsActive = ourIsFirstActive.get();
-
-      if (remainingTime > 130.0) {
-        // TRANSITION SHIFT (2:20 - 2:10) -> 140s to 130s remaining
-        isOurShift = true;
-        currentShiftTimeRemaining = remainingTime - 130.0;
-      } else if (remainingTime > 105.0) {
-        // SHIFT 1 (2:10 - 1:45) -> 130s to 105s remaining
-        isOurShift = startsActive;
-        currentShiftTimeRemaining = remainingTime - 105.0;
-      } else if (remainingTime > 80.0) {
-        // SHIFT 2 (1:45 - 1:20) -> 105s to 80s remaining
-        isOurShift = !startsActive;
-        currentShiftTimeRemaining = remainingTime - 80.0;
-      } else if (remainingTime > 55.0) {
-        // SHIFT 3 (1:20 - 0:55) -> 80s to 55s remaining
-        isOurShift = startsActive;
-        currentShiftTimeRemaining = remainingTime - 55.0;
-      } else if (remainingTime > 30.0) {
-        // SHIFT 4 (0:55 - 0:30) -> 55s to 30s remaining
-        isOurShift = !startsActive;
-        currentShiftTimeRemaining = remainingTime - 30.0;
-      } else if (remainingTime > 0.0) {
-        // END GAME (0:30 - 0:00) -> 30s to 0s remaining
-        // Both alliances are active
-        isOurShift = true;
-        currentShiftTimeRemaining = remainingTime; // remaining time itself is end game remaining
-      } else {
-        isOurShift = false;
-        currentShiftTimeRemaining = 0.0;
-      }
-
-      // 闪烁逻辑：当在当前阶段剩余时间少于或等于 7 秒时，并且不处于 END GAME 阶段，让其快速切换状态
-      if (currentShiftTimeRemaining <= 7.0 && currentShiftTimeRemaining > 0.0) {
-        // 利用时间来使它实现 0.25秒亮、0.25秒灭，即2Hz的闪烁
-        // time % 0.5 会在 0.0~0.5 之间波动，据此判断闪烁的占空比
-        if ((time % 0.5) < 0.25) {
-          isOurShift = !isOurShift;
-        }
-      }
-    }
-
-    Logger.recordOutput("Game/IsOurShiftActive", isOurShift);
-    Logger.recordOutput("Game/CurrentShiftTimeRemaining", Math.max(0, currentShiftTimeRemaining));
-    Logger.recordOutput("Game/TeleopTimeRemaining", Math.max(0, 140.0 - time));
+    teleopPhaseTracker.stopAndReset();
   }
 
   /** This function is called periodically during all modes. */
@@ -229,6 +159,9 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
+    Logger.recordOutput(
+        "Robot/AutonomousCommand",
+        autonomousCommand != null ? autonomousCommand.getName() : "None");
   }
 
   /** This function is called periodically during autonomous. */
@@ -266,7 +199,7 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().schedule(resetCommand.andThen(feederAndFlywheelReset));
 
-    matchTimer.start();
+    teleopPhaseTracker.start();
     // CommandScheduler.getInstance().schedule(robotContainer.getTurret().resetToLimitCommand());
   }
 
