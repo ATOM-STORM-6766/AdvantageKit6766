@@ -2,8 +2,6 @@ package frc.robot;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.auto.routines.P21Auto;
@@ -17,6 +15,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoModeSelector {
@@ -47,7 +46,7 @@ public class AutoModeSelector {
       return;
     }
 
-    if (DriverStation.getAlliance().isEmpty()) {
+    if (!AllianceFlipUtil.isAllianceKnown()) {
       Logger.recordOutput("Robot/Auto/ChooserReady", false);
       return;
     }
@@ -57,12 +56,12 @@ public class AutoModeSelector {
             drive::getPose,
             drive::setPose,
             drive::followTrajectory,
-            DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+            AllianceFlipUtil.shouldFlip(),
             drive,
             (trajectory, isFinished) -> {
               Logger.recordOutput(
                   "Odometry/Trajectory",
-                  DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                  AllianceFlipUtil.shouldFlip()
                       ? trajectory.flipped().getPoses()
                       : trajectory.getPoses());
               Logger.recordOutput("Odometry/TrajectoryIsFinished", isFinished);
