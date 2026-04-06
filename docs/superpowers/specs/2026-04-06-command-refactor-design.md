@@ -7,8 +7,8 @@
 1. 将 `AutoConfigurator` 拆成两部分：
    - 顶层自动模式选择与 `AutoFactory` 创建逻辑
    - 自动阶段 command/routine 逻辑
-2. 将自动阶段 command 逻辑迁移到 `src/main/java/frc/robot/commands/auto/` 下。
-3. 在新的 `commands/auto/` 下，提取多个可复用原子 command，减少单文件堆叠。
+2. 将自动阶段 routine 逻辑迁移到 `src/main/java/frc/robot/commands/auto/` 下。
+3. 结合当前 auto 与 `RobotControl` 中已有手柄触发 command，提取多个可复用原子 command，并按执行功能类别聚合到 `src/main/java/frc/robot/commands/` 下，减少单文件堆叠并统一入口。
 4. 新增 `src/main/java/frc/robot/AutoModeSelector.java`，由 `RobotContainer` 使用。
 5. 取消独立 `RobotHardware` 文件，参考 `event-ShangHai` 的装配方式，将硬件实例化收回 `RobotContainer.java`。
 6. 保持 `RobotControl` 功能不变，仅重排 controller/operator 逻辑并补充中文注释。
@@ -28,15 +28,14 @@
   - 对 `RobotContainer` 暴露最小接口：更新 chooser、获取自动指令
 
 ### command 层
-- `frc.robot.commands.auto.AutoCommands`
-  - 提供自动阶段可复用的原子 command builder
-  - 封装 reset/intake/feed/shoot/follow point/stop drive 等重复段落
-- `frc.robot.commands.auto.AutoTrajectories`
-  - 封装 `AutoFactory` 的轨迹命令与 resetOdometry 组合
-  - 统一 trajectory 命名，避免在 routine 文件里重复样板代码
 - `frc.robot.commands.auto.routines.*`
   - 每个自动模式一个文件，例如 `P2Auto`、`P3Auto`、`P4Auto`、`P6Auto`、`P6MirrorAuto`
   - 每个文件只负责拼装该 routine 的 sequence/parallel 流程
+- `frc.robot.commands.*` 下按执行功能聚合复用 command builder
+  - 复用当前 `RobotControl` 中手柄绑定所使用的 command 组合
+  - 供 teleop 与 auto 共用，避免 auto 再维护一套相似但割裂的原子逻辑
+- 可选的辅助类（如需要）
+  - 保持轻量，只承载共用的 command 组装，不制造多余层级
 
 ## 详细职责
 
@@ -52,38 +51,29 @@
 - `getSelectedCommand()`：返回当前选中的自动指令。
 - `getChooser()`：仅在 `RobotContainer` 需要向 SmartDashboard 注册时使用；若实现中直接由 selector 注册，则可不暴露。
 
-### AutoCommands
-计划抽取以下原子 command：
-- `resetMechanisms()`：重置 intake 与 hood
-- `runIntake()`：自动阶段进球动作
-- `feedWithWave(double delaySeconds)`：喂料 + intake wave
-- `autoAimShoot(double timeoutSeconds)`：自动瞄准并出球
-- `stopShooting()`：停止 flywheel、feeder，并收回 intake
-- `shootAtFixedPosition()`：固定 hood/flywheel 参数出球
-- `followPoint(Pose2d pose)`：包装 `FollowPoint` 并处理 alliance flip
-- `stopDrive()` / `zeroChassisSpeeds()`：统一底盘停转动作
+### 复用 command 聚合方式
+计划把可复用原子 command 按执行功能归并到 `frc.robot.commands` 下，而不是只放在 `commands/auto`：
+- **进球/喂料类**：封装 intake、wave、feed、stop feeding 等步骤
+- **射球准备类**：封装固定点射球、自动瞄准射球、停止射球等步骤
+- **定位/移动类**：封装 follow point、停底盘、必要的定点移动片段
 
-这些原子 command 不追求“每行一个类”的极端拆分，而是集中在一个 builder 类里，保持复用与可读性的平衡。
+拆分时会优先复用或上提当前 `RobotControl` 中已经直接使用的 command 组合，让 teleop 与 auto 使用同一套能力块。这样做有两个目的：
+1. 避免自动阶段为了复用而再造一套只服务 auto 的原子 command；
+2. 让 command 层按“执行意图”组织，而不是按“比赛阶段”组织。
 
-### AutoTrajectories
-计划提供：
-- `trajectory(String name)`
-- `trajectory(String name, int splitIndex)`
-- 自动带上 `.beforeStarting(resetOdometry(...))` 的首段包装
-- 命名规范统一，例如 `p6Part1()` 这类具名方法或最小成本的通用方法调用
-
-这里优先选择“轻包装”，避免为每条路径再造额外抽象。
+落地形式优先选择少量聚合 builder，而不是把每个小动作都拆成独立 class。
 
 ### Routine 文件
 每个 routine 文件暴露一个静态工厂方法，例如：
-- `public static Command create(AutoTrajectories trajectories, AutoCommands commands)`
+- `public static Command create(AutoFactory autoFactory, RobotContainer container, ... )`
 
 每个文件内部只保留：
 - routine 相关的关键 pose
-- sequence/parallel 组合
+- trajectory 获取与 sequence/parallel 组合
 - 少量该 routine 独有的步骤
+- 对 `frc.robot.commands` 下复用 command builder 的调用
 
-这样可以把当前 `AutoConfigurator` 中长串的 `autoChooser.addCmd(...)` 展开为多个聚焦文件。
+这样可以把当前 `AutoConfigurator` 中长串的 `autoChooser.addCmd(...)` 展开为多个聚焦文件，同时让 auto 与手柄触发逻辑尽量复用同一套 command 能力块。
 
 ## RobotContainer 调整
 - 删除对独立 `RobotHardware` 文件的依赖。
@@ -99,6 +89,7 @@
   - 默认驾驶 / controller 驾驶相关绑定
   - operator 相关绑定
 - 添加中文分区注释，帮助快速定位。
+- 对于当前在 `RobotControl` 中直接内联的 command 组合，会优先评估是否上提到 `frc.robot.commands` 下按功能聚合的复用 builder；若已上提，则 `RobotControl` 直接调用这些 builder，而不是继续内联大段组合逻辑。
 - 不做顺手功能修改。
 
 ## 注释与风格
@@ -108,10 +99,10 @@
 
 ## 迁移步骤
 1. 新建 `AutoModeSelector`。
-2. 新建 `commands/auto/AutoCommands` 与 `AutoTrajectories`。
-3. 将各自动模式拆分到 `commands/auto/routines/`。
+2. 将各自动模式拆分到 `commands/auto/routines/`。
+3. 结合 auto 与 `RobotControl`，把可复用原子 command 上提到 `frc.robot.commands` 下按功能聚合。
 4. 修改 `RobotContainer`，内联硬件构造并接入 selector。
-5. 重排 `RobotControl` 并补中文注释。
+5. 重排 `RobotControl`，改用新的复用 command builder 并补中文注释。
 6. 运行构建检查，确保重构后行为保持一致。
 
 ## 风险与控制
@@ -119,15 +110,16 @@
   - **控制：** 在 `AutoModeSelector` 中集中注册，保持与旧模式同名。
 - **风险：** trajectory reset 时机在拆分中变化。
   - **控制：** 在 `AutoTrajectories` 中复刻现有 `.beforeStarting(resetOdometry(...))` 规则。
-- **风险：** `RobotContainer` 回收硬件装配时引入构造差异。
-  - **控制：** 以 `origin/event-ShangHai` 对应实现为基线，只做当前分支必要的最小回收。
+- **风险：** 复用 `RobotControl` 里的组合后，teleop 与 auto 共享 command builder 时不小心带入阶段特有假设。
+  - **控制：** builder 只抽“动作能力”，不抽按钮语义；auto 特有的时序仍保留在 routine 文件中。
+- **风险：** `RobotContainer` 回收硬件装配时引入构造差异。  - **控制：** 以 `origin/event-ShangHai` 对应实现为基线，只做当前分支必要的最小回收。
 - **风险：** `RobotControl` 重排时误改绑定行为。
   - **控制：** 仅移动代码位置与补注释，不改按钮到 command 的映射关系。
 
 ## 验收标准
 - `AutoConfigurator` 不再承担当前 chooser + routines 的混合职责。
 - `AutoModeSelector` 位于 `frc.robot`，并被 `RobotContainer` 使用。
-- 自动 command 逻辑迁移到 `commands/auto/`，并包含可复用原子 command。
+- 自动 routine 拆分到 `commands/auto/routines/`，同时复用原子 command 按功能聚合在 `frc.robot.commands` 下，而不是只服务 auto。
 - `RobotHardware` 不再单独成文件，硬件实例化逻辑回到 `RobotContainer`。
 - `RobotControl` 行为不变，但 controller/operator 逻辑分组更清晰，且注释为中文。
 - 项目可通过 `./gradlew build` 基本编译验证。
