@@ -319,7 +319,6 @@ git commit -m "refactor: slim robot lifecycle logic"
 ```java
 package frc.robot.config;
 
-import frc.robot.subsystems.clamber.Clamber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -333,8 +332,7 @@ public record RobotHardware(
     Flywheel flywheel,
     Feeder feeder,
     Hood hood,
-    Intake intake,
-    Clamber clamber) {}
+    Intake intake) {}
 ```
 
 - [ ] **Step 2: Move the `Constants.currentMode` switch into a dedicated factory**
@@ -351,10 +349,6 @@ import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.clamber.Clamber;
-import frc.robot.subsystems.clamber.ClamberIO;
-import frc.robot.subsystems.clamber.ClamberIOSim;
-import frc.robot.subsystems.clamber.ClamberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -407,8 +401,7 @@ public final class RobotHardwareFactory {
     Flywheel flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
     Feeder feeder = new Feeder(new FeederIOTalonFX());
     Intake intake = new Intake(new IntakeIOTalonFX());
-    Clamber clamber = new Clamber(new ClamberIOTalonFX());
-    return new RobotHardware(drive, vision, flywheel, feeder, hood, intake, clamber);
+    return new RobotHardware(drive, vision, flywheel, feeder, hood, intake);
   }
 
   private static RobotHardware createSimHardware() {
@@ -427,8 +420,7 @@ public final class RobotHardwareFactory {
     Flywheel flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
     Feeder feeder = new Feeder(new FeederIOSim());
     Intake intake = new Intake(new IntakeIOSim());
-    Clamber clamber = new Clamber(new ClamberIOSim());
-    return new RobotHardware(drive, vision, flywheel, feeder, hood, intake, clamber);
+    return new RobotHardware(drive, vision, flywheel, feeder, hood, intake);
   }
 
   private static RobotHardware createReplayHardware() {
@@ -438,8 +430,7 @@ public final class RobotHardwareFactory {
     Flywheel flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
     Feeder feeder = new Feeder(new FeederIOSim());
     Intake intake = new Intake(new IntakeIOTalonFX());
-    Clamber clamber = new Clamber(new ClamberIO() {});
-    return new RobotHardware(drive, vision, flywheel, feeder, hood, intake, clamber);
+    return new RobotHardware(drive, vision, flywheel, feeder, hood, intake);
   }
 }
 ```
@@ -457,7 +448,6 @@ private final Flywheel flywheel;
 private final Feeder feeder;
 private final Hood hood;
 private final Intake intake;
-private final Clamber clamber;
 private final AimSubsystem aimSubsystem = new AimSubsystem();
 private final PassSubsystem passSubsystem = new PassSubsystem();
 ```
@@ -473,7 +463,6 @@ public RobotContainer() {
   feeder = hardware.feeder();
   hood = hardware.hood();
   intake = hardware.intake();
-  clamber = hardware.clamber();
 
   autoChooser = new AutoChooser();
   autoFactory = null;
@@ -532,7 +521,6 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowPoint;
 import frc.robot.commands.PassCommand;
-import frc.robot.subsystems.clamber.Clamber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -546,7 +534,6 @@ public class ControlsConfigurator {
   private final Flywheel flywheel;
   private final Feeder feeder;
   private final Intake intake;
-  private final Clamber clamber;
   private final CommandXboxController controller;
   private final CommandPS5Controller operator;
 
@@ -556,7 +543,6 @@ public class ControlsConfigurator {
       Flywheel flywheel,
       Feeder feeder,
       Intake intake,
-      Clamber clamber,
       CommandXboxController controller,
       CommandPS5Controller operator) {
     this.robotContainer = robotContainer;
@@ -564,7 +550,6 @@ public class ControlsConfigurator {
     this.flywheel = flywheel;
     this.feeder = feeder;
     this.intake = intake;
-    this.clamber = clamber;
     this.controller = controller;
     this.operator = operator;
   }
@@ -628,8 +613,7 @@ Replace `configureButtonBindings()` in `src/main/java/frc/robot/RobotContainer.j
 
 ```java
 private void configureButtonBindings() {
-  new ControlsConfigurator(this, drive, flywheel, feeder, intake, clamber, controller, operator)
-      .configure();
+  new ControlsConfigurator(this, drive, flywheel, feeder, intake, controller, operator).configure();
 }
 ```
 
@@ -676,7 +660,6 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotContainer;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.FollowPoint;
-import frc.robot.subsystems.clamber.Clamber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -693,7 +676,6 @@ public class AutoConfigurator {
   private final Feeder feeder;
   private final Hood hood;
   private final Intake intake;
-  private final Clamber clamber;
 
   public AutoConfigurator(
       RobotContainer robotContainer,
@@ -701,15 +683,13 @@ public class AutoConfigurator {
       Flywheel flywheel,
       Feeder feeder,
       Hood hood,
-      Intake intake,
-      Clamber clamber) {
+      Intake intake) {
     this.robotContainer = robotContainer;
     this.drive = drive;
     this.flywheel = flywheel;
     this.feeder = feeder;
     this.hood = hood;
     this.intake = intake;
-    this.clamber = clamber;
   }
 
   public AutoFactory configure(AutoChooser autoChooser) {
@@ -773,8 +753,7 @@ Update `RobotContainer` so `updateAutoChooser()` becomes:
 public void updateAutoChooser() {
   if (autoFactory == null && DriverStation.getAlliance().isPresent()) {
     autoFactory =
-        new AutoConfigurator(this, drive, flywheel, feeder, hood, intake, clamber)
-            .configure(autoChooser);
+        new AutoConfigurator(this, drive, flywheel, feeder, hood, intake).configure(autoChooser);
     SmartDashboard.putData("Auto Choices", autoChooser);
     Logger.recordOutput("Robot/Auto/ChooserReady", true);
   } else if (autoFactory == null) {
@@ -815,7 +794,6 @@ public Hood getHood() { return hood; }
 public Flywheel getFlywheel() { return flywheel; }
 public Feeder getFeeder() { return feeder; }
 public Intake getIntake() { return intake; }
-public Clamber getClamber() { return clamber; }
 public AimSubsystem getAimSubsystem() { return aimSubsystem; }
 public PassSubsystem getPassSubsystem() { return passSubsystem; }
 public Drive getDrive() { return drive; }

@@ -13,7 +13,7 @@
 
 ## Key Directories
 - `src/main/java/frc/robot/commands` — command composition for driving, aiming, passing, path following.
-- `src/main/java/frc/robot/subsystems` — mechanism code grouped by domain (`drive`, `vision`, `intake`, `flywheel`, `hood`, `feeder`, `clamber`, `aim`).
+- `src/main/java/frc/robot/subsystems` — mechanism code grouped by domain (`drive`, `vision`, `intake`, `flywheel`, `hood`, `feeder`, `aim`).
 - `src/main/java/frc/robot/generated` — generated constants such as `TunerConstants` / `BuildConstants`.
 - `src/main/deploy` — deploy-time assets including `choreo/` and `pathplanner/`.
 - `vendordeps` — vendor dependency descriptors.

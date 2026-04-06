@@ -727,7 +727,6 @@ public RobotContainer() {
       feeder = new Feeder(new FeederIOTalonFX());
       hood = new Hood(new HoodIOTalonFX());
       intake = new Intake(new IntakeIOTalonFX());
-      clamber = new Clamber(new ClamberIOTalonFX());
       break;
 
     case SIM:
@@ -746,7 +745,6 @@ public RobotContainer() {
       feeder = new Feeder(new FeederIOSim());
       hood = new Hood(new HoodIOSim());
       intake = new Intake(new IntakeIOSim());
-      clamber = new Clamber(new ClamberIOSim());
       break;
 
     default:
@@ -756,7 +754,6 @@ public RobotContainer() {
       feeder = new Feeder(new FeederIOSim());
       hood = new Hood(new HoodIOSim());
       intake = new Intake(new IntakeIOTalonFX());
-      clamber = new Clamber(new ClamberIO() {});
       break;
   }
 
@@ -855,8 +852,6 @@ private void configureControllerBindings() {
 }
 
 private void configureOperatorBindings() {
-  operator.L1().whileTrue(clamber.runPercentCommand(0.6));
-  operator.R1().whileTrue(clamber.runPercentCommand(-0.6));
 }
 ```
 

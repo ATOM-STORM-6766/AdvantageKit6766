@@ -14,7 +14,6 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowPoint;
 import frc.robot.commands.GamePieceCommands;
 import frc.robot.commands.PassCommand;
-import frc.robot.subsystems.clamber.Clamber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -24,7 +23,6 @@ import frc.robot.util.AllianceFlipUtil;
 public class RobotControl {
   private final RobotContainer robotContainer;
   private final Drive drive;
-  private final Clamber clamber;
   private final Flywheel flywheel;
   private final Feeder feeder;
   private final Intake intake;
@@ -34,7 +32,6 @@ public class RobotControl {
   public RobotControl(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
     this.drive = robotContainer.getDrive();
-    this.clamber = robotContainer.getClamber();
     this.flywheel = robotContainer.getFlywheel();
     this.feeder = robotContainer.getFeeder();
     this.intake = robotContainer.getIntake();
@@ -153,9 +150,7 @@ public class RobotControl {
   }
 
   private void configureOperatorBindings() {
-    // 配置爬升与传球相关操作手绑定。
-    operator.L1().whileTrue(clamber.runPercentCommand(0.6));
-    operator.R1().whileTrue(clamber.runPercentCommand(-0.6));
+    // 配置传球相关操作手绑定。
     operator
         .cross()
         .whileTrue(

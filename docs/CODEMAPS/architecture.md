@@ -10,7 +10,7 @@
 - `src/main/java/frc/robot/commands` — reusable command builders such as `DriveCommands`, `AimCommand`, `PassCommand`, `FollowPoint`.
 - `src/main/java/frc/robot/subsystems/drive` — swerve drive, odometry, gyro/module IO, trajectory following.
 - `src/main/java/frc/robot/subsystems/vision` — camera IO, observation filtering, vision pose handoff.
-- `src/main/java/frc/robot/subsystems/intake|flywheel|hood|feeder|clamber` — mechanism control and IO layers.
+- `src/main/java/frc/robot/subsystems/intake|flywheel|hood|feeder` — mechanism control and IO layers.
 - `src/main/java/frc/robot/subsystems/aim` — computes shooter-related setpoints from robot state.
 - `src/main/java/frc/robot/generated` — generated constants.
 - `src/main/deploy` — Choreo and PathPlanner assets deployed to the robot.
@@ -24,7 +24,7 @@
 
 ## Repeated Design Pattern
 Subsystem packages commonly follow this split:
-- subsystem class: `Drive`, `Vision`, `Hood`, `Flywheel`, `Intake`, `Feeder`, `Clamber`
+- subsystem class: `Drive`, `Vision`, `Hood`, `Flywheel`, `Intake`, `Feeder`
 - abstraction/interface: `*IO`
 - simulation implementation: `*IOSim`
 - hardware implementation: `*IOTalonFX`, `GyroIOPigeon2`, `VisionIOPhotonVision`

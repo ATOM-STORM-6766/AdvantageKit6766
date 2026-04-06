@@ -20,10 +20,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.aim.AimSubsystem;
 import frc.robot.subsystems.aim.PassSubsystem;
-import frc.robot.subsystems.clamber.Clamber;
-import frc.robot.subsystems.clamber.ClamberIO;
-import frc.robot.subsystems.clamber.ClamberIOSim;
-import frc.robot.subsystems.clamber.ClamberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -54,7 +50,6 @@ import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 public class RobotContainer {
   // 子系统
   private final Drive drive;
-  private final Clamber clamber;
   private final Vision vision;
   private final Flywheel flywheel;
   private final Feeder feeder;
@@ -93,7 +88,6 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOTalonFX());
         hood = new Hood(new HoodIOTalonFX());
         intake = new Intake(new IntakeIOTalonFX());
-        clamber = new Clamber(new ClamberIOTalonFX());
         break;
       case SIM:
         drive =
@@ -111,7 +105,6 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOSim());
         hood = new Hood(new HoodIOSim());
         intake = new Intake(new IntakeIOSim());
-        clamber = new Clamber(new ClamberIOSim());
         break;
       default:
         drive =
@@ -126,7 +119,6 @@ public class RobotContainer {
         feeder = new Feeder(new FeederIOSim());
         hood = new Hood(new HoodIOSim());
         intake = new Intake(new IntakeIOTalonFX());
-        clamber = new Clamber(new ClamberIO() {});
         break;
     }
 
@@ -151,10 +143,6 @@ public class RobotContainer {
 
   public Intake getIntake() {
     return intake;
-  }
-
-  public Clamber getClamber() {
-    return clamber;
   }
 
   public AimSubsystem getAimSubsystem() {
