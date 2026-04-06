@@ -147,13 +147,13 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    robotContainer.updateAutoChooser();
+    robotContainer.getAutoModeSelector().update();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    autonomousCommand = robotContainer.getAutoModeSelector().selectedCommand();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {

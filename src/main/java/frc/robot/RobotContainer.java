@@ -10,26 +10,43 @@
 
 package frc.robot;
 
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
+import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
+
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.match.AutoConfigurator;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.aim.AimSubsystem;
 import frc.robot.subsystems.aim.PassSubsystem;
 import frc.robot.subsystems.clamber.Clamber;
+import frc.robot.subsystems.clamber.ClamberIO;
+import frc.robot.subsystems.clamber.ClamberIOSim;
+import frc.robot.subsystems.clamber.ClamberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.flywheel.FlywheelIOSim;
+import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.flywheel.LimitSwitchDIO;
 import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodIOSim;
+import frc.robot.subsystems.hood.HoodIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * 该类用于声明机器人中的主要内容。由于 Command-based 属于“声明式”范式， {@link Robot} 的 periodic 方法中（除调度器调用外）不应包含太多机器人逻辑。
@@ -39,58 +56,86 @@ public class RobotContainer {
   // 子系统
   private final Drive drive;
   private final Clamber clamber;
-
-  private AutoFactory autoFactory;
-  private final AutoChooser autoChooser;
-
-  @SuppressWarnings("unused")
   private final Vision vision;
-
   private final Flywheel flywheel;
   private final Feeder feeder;
-
   private final Hood hood;
   private final Intake intake;
-  private final AimSubsystem aimSubsystem = new AimSubsystem();
-  private final PassSubsystem passSubsystem = new PassSubsystem();
+  private final AimSubsystem aimSubsystem;
+  private final PassSubsystem passSubsystem;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
 
+  // 指令注册
+  private final AutoModeSelector autoModeSelector;
+  private final RobotControl robotControl;
+
   /** 机器人容器，包含子系统、操作接口设备以及指令。 */
   public RobotContainer() {
-    RobotHardware hardware = RobotHardware.create(Constants.currentMode);
-    drive = hardware.drive();
-    vision = hardware.vision();
-    flywheel = hardware.flywheel();
-    feeder = hardware.feeder();
-    hood = hardware.hood();
-    intake = hardware.intake();
-    clamber = hardware.clamber();
-
-    // 设置自动例程
-    autoChooser = new AutoChooser();
-    autoFactory = null;
-    SmartDashboard.putData("Auto Choices", autoChooser);
-    updateAutoChooser();
-
-    // 配置按键绑定
-    configureButtonBindings();
-  }
-
-  public void updateAutoChooser() {
-    if (autoFactory == null) {
-      if (DriverStation.getAlliance().isPresent()) {
-        autoFactory =
-            new AutoConfigurator(this, drive, flywheel, feeder, hood, intake)
-                .configure(autoChooser);
-        SmartDashboard.putData("Auto Choices", autoChooser);
-        Logger.recordOutput("Robot/Auto/ChooserReady", true);
-      } else {
-        Logger.recordOutput("Robot/Auto/ChooserReady", false);
-      }
+    aimSubsystem = new AimSubsystem();
+    passSubsystem = new PassSubsystem();
+    switch (Constants.currentMode) {
+      case REAL:
+        drive =
+            new Drive(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(camera0Name, robotToCamera0),
+                new VisionIOPhotonVision(camera1Name, robotToCamera1));
+        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
+        feeder = new Feeder(new FeederIOTalonFX());
+        hood = new Hood(new HoodIOTalonFX());
+        intake = new Intake(new IntakeIOTalonFX());
+        clamber = new Clamber(new ClamberIOTalonFX());
+        break;
+      case SIM:
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
+        feeder = new Feeder(new FeederIOSim());
+        hood = new Hood(new HoodIOSim());
+        intake = new Intake(new IntakeIOSim());
+        clamber = new Clamber(new ClamberIOSim());
+        break;
+      default:
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
+        feeder = new Feeder(new FeederIOSim());
+        hood = new Hood(new HoodIOSim());
+        intake = new Intake(new IntakeIOTalonFX());
+        clamber = new Clamber(new ClamberIO() {});
+        break;
     }
+
+    // 指令注册
+    autoModeSelector = new AutoModeSelector(this);
+    autoModeSelector.update();
+    robotControl = new RobotControl(this);
+    robotControl.configure();
   }
 
   public Hood getHood() {
@@ -125,22 +170,19 @@ public class RobotContainer {
     return drive;
   }
 
-  /**
-   * 使用此方法定义按键到指令的映射。可以实例化 {@link GenericHID} 或其子类 （如 {@link edu.wpi.first.wpilibj.Joystick} 或
-   * {@link XboxController}），然后传递给 {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}
-   * 来创建按钮。
-   */
-  private void configureButtonBindings() {
-    new RobotControl(this, drive, clamber, flywheel, feeder, intake, controller, operator)
-        .configure();
+  public Vision getVision() {
+    return vision;
   }
 
-  /**
-   * 用此方法将自动阶段的指令传递给 {@link Robot} 主类。
-   *
-   * @return 自动阶段需要运行的指令
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+  public AutoModeSelector getAutoModeSelector() {
+    return autoModeSelector;
+  }
+
+  public CommandXboxController getController() {
+    return controller;
+  }
+
+  public CommandPS5Controller getOperator() {
+    return operator;
   }
 }

@@ -1,8 +1,6 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,8 +9,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AimCommand;
+import frc.robot.commands.AutoDriveCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowPoint;
+import frc.robot.commands.GamePieceCommands;
 import frc.robot.commands.PassCommand;
 import frc.robot.subsystems.clamber.Clamber;
 import frc.robot.subsystems.drive.Drive;
@@ -32,26 +32,26 @@ public class RobotControl {
   private final CommandXboxController controller;
   private final CommandPS5Controller operator;
 
-  public RobotControl(
-      RobotContainer robotContainer,
-      Drive drive,
-      Clamber clamber,
-      Flywheel flywheel,
-      Feeder feeder,
-      Intake intake,
-      CommandXboxController controller,
-      CommandPS5Controller operator) {
+  public RobotControl(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
-    this.drive = drive;
-    this.clamber = clamber;
-    this.flywheel = flywheel;
-    this.feeder = feeder;
-    this.intake = intake;
-    this.controller = controller;
-    this.operator = operator;
+    this.drive = robotContainer.getDrive();
+    this.clamber = robotContainer.getClamber();
+    this.flywheel = robotContainer.getFlywheel();
+    this.feeder = robotContainer.getFeeder();
+    this.intake = robotContainer.getIntake();
+    this.controller = robotContainer.getController();
+    this.operator = robotContainer.getOperator();
   }
 
   public void configure() {
+    // 配置驾驶手柄相关绑定。
+    configureControllerBindings();
+
+    // 配置操作手柄相关绑定。
+    configureOperatorBindings();
+  }
+
+  private void configureControllerBindings() {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
@@ -85,46 +85,90 @@ public class RobotControl {
                     drive)
                 .ignoringDisable(true));
 
+    // 配置 intake、喂料与射球相关驾驶绑定。
     controller
         .rightBumper()
-        .whileTrue(
-            Commands.parallel(
-                intake.setIntakeVelocityCommand(Volts.of(10)),
-                intake.setPosCommand(() -> Degrees.of(0))))
-        .onFalse(Commands.parallel(intake.stopCommand(), feeder.stopCommand()));
+        .whileTrue(GamePieceCommands.runIntake(intake))
+        .onFalse(GamePieceCommands.stopIntakeAndFeeder(intake, feeder));
 
     controller
         .a()
         .whileTrue(
-            Commands.parallel(
-                AimCommand.autoAimAtTarget(
-                    robotContainer,
-                    () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
-                    () -> -controller.getLeftY(),
-                    () -> -controller.getLeftX())))
+            AimCommand.autoAimAtTarget(
+                robotContainer,
+                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX()))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     controller
         .x()
         .or(operator.square())
+        .whileTrue(GamePieceCommands.feedWithWave(intake, feeder, 0))
+        .onFalse(GamePieceCommands.clearAndStopFeed(intake, feeder));
+
+    controller
+        .y()
+        .whileTrue(GamePieceCommands.reverseFeed(intake, feeder))
+        .onFalse(GamePieceCommands.stopIntakeAndFeeder(intake, feeder));
+
+    // 配置需要自动对准或定点移动的驾驶绑定。
+    controller
+        .b()
         .whileTrue(
-            Commands.parallel(
-                feeder.setFeederVelocityCommand(
-                    () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
-                intake.WaveIntakeCommand()))
-        .onFalse(
-            Commands.parallel(
-                feeder
-                    .setFeederVelocityCommand(
-                        () -> RotationsPerSecond.of(-20.0), () -> RotationsPerSecond.of(-80.0))
-                    .withTimeout(1)
-                    .andThen(feeder.stopCommand()),
-                intake.stopCommand()));
+            new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.tower))
+                .onlyIf(
+                    () ->
+                        drive
+                                .getPose()
+                                .getTranslation()
+                                .getDistance(
+                                    AllianceFlipUtil.apply(
+                                        FieldConstants.Hub.tower.getTranslation()))
+                            < 1.6));
 
+    controller
+        .pov(90)
+        .whileTrue(
+            AutoDriveCommands.followPoint(drive, FieldConstants.Hub.blink)
+                .raceWith(
+                    flywheel.setVelocity(
+                        () ->
+                            new FlywheelSetpoint(
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20))))
+                .andThen(
+                    Commands.parallel(
+                        Commands.run(drive::stopWithX, drive),
+                        AimCommand.noMoveShootAtTarget(
+                            robotContainer,
+                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
+        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+    controller
+        .pov(270)
+        .whileTrue(
+            AutoDriveCommands.followPoint(drive, AllianceFlipUtil.mirror(FieldConstants.Hub.blink))
+                .raceWith(
+                    flywheel.setVelocity(
+                        () ->
+                            new FlywheelSetpoint(
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20),
+                                RotationsPerSecond.of(20))))
+                .andThen(
+                    Commands.parallel(
+                        Commands.run(drive::stopWithX, drive),
+                        AimCommand.noMoveShootAtTarget(
+                            robotContainer,
+                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
+        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+  }
+
+  private void configureOperatorBindings() {
+    // 配置爬升与传球相关操作手绑定。
     operator.L1().whileTrue(clamber.runPercentCommand(0.6));
-
     operator.R1().whileTrue(clamber.runPercentCommand(-0.6));
-
     operator
         .cross()
         .whileTrue(
@@ -144,68 +188,6 @@ public class RobotControl {
                 },
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
-        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
-
-    controller
-        .y()
-        .whileTrue(
-            Commands.parallel(
-                intake.setIntakeVelocityCommand(Volts.of(-10)),
-                feeder.setFeederVelocityCommand(
-                    () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(-40))))
-        .onFalse(intake.stopCommand().alongWith(feeder.stopCommand()));
-
-    controller
-        .b()
-        .whileTrue(
-            new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.tower))
-                .onlyIf(
-                    () ->
-                        drive
-                                .getPose()
-                                .getTranslation()
-                                .getDistance(
-                                    AllianceFlipUtil.apply(
-                                        FieldConstants.Hub.tower.getTranslation()))
-                            < 1.6));
-
-    controller
-        .pov(90)
-        .whileTrue(
-            new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.blink))
-                .raceWith(
-                    flywheel.setVelocity(
-                        () ->
-                            new FlywheelSetpoint(
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20))))
-                .andThen(
-                    Commands.parallel(
-                        Commands.run(drive::stopWithX, drive),
-                        AimCommand.noMoveShootAtTarget(
-                            robotContainer,
-                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
-        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
-    controller
-        .pov(270)
-        .whileTrue(
-            new FollowPoint(
-                    drive,
-                    () -> AllianceFlipUtil.apply(AllianceFlipUtil.mirror(FieldConstants.Hub.blink)))
-                .raceWith(
-                    flywheel.setVelocity(
-                        () ->
-                            new FlywheelSetpoint(
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20))))
-                .andThen(
-                    Commands.parallel(
-                        Commands.run(drive::stopWithX, drive),
-                        AimCommand.noMoveShootAtTarget(
-                            robotContainer,
-                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
   }
 }
