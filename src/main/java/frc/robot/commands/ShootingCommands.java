@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
 import java.util.function.Supplier;
@@ -27,12 +26,7 @@ public final class ShootingCommands {
   public static Command shootAtFixedPosition(
       Flywheel flywheel, Hood hood, Command feedCommand, double timeoutSeconds) {
     return Commands.parallel(
-            flywheel.setVelocity(
-                () ->
-                    new FlywheelSetpoint(
-                        RotationsPerSecond.of(49),
-                        RotationsPerSecond.of(49),
-                        RotationsPerSecond.of(49))),
+            flywheel.setVelocity(() -> RotationsPerSecond.of(49)),
             hood.positionSetpointCommand(() -> Degrees.of(30)),
             feedCommand)
         .withTimeout(timeoutSeconds)

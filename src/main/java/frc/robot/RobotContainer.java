@@ -36,7 +36,6 @@ import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
-import frc.robot.subsystems.flywheel.LimitSwitchDIO;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodIOTalonFX;
@@ -90,7 +89,7 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision(camera0Name, robotToCamera0),
                 new VisionIOPhotonVision(camera1Name, robotToCamera1));
-        flywheel = new Flywheel(new FlywheelIOTalonFX(), new LimitSwitchDIO());
+        flywheel = new Flywheel(new FlywheelIOTalonFX());
         feeder = new Feeder(new FeederIOTalonFX());
         hood = new Hood(new HoodIOTalonFX());
         intake = new Intake(new IntakeIOTalonFX());
@@ -108,7 +107,7 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
-        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
+        flywheel = new Flywheel(new FlywheelIOSim());
         feeder = new Feeder(new FeederIOSim());
         hood = new Hood(new HoodIOSim());
         intake = new Intake(new IntakeIOSim());
@@ -123,7 +122,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        flywheel = new Flywheel(new FlywheelIOSim(), new LimitSwitchDIO());
+        flywheel = new Flywheel(new FlywheelIOSim());
         feeder = new Feeder(new FeederIOSim());
         hood = new Hood(new HoodIOSim());
         intake = new Intake(new IntakeIOTalonFX());

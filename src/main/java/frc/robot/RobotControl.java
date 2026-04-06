@@ -18,7 +18,6 @@ import frc.robot.subsystems.clamber.Clamber;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.AllianceFlipUtil;
 
@@ -131,13 +130,7 @@ public class RobotControl {
         .pov(90)
         .whileTrue(
             AutoDriveCommands.followPoint(drive, FieldConstants.Hub.blink)
-                .raceWith(
-                    flywheel.setVelocity(
-                        () ->
-                            new FlywheelSetpoint(
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20))))
+                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(20)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
@@ -149,13 +142,7 @@ public class RobotControl {
         .pov(270)
         .whileTrue(
             AutoDriveCommands.followPoint(drive, AllianceFlipUtil.mirror(FieldConstants.Hub.blink))
-                .raceWith(
-                    flywheel.setVelocity(
-                        () ->
-                            new FlywheelSetpoint(
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20),
-                                RotationsPerSecond.of(20))))
+                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(20)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),

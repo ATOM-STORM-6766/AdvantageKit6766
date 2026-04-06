@@ -26,7 +26,7 @@ public class PassCommand {
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
 
             // 启动飞轮到指定速度
-            container.getFlywheel().setVelocity(container.getPassSubsystem()::getFlywheelSetpoint))
+            container.getFlywheel().setVelocity(container.getPassSubsystem()::getFlywheelVelocity))
         .withName("Prepare Pass");
   }
 

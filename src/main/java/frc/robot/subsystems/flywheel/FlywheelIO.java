@@ -23,16 +23,15 @@ public interface FlywheelIO {
     public AngularVelocity velocity2 = RPM.of(0.0);
     public Voltage appliedVolts2 = Volts.of(0.0);
     public Current currentTorqueAmps2 = Amps.of(0);
-  }
 
-  public record FlywheelSetpoint(
-      AngularVelocity motor0, AngularVelocity motor1, AngularVelocity motor2) {}
+    public AngularVelocity velocity3 = RPM.of(0.0);
+    public Voltage appliedVolts3 = Volts.of(0.0);
+    public Current currentTorqueAmps3 = Amps.of(0);
+  }
 
   public void updateInputs(FlywheelInputs inputs);
 
-  public void setFlywheelVelocity(FlywheelSetpoint velocities);
-
-  public void setFlywheelWithBoost(FlywheelSetpoint velocities, boolean[] isBoost);
+  public void setFlywheelVelocity(AngularVelocity velocity);
 
   public void stop();
 }
