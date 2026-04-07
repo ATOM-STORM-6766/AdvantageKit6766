@@ -1,23 +1,26 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.PhoenixUtil;
+import frc.robot.Constants;
 
 public class IntakeIOTalonFX implements IntakeIO {
-  private final TalonFX intakeMotor;
-  private final TalonFX positionMotor;
+  protected final TalonFX rollerMotor;
+  protected final TalonFX positionMotor;
 
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<Current> positionCurrentSignal;
@@ -31,53 +34,64 @@ public class IntakeIOTalonFX implements IntakeIO {
       new VoltageOut(3.648).withEnableFOC(true).withUseTimesync(true);
 
   public IntakeIOTalonFX() {
-    intakeMotor = new TalonFX(IntakeConstants.intakeMotorID, IntakeConstants.canBus);
-    positionMotor = new TalonFX(IntakeConstants.positionMotorID, IntakeConstants.canBus);
-
-    // intakeMotor.getConfigurator().apply(IntakeConstants.getTalonFXConfig()); TODO
-    PhoenixUtil.tryUntilOk(
-        5, () -> positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig(), 0.25));
+    rollerMotor = new TalonFX(IntakeConstants.intakeMotorID, Constants.kCANBus);
+    positionMotor = new TalonFX(IntakeConstants.positionMotorID, Constants.kCANBus);
 
     positionSignal = positionMotor.getPosition();
     positionCurrentSignal = positionMotor.getTorqueCurrent();
     positionVelocitySignal = positionMotor.getVelocity();
-    velocitySignal = intakeMotor.getVelocity();
+    velocitySignal = rollerMotor.getVelocity();
+
+    rollerMotor.getConfigurator().apply(IntakeConstants.getRollerConfig());
+    positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig());
+    positionMotor.setPosition(0.0);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50, positionSignal, positionCurrentSignal, positionVelocitySignal, velocitySignal);
+    positionMotor.optimizeBusUtilization();
+    rollerMotor.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    positionSignal.refresh();
-    positionCurrentSignal.refresh();
-    positionVelocitySignal.refresh();
-    velocitySignal.refresh();
+    BaseStatusSignal.refreshAll(
+        positionSignal, positionCurrentSignal, positionVelocitySignal, velocitySignal);
 
-    inputs.intakePosition = positionSignal.getValue();
+    double positionRotorRotations =
+        BaseStatusSignal.getLatencyCompensatedValue(positionSignal, positionVelocitySignal)
+            .in(Rotations);
+    double positionMechanismRotations = positionRotorRotations / IntakeConstants.kPositionGearRatio;
+    double positionMeters =
+        positionMechanismRotations * IntakeConstants.kPositionMetersPerMechanismRotation;
+    double positionMechanismRadPerSec =
+        positionVelocitySignal.getValue().in(RadiansPerSecond) / IntakeConstants.kPositionGearRatio;
+
+    inputs.intakePosition = Meters.of(positionMeters);
     inputs.positionCurrent = positionCurrentSignal.getValue();
-    inputs.positionVelocity = positionVelocitySignal.getValue();
-    inputs.intakeVelocity = velocitySignal.getValue();
+    inputs.positionVelocity = RadiansPerSecond.of(positionMechanismRadPerSec);
+    inputs.intakeVelocity = velocitySignal.getValue().div(IntakeConstants.kRollerGearRatio);
   }
 
   @Override
   public void setIntakePosition(Distance position) {
-    positionMotor.setControl(
-        positionControl.withPosition(
-            Rotations.of(
-                position.in(Meters) / IntakeConstants.positionMetersPerMechanismRotation)));
+    double setpointMechanismRotations =
+        MathUtil.clamp(
+            position.in(Meters) / IntakeConstants.kPositionMetersPerMechanismRotation,
+            IntakeConstants.kIntakeMinMechanismRotations,
+            IntakeConstants.kIntakeMaxMechanismRotations);
+    double setpointRotor = setpointMechanismRotations * IntakeConstants.kPositionGearRatio;
+
+    positionMotor.setControl(positionControl.withPosition(setpointRotor));
   }
 
   @Override
   public void setIntakeVelocity(Voltage voltage) {
-    intakeMotor.setControl(velocityControl.withOutput(voltage));
+    rollerMotor.setControl(velocityControl.withOutput(voltage));
   }
 
   @Override
   public void setPositionVoltage(Voltage voltage) {
     positionMotor.setControl(new VoltageOut(voltage));
-  }
-
-  @Override
-  public void setPosition(double positionRotations) {
-    positionMotor.setPosition(positionRotations);
   }
 
   @Override

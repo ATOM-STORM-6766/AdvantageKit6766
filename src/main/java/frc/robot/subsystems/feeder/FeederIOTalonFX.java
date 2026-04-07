@@ -12,7 +12,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-import frc.robot.subsystems.intake.IntakeConstants;
 
 public class FeederIOTalonFX implements FeederIO {
   private final TalonFX shooterFeedMotor;
@@ -33,7 +32,7 @@ public class FeederIOTalonFX implements FeederIO {
 
   public FeederIOTalonFX() {
     shooterFeedMotor = new TalonFX(FeederConstants.kShooterFeedMotorCanID, Constants.kCANBus);
-    intakeFeedMotor = new TalonFX(FeederConstants.kIntakeFeedMotorCanID, IntakeConstants.canBus);
+    intakeFeedMotor = new TalonFX(FeederConstants.kIntakeFeedMotorCanID, Constants.kCANBus);
 
     shooterVelocitySignal = shooterFeedMotor.getVelocity();
     shooterVoltsSignal = shooterFeedMotor.getMotorVoltage();

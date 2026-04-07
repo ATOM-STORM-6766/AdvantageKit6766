@@ -51,7 +51,7 @@ public class HoodConstants {
       config.CurrentLimits.StatorCurrentLimit = 30.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
       config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
     }
 

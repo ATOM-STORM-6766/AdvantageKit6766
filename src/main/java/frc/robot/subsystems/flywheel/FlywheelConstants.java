@@ -31,8 +31,6 @@ public class FlywheelConstants {
     config.Slot0.kS = 3;
     config.Slot0.kV = 0.2; // Ampere per RPS //volts per RPS
 
-    config.Feedback.SensorToMechanismRatio = 1.2;
-
     // Current limits (real robot only)
     if (RobotBase.isReal()) {
       config.CurrentLimits.StatorCurrentLimit = 120.0;
@@ -40,8 +38,8 @@ public class FlywheelConstants {
       config.CurrentLimits.SupplyCurrentLimit = 80.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.1;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
+      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
     }
 
     return config;

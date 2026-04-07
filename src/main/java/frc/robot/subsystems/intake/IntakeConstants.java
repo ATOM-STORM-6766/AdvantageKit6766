@@ -1,27 +1,42 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix6.CANBus;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class IntakeConstants {
-  public static final CANBus canBus = CANBus.roboRIO();
-
+  // CAN IDs
   public static final int intakeMotorID = 20;
   public static final int positionMotorID = 21;
-  public static final double maxMechanismRotations = 0.314698 + 0.03;
-  public static final double minMechanismRotations = 0.0;
-  public static final double positionGearRatio =
-      60.0 / 8 * 58 / 20 * 30 / 15; // 43.5 注意int和float的除号"/"区别
-  public static final double positionMetersPerMechanismRotation = 1.0;
+
+  // Gear ratio: motor rotations per output rotation
+  public static final double kPositionGearRatio = 60.0 / 8 * 58 / 20 * 30 / 15;
+  public static final double kRollerGearRatio = 1.0;
+
+  public static final double kPositionGearRadius = 0.03;
+  public static final double kPositionMetersPerMechanismRotation =
+      Math.PI * 2.0 * kPositionGearRadius;
+
+  public static final double kIntakeMinMechanismRotations = 0.0;
+  public static final double kIntakeMaxMechanismRotations = 10.0;
+  public static final Distance kIntakeMinPosition =
+      Meters.of(kIntakeMinMechanismRotations * kPositionMetersPerMechanismRotation);
+  public static final Distance kIntakeMaxPosition =
+      Meters.of(kIntakeMaxMechanismRotations * kPositionMetersPerMechanismRotation);
+  public static final double kIntakeMinRotorRotations =
+      kIntakeMinMechanismRotations * kPositionGearRatio;
+  public static final double kIntakeMaxRotorRotations =
+      kIntakeMaxMechanismRotations * kPositionGearRatio;
 
   public static final double kCalibrationVoltage = 1.0;
   public static final double kCalibrationCurrentThreshold = 2.0; // Amperes
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.025;
 
-  public static TalonFXConfiguration getTalonFXConfig() {
+  public static TalonFXConfiguration getRollerConfig() {
     var config = new TalonFXConfiguration();
 
     // Motor output
@@ -43,7 +58,7 @@ public class IntakeConstants {
       config.CurrentLimits.StatorCurrentLimit = 40.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
       config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
     }
 
@@ -53,12 +68,11 @@ public class IntakeConstants {
   public static TalonFXConfiguration getPositionConfig() {
     var config = new TalonFXConfiguration();
 
-    config.Feedback.SensorToMechanismRatio = positionGearRatio;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxMechanismRotations;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxRotorRotations;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minMechanismRotations;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kIntakeMinRotorRotations;
 
     config.Slot0.kP = 30.0;
     config.Slot0.kD = 0.0;
