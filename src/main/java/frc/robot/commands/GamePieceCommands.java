@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -21,7 +20,7 @@ public final class GamePieceCommands {
   public static Command runIntake(Intake intake) {
     return Commands.parallel(
             intake.setIntakeVelocityCommand(Volts.of(10)),
-            intake.setPosCommand(() -> Degrees.of(0)))
+            intake.setPosCommand(Intake.Position.DEPLOYED))
         .withName("Run Intake");
   }
 
@@ -33,13 +32,13 @@ public final class GamePieceCommands {
         .withName("Reverse Feed");
   }
 
-  public static Command feedWithWave(Intake intake, Feeder feeder, double delaySeconds) {
-    return Commands.race(
+  public static Command feedAndStow(Intake intake, Feeder feeder, double delaySeconds) {
+    return Commands.parallel(
             feeder.setFeederVelocityCommand(
                 () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
-            intake.WaveIntakeCommand())
+            intake.setPosCommand(Intake.Position.STOWED))
         .beforeStarting(Commands.waitSeconds(delaySeconds))
-        .withName("Feed With Wave");
+        .withName("Feed And Stow");
   }
 
   public static Command clearAndStopFeed(Intake intake, Feeder feeder) {
@@ -61,7 +60,7 @@ public final class GamePieceCommands {
   public static Command stowIntakeAndStop(Intake intake, Feeder feeder) {
     return Commands.parallel(
             feeder.stopCommand(),
-            intake.setPosCommand(() -> Degrees.of(0)).andThen(intake.stopCommand()))
+            intake.setPosCommand(Intake.Position.STOWED).andThen(intake.stopCommand()))
         .withName("Stow Intake And Stop");
   }
 }

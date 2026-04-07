@@ -37,7 +37,7 @@ public final class ShootingCommands {
     return Commands.parallel(
             flywheel.stopCommand(),
             feeder.stopCommand(),
-            intake.setPosCommand(() -> Degrees.of(0)).andThen(intake.stopCommand()))
+            intake.setPosCommand(Intake.Position.STOWED).andThen(intake.stopCommand()))
         .withName("Stop Shooting");
   }
 }

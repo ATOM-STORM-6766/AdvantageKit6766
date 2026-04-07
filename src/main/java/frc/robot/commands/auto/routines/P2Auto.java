@@ -32,7 +32,7 @@ public final class P2Auto {
         autoFactory.trajectoryCmd("p2").beforeStarting(autoFactory.resetOdometry("p2")),
         AutoDriveCommands.zeroChassisSpeeds(drive),
         Commands.race(
-            GamePieceCommands.feedWithWave(intake, feeder, 2),
+            GamePieceCommands.feedAndStow(intake, feeder, 2),
             ShootingCommands.autoAimShot(
                 container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6)),
         ShootingCommands.stopShooting(flywheel, feeder, intake));

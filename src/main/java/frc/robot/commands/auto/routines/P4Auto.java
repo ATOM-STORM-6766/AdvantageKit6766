@@ -1,7 +1,5 @@
 package frc.robot.commands.auto.routines;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import choreo.auto.AutoFactory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,14 +28,14 @@ public final class P4Auto {
       Feeder feeder,
       Hood hood,
       Intake intake) {
-    Command feedCommand = GamePieceCommands.feedWithWave(intake, feeder, 1);
+    Command feedCommand = GamePieceCommands.feedAndStow(intake, feeder, 1);
 
     return Commands.sequence(
         GamePieceCommands.resetMechanisms(intake, hood),
         GamePieceCommands.runIntake(intake),
         ShootingCommands.shootAtFixedPosition(flywheel, hood, feedCommand, 3.5),
         Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
-        intake.setPosCommand(() -> Degrees.of(0)),
+        intake.setPosCommand(Intake.Position.STOWED),
         autoFactory.trajectoryCmd("p4", 0).beforeStarting(autoFactory.resetOdometry("p4")),
         AutoDriveCommands.followPoint(
             drive, new Pose2d(7.664889812469482, 5.9223713874816895, Rotation2d.fromDegrees(-90))),
@@ -52,7 +50,7 @@ public final class P4Auto {
         Commands.parallel(
                 ShootingCommands.autoAimShot(
                     container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6),
-                GamePieceCommands.feedWithWave(intake, feeder, 1))
+                GamePieceCommands.feedAndStow(intake, feeder, 1))
             .withTimeout(6),
         ShootingCommands.stopShooting(flywheel, feeder, intake));
   }

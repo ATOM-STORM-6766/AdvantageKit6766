@@ -1,5 +1,8 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -8,10 +11,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
 
 public class IntakeIOTalonFX implements IntakeIO {
-
   private final TalonFX intakeMotor;
   private final TalonFX positionMotor;
 
@@ -31,7 +35,8 @@ public class IntakeIOTalonFX implements IntakeIO {
     positionMotor = new TalonFX(IntakeConstants.positionMotorID, IntakeConstants.canBus);
 
     // intakeMotor.getConfigurator().apply(IntakeConstants.getTalonFXConfig()); TODO
-    positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig());
+    PhoenixUtil.tryUntilOk(
+        5, () -> positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig(), 0.25));
 
     positionSignal = positionMotor.getPosition();
     positionCurrentSignal = positionMotor.getTorqueCurrent();
@@ -53,8 +58,11 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public void setIntakePosition(Angle position) {
-    positionMotor.setControl(positionControl.withPosition(position));
+  public void setIntakePosition(Distance position) {
+    positionMotor.setControl(
+        positionControl.withPosition(
+            Rotations.of(
+                position.in(Meters) / IntakeConstants.positionMetersPerMechanismRotation)));
   }
 
   @Override

@@ -1,27 +1,40 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amp;
-import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   enum State {
     UNINITIALIZED,
     INITIALIZED
+  }
+
+  public enum Position {
+    DEPLOYED(Meters.of(0.0)),
+    STOWED(Meters.of(0.3));
+
+    private final Distance setpoint;
+
+    Position(Distance setpoint) {
+      this.setpoint = setpoint;
+    }
+
+    public Distance getSetpoint() {
+      return setpoint;
+    }
   }
 
   private final SysIdRoutine sysIdRoutine;
@@ -72,7 +85,7 @@ public class Intake extends SubsystemBase {
                 .until(
                     () ->
                         inputs.intakePosition.compareTo(
-                                Rotations.of(IntakeConstants.minRotation + 0.001))
+                                Rotations.of(IntakeConstants.minMechanismRotations + 0.001))
                             < 0),
             stopCommand().andThen(Commands.waitSeconds(1)),
             sysIdRoutine
@@ -84,7 +97,7 @@ public class Intake extends SubsystemBase {
                 .until(
                     () ->
                         inputs.intakePosition.compareTo(
-                                Rotations.of(IntakeConstants.minRotation + 0.001))
+                                Rotations.of(IntakeConstants.minMechanismRotations + 0.001))
                             < 0),
             stopCommand().andThen(Commands.waitSeconds(1)))
         .withName("Intake SysId");
@@ -97,7 +110,7 @@ public class Intake extends SubsystemBase {
                 .andThen(
                     () -> {
                       io.setPositionVoltage(Volts.of(0));
-                      io.setPosition(IntakeConstants.maxRotation);
+                      io.setPosition(IntakeConstants.maxMechanismRotations);
                       state = State.INITIALIZED;
                     }),
             Commands.none(),
@@ -109,32 +122,18 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
   }
 
-  public Command setPosCommand(Supplier<Angle> targetAngle) {
-    return Commands.runOnce(() -> setIntakePositionImpl(targetAngle.get()))
+  public Command setPosCommand(Position targetPosition) {
+    return Commands.runOnce(() -> setIntakePositionImpl(targetPosition.getSetpoint()))
         .withName("Intake Set Position");
-  }
-
-  public Command WaveIntakeCommand() {
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              timer.reset();
-              timer.start();
-            },
-            () -> {
-              var t = timer.get();
-              setIntakePositionImpl(Degrees.of(t % 1 < 0.5 ? Math.min(t / 4, 1) * 20 + 40 : 0));
-            })
-        .withName("Intake Wave");
   }
 
   public Command stopCommand() {
     return runOnce(() -> io.stop()).withName("Intake Stop");
   }
 
-  private void setIntakePositionImpl(Angle targetAngle) {
-    Logger.recordOutput("Intake/API/setpoint", targetAngle);
-    io.setIntakePosition(targetAngle);
+  private void setIntakePositionImpl(Distance targetPositionDistance) {
+    Logger.recordOutput("Intake/API/setpoint", targetPositionDistance);
+    io.setIntakePosition(targetPositionDistance);
   }
 
   private boolean isCalibrationStalled() {

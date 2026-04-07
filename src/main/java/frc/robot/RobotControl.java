@@ -100,7 +100,7 @@ public class RobotControl {
     controller
         .x()
         .or(operator.square())
-        .whileTrue(GamePieceCommands.feedWithWave(intake, feeder, 0))
+        .whileTrue(GamePieceCommands.feedAndStow(intake, feeder, 0))
         .onFalse(GamePieceCommands.clearAndStopFeed(intake, feeder));
 
     controller

@@ -7,8 +7,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -28,6 +28,7 @@ public class IntakeIOSim implements IntakeIO {
 
   private boolean positionClosedLoop = false;
 
+  private double positionClosedLoopOutputLimitVolts = 12.0;
   private double positionAppliedVolts = 0.0;
   private double intakeAppliedVolts = 0.0;
 
@@ -45,8 +46,7 @@ public class IntakeIOSim implements IntakeIO {
             LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
             INTAKE_MOTOR);
 
-    // 初始位置设置，例如收起状态
-    positionSim.setState(Units.rotationsToRadians(IntakeConstants.minRotation), 0.0);
+    positionSim.setState(Units.rotationsToRadians(IntakeConstants.minMechanismRotations), 0.0);
   }
 
   @Override
@@ -55,17 +55,19 @@ public class IntakeIOSim implements IntakeIO {
     if (positionClosedLoop) {
       positionAppliedVolts = positionController.calculate(positionSim.getAngularPositionRad());
     }
-    // 应用电压并更新物理仿真
-    positionSim.setInputVoltage(MathUtil.clamp(positionAppliedVolts, -12.0, 12.0));
+    positionSim.setInputVoltage(
+        MathUtil.clamp(
+            positionAppliedVolts,
+            -positionClosedLoopOutputLimitVolts,
+            positionClosedLoopOutputLimitVolts));
     intakeSim.setInputVoltage(MathUtil.clamp(intakeAppliedVolts, -12.0, 12.0));
 
     positionSim.update(0.02);
     intakeSim.update(0.02);
 
-    // 可以在这里添加硬限位的逻辑
     double posRad = positionSim.getAngularPositionRad();
-    double minRad = Units.rotationsToRadians(IntakeConstants.minRotation);
-    double maxRad = Units.rotationsToRadians(IntakeConstants.maxRotation);
+    double minRad = Units.rotationsToRadians(IntakeConstants.minMechanismRotations);
+    double maxRad = Units.rotationsToRadians(IntakeConstants.maxMechanismRotations);
 
     if (posRad < minRad) {
       positionSim.setState(minRad, 0);
@@ -73,7 +75,6 @@ public class IntakeIOSim implements IntakeIO {
       positionSim.setState(maxRad, 0);
     }
 
-    // 更新 Inputs
     inputs.intakePosition = positionSim.getAngularPosition();
     inputs.positionVelocity = positionSim.getAngularVelocity();
     inputs.positionCurrent = Amp.of(positionSim.getCurrentDrawAmps());
@@ -81,9 +82,12 @@ public class IntakeIOSim implements IntakeIO {
   }
 
   @Override
-  public void setIntakePosition(Angle position) {
+  public void setIntakePosition(Distance position) {
     positionClosedLoop = true;
-    positionController.setSetpoint(position.in(Radians));
+    positionClosedLoopOutputLimitVolts = 12.0;
+    positionController.setSetpoint(
+        Rotations.of(position.in(Meters) / IntakeConstants.positionMetersPerMechanismRotation)
+            .in(Radians));
   }
 
   @Override
@@ -94,6 +98,7 @@ public class IntakeIOSim implements IntakeIO {
   @Override
   public void setPositionVoltage(Voltage voltage) {
     positionClosedLoop = false;
+    positionClosedLoopOutputLimitVolts = 12.0;
     positionAppliedVolts = voltage.in(Volts);
   }
 

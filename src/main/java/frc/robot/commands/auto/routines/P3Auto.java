@@ -39,7 +39,7 @@ public final class P3Auto {
         autoFactory.trajectoryCmd("p3", 1),
         AutoDriveCommands.zeroChassisSpeeds(drive),
         Commands.parallel(
-            GamePieceCommands.feedWithWave(intake, feeder, 2),
+            GamePieceCommands.feedAndStow(intake, feeder, 2),
             ShootingCommands.autoAimShot(
                 container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),

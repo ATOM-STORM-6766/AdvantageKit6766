@@ -50,7 +50,7 @@ public final class P6MirrorAuto {
         Commands.parallel(
                 ShootingCommands.autoAimShot(
                     container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6),
-                GamePieceCommands.feedWithWave(intake, feeder, 1))
+                GamePieceCommands.feedAndStow(intake, feeder, 1))
             .withTimeout(6),
         ShootingCommands.stopShooting(flywheel, feeder, intake)
             .alongWith(
