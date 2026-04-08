@@ -1,7 +1,10 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -16,8 +19,7 @@ public class IntakeIOSim extends IntakeIOTalonFX {
   private static final DCMotor INTAKE_MOTOR = DCMotor.getKrakenX44(1);
   private static final double POSITION_MOMENT_OF_INERTIA = 0.05;
   private static final double INTAKE_MOMENT_OF_INERTIA = 0.005;
-  private static final double SIM_STALL_CURRENT_AMPS =
-      IntakeConstants.kCalibrationCurrentThreshold + 5.0;
+  private static final double SIM_STALL_CURRENT_AMPS = IntakeConstants.kCalibrationCurrentThreshold + 5.0;
 
   private final DCMotorSim positionSim;
   private final DCMotorSim intakeSim;
@@ -28,30 +30,31 @@ public class IntakeIOSim extends IntakeIOTalonFX {
   public IntakeIOSim() {
     super();
 
-    positionSim =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                POSITION_MOTOR, POSITION_MOMENT_OF_INERTIA, IntakeConstants.kPositionGearRatio),
-            POSITION_MOTOR);
-    intakeSim =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
-            INTAKE_MOTOR);
-
-    positionSim.setState(
-        Units.rotationsToRadians(IntakeConstants.kIntakeMinMechanismRotations), 0.0);
+    positionSim = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(
+            POSITION_MOTOR, POSITION_MOMENT_OF_INERTIA, IntakeConstants.kPositionGearRatio),
+        POSITION_MOTOR);
+    intakeSim = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
+        INTAKE_MOTOR);
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
+
+    // 模拟初始位置是随机的
+    positionSim.setState(Rotations.of(0.8).in(Radians), 0.0);
+
     simNotifier = new Notifier(this::updateSimState);
     simNotifier.startPeriodic(0.005);
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
-    super.updateInputs(inputs);
+  public void readInputs(IntakeIOInputs inputs) {
+    super.readInputs(inputs);
 
     if (simulatedStall) {
-      inputs.positionCurrent = Amp.of(SIM_STALL_CURRENT_AMPS);
+      inputs.positionStatorAmps = Amp.of(SIM_STALL_CURRENT_AMPS);
+      double supplyAmps = Math.max(inputs.positionSupplyAmps.in(Amps), SIM_STALL_CURRENT_AMPS);
+      inputs.positionSupplyAmps = Amp.of(supplyAmps);
       inputs.positionVelocity = RadiansPerSecond.of(0.0);
     }
   }
@@ -66,8 +69,8 @@ public class IntakeIOSim extends IntakeIOTalonFX {
     double positionVoltage = MathUtil.clamp(positionSimState.getMotorVoltage(), -12.0, 12.0);
     double intakeVoltage = MathUtil.clamp(intakeSimState.getMotorVoltage(), -12.0, 12.0);
 
-    positionSim.setInputVoltage(positionVoltage);
-    intakeSim.setInputVoltage(intakeVoltage);
+    positionSim.setInput(positionVoltage);
+    intakeSim.setInput(intakeVoltage);
 
     double timestamp = Timer.getFPGATimestamp();
     double dt = timestamp - lastUpdateTimestamp;
@@ -102,10 +105,8 @@ public class IntakeIOSim extends IntakeIOTalonFX {
       simulatedStall = false;
     }
 
-    double rotorPosition =
-        Units.radiansToRotations(positionRadians) * IntakeConstants.kPositionGearRatio;
-    double rotorVelocity =
-        Units.radiansToRotations(positionVelocityRadPerSec) * IntakeConstants.kPositionGearRatio;
+    double rotorPosition = Units.radiansToRotations(positionRadians) * IntakeConstants.kPositionGearRatio;
+    double rotorVelocity = Units.radiansToRotations(positionVelocityRadPerSec) * IntakeConstants.kPositionGearRatio;
     positionSimState.setRawRotorPosition(rotorPosition);
     positionSimState.setRotorVelocity(rotorVelocity);
 

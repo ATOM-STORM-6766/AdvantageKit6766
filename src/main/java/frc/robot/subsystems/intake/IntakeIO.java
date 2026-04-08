@@ -16,19 +16,18 @@ public interface IntakeIO {
   public static class IntakeIOInputs {
     public Distance intakePosition = Meters.of(0);
     public AngularVelocity positionVelocity = RotationsPerSecond.of(0.0);
-    public Current positionCurrent = Amp.of(0.0);
+    public Current positionStatorAmps = Amp.of(0.0);
+    public Current positionSupplyAmps = Amp.of(0.0);
     public AngularVelocity intakeVelocity = RotationsPerSecond.of(0.0);
   }
 
-  public void updateInputs(IntakeIOInputs inputs);
+  public void readInputs(IntakeIOInputs inputs);
 
   public void setIntakePosition(Distance position);
 
   public void setIntakeVelocity(Voltage voltage);
 
   public void setPositionVoltage(Voltage voltage);
-
-  public void setPositionCurrent(Current current);
 
   public default void stop() {
     setIntakeVelocity(Volts.of(0));

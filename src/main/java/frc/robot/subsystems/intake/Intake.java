@@ -1,10 +1,11 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,6 +37,8 @@ public class Intake extends SubsystemBase {
   private State state = State.UNINITIALIZED;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
   private final IntakeIO io;
+  private final Debouncer calibrationCurrentDebouncer = new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec,
+      Debouncer.DebounceType.kBoth);
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -43,7 +46,7 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    io.readInputs(inputs);
     Logger.processInputs("Intake", inputs);
   }
 
@@ -53,16 +56,17 @@ public class Intake extends SubsystemBase {
 
   public Command resetToLimitCommand() {
     return Commands.either(
-            run(() -> io.setPositionCurrent(Amp.of(3))) // io.setPositionVoltage(Volts.of(1))
-                .until(this::isCalibrationStalled)
-                .andThen(
-                    () -> {
-                      io.setPositionVoltage(Volts.of(0));
-                      io.setIntakePosition(IntakeConstants.kIntakeMinPosition);
-                      state = State.INITIALIZED;
-                    }),
-            Commands.none(),
-            () -> state == State.UNINITIALIZED)
+        run(() -> io.setPositionVoltage(Volts.of(IntakeConstants.kCalibrationVoltage)))
+            .until(this::isCalibrationStalled)
+            .andThen(
+                () -> {
+                  io.setPositionVoltage(Volts.of(0));
+                  io.setIntakePosition(IntakeConstants.kIntakeMinPosition);
+                  state = State.INITIALIZED;
+                  Logger.recordOutput("Intake/API/initailized", true);
+                }),
+        Commands.none(),
+        () -> state == State.UNINITIALIZED)
         .withName("Intake Reset to Limit");
   }
 
@@ -85,9 +89,9 @@ public class Intake extends SubsystemBase {
   }
 
   private boolean isCalibrationStalled() {
-    return inputs.positionVelocity.abs(RadiansPerSecond)
-            < IntakeConstants.kCalibrationVelocityThresholdRadPerSec
-        && inputs.positionCurrent.baseUnitMagnitude()
-            > IntakeConstants.kCalibrationCurrentThreshold;
+    boolean currentOverThreshold = calibrationCurrentDebouncer.calculate(
+        inputs.positionStatorAmps.abs(Amps) >= IntakeConstants.kCalibrationCurrentThreshold);
+    return inputs.positionVelocity.abs(RadiansPerSecond) <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
+        && currentOverThreshold;
   }
 }

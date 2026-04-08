@@ -14,7 +14,7 @@ public class IntakeConstants {
   public static final int positionMotorID = 21;
 
   // Gear ratio: motor rotations per output rotation
-  public static final double kPositionGearRatio = 60.0 / 8 * 58 / 20 * 30 / 15;
+  public static final double kPositionGearRatio = 10.0;
   public static final double kRollerGearRatio = 1.0;
 
   public static final double kPositionGearRadius = 0.03;
@@ -22,7 +22,7 @@ public class IntakeConstants {
       Math.PI * 2.0 * kPositionGearRadius;
 
   public static final double kIntakeMinMechanismRotations = 0.0;
-  public static final double kIntakeMaxMechanismRotations = 10.0;
+  public static final double kIntakeMaxMechanismRotations = 2.0;
   public static final Distance kIntakeMinPosition =
       Meters.of(kIntakeMinMechanismRotations * kPositionMetersPerMechanismRotation);
   public static final Distance kIntakeMaxPosition =
@@ -32,9 +32,10 @@ public class IntakeConstants {
   public static final double kIntakeMaxRotorRotations =
       kIntakeMaxMechanismRotations * kPositionGearRatio;
 
-  public static final double kCalibrationVoltage = 1.0;
-  public static final double kCalibrationCurrentThreshold = 2.0; // Amperes
-  public static final double kCalibrationVelocityThresholdRadPerSec = 0.025;
+  public static final double kCalibrationVoltage = -5.0;
+  public static final double kCalibrationCurrentThreshold = 10.0;
+  public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;
+  public static final double kCalibrationDebounceTimeSec = 0.1;
 
   public static TalonFXConfiguration getRollerConfig() {
     var config = new TalonFXConfiguration();
@@ -43,7 +44,6 @@ public class IntakeConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // PID + Feedforward configuration 这里为原来的没铜轮的值
     config.Slot0.kP = 0.2;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0005;
