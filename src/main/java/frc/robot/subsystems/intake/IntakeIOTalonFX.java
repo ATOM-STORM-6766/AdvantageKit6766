@@ -77,20 +77,18 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionVelocitySignal,
         velocitySignal);
 
-    double positionRotorRotations =
+    double positionMechanismRotations =
         BaseStatusSignal.getLatencyCompensatedValue(positionSignal, positionVelocitySignal)
             .in(Rotations);
-    double positionMechanismRotations = positionRotorRotations / IntakeConstants.kPositionGearRatio;
     double positionMeters =
         positionMechanismRotations * IntakeConstants.kPositionMetersPerMechanismRotation;
-    double positionMechanismRadPerSec =
-        positionVelocitySignal.getValue().in(RadiansPerSecond) / IntakeConstants.kPositionGearRatio;
+    double positionMechanismRadPerSec = positionVelocitySignal.getValue().in(RadiansPerSecond);
 
     inputs.intakePosition = Meters.of(positionMeters);
     inputs.positionStatorAmps = positionStatorCurrentSignal.getValue();
     inputs.positionSupplyAmps = positionSupplyCurrentSignal.getValue();
     inputs.positionVelocity = RadiansPerSecond.of(positionMechanismRadPerSec);
-    inputs.intakeVelocity = velocitySignal.getValue().div(IntakeConstants.kRollerGearRatio);
+    inputs.intakeVelocity = velocitySignal.getValue();
   }
 
   @Override
@@ -100,9 +98,7 @@ public class IntakeIOTalonFX implements IntakeIO {
             position.in(Meters) / IntakeConstants.kPositionMetersPerMechanismRotation,
             IntakeConstants.kIntakeMinMechanismRotations,
             IntakeConstants.kIntakeMaxMechanismRotations);
-    double setpointRotor = setpointMechanismRotations * IntakeConstants.kPositionGearRatio;
-
-    positionMotor.setControl(positionControl.withPosition(setpointRotor));
+    positionMotor.setControl(positionControl.withPosition(setpointMechanismRotations));
   }
 
   @Override

@@ -33,6 +33,8 @@ public class HoodConstants {
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    config.Feedback.SensorToMechanismRatio = kHoodGearRatio;
+
     config.Slot0.kS = 0.18;
     config.Slot0.kP = 8.0;
     config.Slot0.kD = 0.1;
@@ -45,7 +47,7 @@ public class HoodConstants {
 
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        Units.radiansToRotations(kHoodMaxPosition.in(Radians)) * kHoodGearRatio;
+        Units.radiansToRotations(kHoodMaxPosition.in(Radians));
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;

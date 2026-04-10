@@ -16,7 +16,6 @@ public class IntakeConstants {
 
   // Gear ratio: motor rotations per output rotation
   public static final double kPositionGearRatio = 66.0 / 14.0 * 18.0 / 18.0;
-  public static final double kRollerGearRatio = 1.0;
 
   public static final double kPositionGearRadius = 0.0254 / 2.0;
   public static final double kPositionMetersPerMechanismRotation =
@@ -28,10 +27,6 @@ public class IntakeConstants {
       Meters.of(kIntakeMinMechanismRotations * kPositionMetersPerMechanismRotation);
   public static final Distance kIntakeMaxPosition =
       Meters.of(kIntakeMaxMechanismRotations * kPositionMetersPerMechanismRotation);
-  public static final double kIntakeMinRotorRotations =
-      kIntakeMinMechanismRotations * kPositionGearRatio;
-  public static final double kIntakeMaxRotorRotations =
-      kIntakeMaxMechanismRotations * kPositionGearRatio;
 
   public static final double kCalibrationVoltage = -5.0;
   public static final double kCalibrationCurrentThreshold = 10.0;
@@ -70,9 +65,11 @@ public class IntakeConstants {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxRotorRotations;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxMechanismRotations;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kIntakeMinRotorRotations;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kIntakeMinMechanismRotations;
+
+    config.Feedback.SensorToMechanismRatio = kPositionGearRatio;
 
     config.Slot0.kP = 30.0;
     config.Slot0.kD = 0.0;

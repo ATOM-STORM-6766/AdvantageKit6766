@@ -65,7 +65,7 @@ public class Hood extends SubsystemBase {
             runOnce(
                 () -> {
                   io.setOpenloopVoltage(Volts.of(0.0));
-                  io.setRotorPosition(HoodConstants.kHoodMinPosition);
+                  io.setPosition(HoodConstants.kHoodMinPosition);
                   state = State.INITIALIZED;
                 }))
         .withName("Hood Reset to Limit");

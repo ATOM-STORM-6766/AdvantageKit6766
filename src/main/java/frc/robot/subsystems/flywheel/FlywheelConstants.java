@@ -26,6 +26,8 @@ public class FlywheelConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    config.Feedback.SensorToMechanismRatio = kFlywheelGearRatio;
+
     config.Slot0.kP = 5.5;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0;
