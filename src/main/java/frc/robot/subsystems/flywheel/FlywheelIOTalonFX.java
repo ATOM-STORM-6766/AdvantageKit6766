@@ -126,7 +126,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void setFlywheelVelocity(AngularVelocity velocity) {
-    motor0.setControl(velocityControl.withVelocity(velocity.times(-1)));
+    motor0.setControl(velocityControl.withVelocity(velocity));
   }
 
   @Override
