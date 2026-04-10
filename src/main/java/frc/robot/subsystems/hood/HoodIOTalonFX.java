@@ -8,7 +8,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
@@ -21,7 +21,7 @@ import frc.robot.Constants;
 
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
-  private final PositionVoltage positionControl = new PositionVoltage(0);
+  private final PositionTorqueCurrentFOC positionControl = new PositionTorqueCurrentFOC(0);
   private final VoltageOut voltageControl = new VoltageOut(0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<AngularVelocity> velocitySignal;

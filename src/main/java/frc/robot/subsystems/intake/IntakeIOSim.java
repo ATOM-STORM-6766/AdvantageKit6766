@@ -19,7 +19,8 @@ public class IntakeIOSim extends IntakeIOTalonFX {
   private static final DCMotor INTAKE_MOTOR = DCMotor.getKrakenX44(1);
   private static final double POSITION_MOMENT_OF_INERTIA = 0.05;
   private static final double INTAKE_MOMENT_OF_INERTIA = 0.005;
-  private static final double SIM_STALL_CURRENT_AMPS = IntakeConstants.kCalibrationCurrentThreshold + 5.0;
+  private static final double SIM_STALL_CURRENT_AMPS =
+      IntakeConstants.kCalibrationCurrentThreshold + 5.0;
 
   private final DCMotorSim positionSim;
   private final DCMotorSim intakeSim;
@@ -30,13 +31,15 @@ public class IntakeIOSim extends IntakeIOTalonFX {
   public IntakeIOSim() {
     super();
 
-    positionSim = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(
-            POSITION_MOTOR, POSITION_MOMENT_OF_INERTIA, IntakeConstants.kPositionGearRatio),
-        POSITION_MOTOR);
-    intakeSim = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
-        INTAKE_MOTOR);
+    positionSim =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(
+                POSITION_MOTOR, POSITION_MOMENT_OF_INERTIA, IntakeConstants.kPositionGearRatio),
+            POSITION_MOTOR);
+    intakeSim =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
+            INTAKE_MOTOR);
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
 
@@ -65,6 +68,9 @@ public class IntakeIOSim extends IntakeIOTalonFX {
 
     positionSimState.setSupplyVoltage(12.0);
     intakeSimState.setSupplyVoltage(12.0);
+
+    var rollerFollowerSimState = rollerFollowerMotor.getSimState();
+    rollerFollowerSimState.setSupplyVoltage(12.0);
 
     double positionVoltage = MathUtil.clamp(positionSimState.getMotorVoltage(), -12.0, 12.0);
     double intakeVoltage = MathUtil.clamp(intakeSimState.getMotorVoltage(), -12.0, 12.0);
@@ -105,8 +111,10 @@ public class IntakeIOSim extends IntakeIOTalonFX {
       simulatedStall = false;
     }
 
-    double rotorPosition = Units.radiansToRotations(positionRadians) * IntakeConstants.kPositionGearRatio;
-    double rotorVelocity = Units.radiansToRotations(positionVelocityRadPerSec) * IntakeConstants.kPositionGearRatio;
+    double rotorPosition =
+        Units.radiansToRotations(positionRadians) * IntakeConstants.kPositionGearRatio;
+    double rotorVelocity =
+        Units.radiansToRotations(positionVelocityRadPerSec) * IntakeConstants.kPositionGearRatio;
     positionSimState.setRawRotorPosition(rotorPosition);
     positionSimState.setRotorVelocity(rotorVelocity);
 

@@ -37,8 +37,8 @@ public class Intake extends SubsystemBase {
   private State state = State.UNINITIALIZED;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
   private final IntakeIO io;
-  private final Debouncer calibrationCurrentDebouncer = new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec,
-      Debouncer.DebounceType.kBoth);
+  private final Debouncer calibrationCurrentDebouncer =
+      new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
   public Intake(IntakeIO io) {
     this.io = io;
@@ -56,17 +56,17 @@ public class Intake extends SubsystemBase {
 
   public Command resetToLimitCommand() {
     return Commands.either(
-        run(() -> io.setPositionVoltage(Volts.of(IntakeConstants.kCalibrationVoltage)))
-            .until(this::isCalibrationStalled)
-            .andThen(
-                () -> {
-                  io.setPositionVoltage(Volts.of(0));
-                  io.setIntakePosition(IntakeConstants.kIntakeMinPosition);
-                  state = State.INITIALIZED;
-                  Logger.recordOutput("Intake/API/initailized", true);
-                }),
-        Commands.none(),
-        () -> state == State.UNINITIALIZED)
+            run(() -> io.setPositionVoltage(Volts.of(IntakeConstants.kCalibrationVoltage)))
+                .until(this::isCalibrationStalled)
+                .andThen(
+                    () -> {
+                      io.setPositionVoltage(Volts.of(0));
+                      io.setIntakePosition(IntakeConstants.kIntakeMinPosition);
+                      state = State.INITIALIZED;
+                      Logger.recordOutput("Intake/API/initailized", true);
+                    }),
+            Commands.none(),
+            () -> state == State.UNINITIALIZED)
         .withName("Intake Reset to Limit");
   }
 
@@ -89,9 +89,11 @@ public class Intake extends SubsystemBase {
   }
 
   private boolean isCalibrationStalled() {
-    boolean currentOverThreshold = calibrationCurrentDebouncer.calculate(
-        inputs.positionStatorAmps.abs(Amps) >= IntakeConstants.kCalibrationCurrentThreshold);
-    return inputs.positionVelocity.abs(RadiansPerSecond) <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
+    boolean currentOverThreshold =
+        calibrationCurrentDebouncer.calculate(
+            inputs.positionStatorAmps.abs(Amps) >= IntakeConstants.kCalibrationCurrentThreshold);
+    return inputs.positionVelocity.abs(RadiansPerSecond)
+            <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
         && currentOverThreshold;
   }
 }

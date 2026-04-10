@@ -12,12 +12,13 @@ public class IntakeConstants {
   // CAN IDs
   public static final int intakeMotorID = 20;
   public static final int positionMotorID = 21;
+  public static final int rollerFollowerMotorID = 24;
 
   // Gear ratio: motor rotations per output rotation
-  public static final double kPositionGearRatio = 10.0;
+  public static final double kPositionGearRatio = 66.0 / 14.0 * 18.0 / 18.0;
   public static final double kRollerGearRatio = 1.0;
 
-  public static final double kPositionGearRadius = 0.03;
+  public static final double kPositionGearRadius = 0.0254 / 2.0;
   public static final double kPositionMetersPerMechanismRotation =
       Math.PI * 2.0 * kPositionGearRadius;
 
@@ -55,11 +56,10 @@ public class IntakeConstants {
     config.MotionMagic.MotionMagicJerk = 100.0;
 
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 40.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
+      config.CurrentLimits.SupplyCurrentLimit = 40.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
     }
 
     return config;
@@ -86,11 +86,8 @@ public class IntakeConstants {
     config.MotionMagic.MotionMagicExpo_kA = 0.2;
 
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 60.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -50.0;
     }
 
     return config;

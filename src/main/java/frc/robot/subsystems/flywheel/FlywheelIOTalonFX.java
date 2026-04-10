@@ -4,7 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -35,8 +35,8 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Voltage> voltsSignal3;
   private final StatusSignal<Current> currentTorqueSignal3;
 
-  private final VelocityTorqueCurrentFOC velocityControl =
-      new VelocityTorqueCurrentFOC(0).withUseTimesync(true);
+  private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
+      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
 
   public FlywheelIOTalonFX() {
     motor0 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID0, Constants.kCANBus);
@@ -60,14 +60,15 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     voltsSignal3 = motor3.getMotorVoltage();
     currentTorqueSignal3 = motor3.getTorqueCurrent();
 
-    motor0.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
-    motor1.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
-    motor2.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
-    motor3.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
+    var config = FlywheelConstants.getTalonFXConfig();
+    motor0.getConfigurator().apply(config);
+    motor1.getConfigurator().apply(config);
+    motor2.getConfigurator().apply(config);
+    motor3.getConfigurator().apply(config);
 
     motor1.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Aligned));
-    motor2.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Aligned));
-    motor3.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Aligned));
+    motor2.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Opposed));
+    motor3.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Opposed));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50,
@@ -125,7 +126,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   @Override
   public void setFlywheelVelocity(AngularVelocity velocity) {
-    motor0.setControl(velocityControl.withVelocity(velocity));
+    motor0.setControl(velocityControl.withVelocity(velocity.times(-1)));
   }
 
   @Override

@@ -8,11 +8,11 @@ public class FlywheelConstants {
   // CAN IDs
   public static final int kFlywheelMotorCanID0 = 11;
   public static final int kFlywheelMotorCanID1 = 12;
-  public static final int kFlywheelMotorCanID2 = 13;
-  public static final int kFlywheelMotorCanID3 = 14;
+  public static final int kFlywheelMotorCanID2 = 14;
+  public static final int kFlywheelMotorCanID3 = 13;
   // Gear ratio: motor rotations per output rotation
   // Example: For a 2:1 gearbox, set this to 2.0
-  public static final double kFlywheelGearRatio = 1.0;
+  public static final double kFlywheelGearRatio = 32.0 / 24.0;
 
   // Velocity targets (in RPM)
   public static final double kFlywheelIdleVelocityRPM = 0.0;
@@ -24,22 +24,20 @@ public class FlywheelConstants {
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-    // PID + Feedforward configuration 这里为原来的没铜轮的值
     config.Slot0.kP = 5.5;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0;
     config.Slot0.kS = 3;
-    config.Slot0.kV = 0.2; // Ampere per RPS //volts per RPS
+    config.Slot0.kA = 0.2;
 
-    // Current limits (real robot only)
+    config.MotionMagic.MotionMagicCruiseVelocity = 69.0;
+    config.MotionMagic.MotionMagicAcceleration = 30.0;
+
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 120.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.CurrentLimits.SupplyCurrentLimit = 80.0;
-      config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
+      config.CurrentLimits.SupplyCurrentLimit = 40.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = false;
     }
 
     return config;
