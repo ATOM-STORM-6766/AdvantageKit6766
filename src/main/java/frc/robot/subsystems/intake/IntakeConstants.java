@@ -40,16 +40,6 @@ public class IntakeConstants {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Slot0.kP = 0.2;
-    config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0005;
-    config.Slot0.kS = 0.32;
-    config.Slot0.kV = 0.0; // Ampere per RPS //volts per RPS
-
-    config.MotionMagic.MotionMagicAcceleration = 10.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 8.0;
-    config.MotionMagic.MotionMagicJerk = 100.0;
-
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
       config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
@@ -73,11 +63,11 @@ public class IntakeConstants {
 
     config.Slot0.kP = 30.0;
     config.Slot0.kD = 0.0;
-    config.Slot0.kS = 0.0;
+    config.Slot0.kS = 14.0;
     config.Slot0.kV = 0.0;
-    config.Slot0.kA = 0.05;
-    config.MotionMagic.MotionMagicCruiseVelocity = 1.0;
-    config.MotionMagic.MotionMagicAcceleration = 4.0;
+    config.Slot0.kA = 0.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 12.0;
+    config.MotionMagic.MotionMagicAcceleration = 12.0;
     config.MotionMagic.MotionMagicJerk = 40.0;
     config.MotionMagic.MotionMagicExpo_kV = 0.5;
     config.MotionMagic.MotionMagicExpo_kA = 0.2;

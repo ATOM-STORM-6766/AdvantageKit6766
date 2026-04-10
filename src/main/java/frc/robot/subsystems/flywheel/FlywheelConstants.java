@@ -28,14 +28,14 @@ public class FlywheelConstants {
 
     config.Feedback.SensorToMechanismRatio = kFlywheelGearRatio;
 
-    config.Slot0.kP = 5.5;
+    config.Slot0.kP = 16.0;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0;
-    config.Slot0.kS = 3;
-    config.Slot0.kA = 0.2;
+    config.Slot0.kS = 5.5;
+    config.Slot0.kA = 0.8;
 
     config.MotionMagic.MotionMagicCruiseVelocity = 69.0;
-    config.MotionMagic.MotionMagicAcceleration = 30.0;
+    config.MotionMagic.MotionMagicAcceleration = 200.0;
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;

@@ -7,7 +7,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -30,8 +30,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<AngularVelocity> positionVelocitySignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
 
-  private final MotionMagicExpoVoltage positionControl =
-      new MotionMagicExpoVoltage(0.0).withEnableFOC(true).withUseTimesync(true);
+  private final MotionMagicTorqueCurrentFOC positionControl =
+      new MotionMagicTorqueCurrentFOC(0.0).withUseTimesync(true);
 
   private final VoltageOut velocityControl =
       new VoltageOut(3.648).withEnableFOC(true).withUseTimesync(true);

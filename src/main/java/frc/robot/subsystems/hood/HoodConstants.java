@@ -35,13 +35,10 @@ public class HoodConstants {
 
     config.Feedback.SensorToMechanismRatio = kHoodGearRatio;
 
-    config.Slot0.kS = 0.18;
-    config.Slot0.kP = 8.0;
-    config.Slot0.kD = 0.1;
-    config.Slot0.kV = 0.116;
-    config.Slot0.kA = 0.0001 * 12.0;
-
-    config.Slot0.kG = 5.0;
+    config.Slot0.kS = 2.0;
+    config.Slot0.kP = 1000.0;
+    config.Slot0.kD = 60.0;
+    config.Slot0.kG = 12.0;
     config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
