@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.util.GenericShooterResolver;
+import frc.robot.util.GenericShooterResolver.ShooterInput;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -44,8 +45,13 @@ public class AimSubsystem extends SubsystemBase {
     var robotPose = RobotState.getInstance().getRobotPose();
     var robotSpeeds = RobotState.getInstance().getFieldRelativeSpeeds();
 
-    ShooterSetpoint setpoint =
-        GenericShooterResolver.resolve(robotPose, robotSpeeds, target, Constants.SHOOTER_CONFIG);
+    ShooterInput input =
+        new ShooterInput(
+            robotPose,
+            robotSpeeds,
+            target,
+            lookaheadSeconds -> RobotState.getInstance().getRobotPose(lookaheadSeconds));
+    ShooterSetpoint setpoint = GenericShooterResolver.resolve(input, Constants.SHOOTER_CONFIG);
 
     latestSetpoint = setpoint;
     RobotState.getInstance().setAimSetpoint(setpoint);
