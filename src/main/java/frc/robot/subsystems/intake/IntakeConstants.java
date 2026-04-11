@@ -28,6 +28,9 @@ public class IntakeConstants {
   public static final Distance kIntakeMaxPosition =
       Meters.of(kIntakeMaxMechanismRotations * kPositionMetersPerMechanismRotation);
 
+  public static final double kSlowStowVelocityRPS = 2.0;
+  public static final double kPositionToleranceMeters = 0.01;
+
   public static final double kCalibrationVoltage = -5.0;
   public static final double kCalibrationCurrentThreshold = 10.0;
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;

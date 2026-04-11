@@ -15,7 +15,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowPoint;
 import frc.robot.commands.GamePieceCommands;
 import frc.robot.commands.PassCommand;
-import frc.robot.commands.TuningShootCommand;
+import frc.robot.commands.TuningCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -157,12 +157,16 @@ public class RobotControl {
   private void configureOperatorBindings() {
     operator
         .triangle()
-        .whileTrue(TuningShootCommand.tuningShoot(feeder, flywheel, hood))
+        .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
         .onFalse(
             Commands.parallel(
                 flywheel.stopCommand(),
                 feeder.stopCommand(),
                 hood.positionSetpointCommand(() -> Degrees.of(17))));
+
+    operator.circle().whileTrue(TuningCommand.tuningIntakeSlowStow(intake));
+
+    operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake, Intake.Position.DEPLOYED));
 
     // 配置传球相关操作手绑定。
     operator

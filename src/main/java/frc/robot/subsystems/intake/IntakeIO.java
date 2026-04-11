@@ -27,6 +27,8 @@ public interface IntakeIO {
 
   public void setIntakeVelocity(Voltage voltage);
 
+  public void setIntakePositionWithVelocity(Distance position, double velocityRPS);
+  
   public void setPositionVoltage(Voltage voltage);
 
   public default void stop() {

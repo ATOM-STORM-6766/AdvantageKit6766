@@ -36,7 +36,7 @@ public final class GamePieceCommands {
     return Commands.parallel(
             feeder.setFeederVelocityCommand(
                 () -> RotationsPerSecond.of(48), () -> RotationsPerSecond.of(90)),
-            intake.setPosCommand(Intake.Position.STOWED))
+            intake.setSlowStowCommand())
         .beforeStarting(Commands.waitSeconds(delaySeconds))
         .withName("Feed And Stow");
   }
@@ -59,8 +59,7 @@ public final class GamePieceCommands {
 
   public static Command stowIntakeAndStop(Intake intake, Feeder feeder) {
     return Commands.parallel(
-            feeder.stopCommand(),
-            intake.setPosCommand(Intake.Position.STOWED).andThen(intake.stopCommand()))
+            feeder.stopCommand(), intake.setSlowStowCommand().andThen(intake.stopCommand()))
         .withName("Stow Intake And Stop");
   }
 }

@@ -83,9 +83,29 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> io.stop()).withName("Intake Stop");
   }
 
+  public Command setSlowStowCommand() {
+    Distance target = Position.STOWED.getSetpoint();
+    return run(() ->
+            setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS))
+        .until(() -> isAtPosition(target))
+        .withName("Intake Slow Stow");
+  }
+
   private void setIntakePositionImpl(Distance targetPositionDistance) {
     Logger.recordOutput("Intake/API/setpoint", targetPositionDistance);
     io.setIntakePosition(targetPositionDistance);
+  }
+
+  private void setIntakePositionWithVelocityImpl(Distance targetPosition, double velocityRPS) {
+    Logger.recordOutput("Intake/API/setpoint", targetPosition);
+    Logger.recordOutput("Intake/API/velocitySetpoint", velocityRPS);
+    double direction = targetPosition.gt(inputs.intakePosition) ? 1.0 : -1.0;
+    io.setIntakePositionWithVelocity(targetPosition, velocityRPS * direction);
+  }
+
+  private boolean isAtPosition(Distance targetPosition) {
+    return Math.abs(inputs.intakePosition.in(Meters) - targetPosition.in(Meters))
+        <= IntakeConstants.kPositionToleranceMeters;
   }
 
   private boolean isCalibrationStalled() {

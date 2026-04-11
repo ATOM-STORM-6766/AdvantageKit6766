@@ -8,6 +8,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -32,6 +33,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   private final MotionMagicTorqueCurrentFOC positionControl =
       new MotionMagicTorqueCurrentFOC(0.0).withUseTimesync(true);
+
+  private final MotionMagicVelocityTorqueCurrentFOC positionWithVelocityControl =
+      new MotionMagicVelocityTorqueCurrentFOC(0.0).withUseTimesync(true);
 
   private final VoltageOut velocityControl =
       new VoltageOut(3.648).withEnableFOC(true).withUseTimesync(true);
@@ -99,6 +103,11 @@ public class IntakeIOTalonFX implements IntakeIO {
             IntakeConstants.kIntakeMinMechanismRotations,
             IntakeConstants.kIntakeMaxMechanismRotations);
     positionMotor.setControl(positionControl.withPosition(setpointMechanismRotations));
+  }
+
+  @Override
+  public void setIntakePositionWithVelocity(Distance position, double velocityRPS) {
+    positionMotor.setControl(positionWithVelocityControl.withVelocity(velocityRPS));
   }
 
   @Override

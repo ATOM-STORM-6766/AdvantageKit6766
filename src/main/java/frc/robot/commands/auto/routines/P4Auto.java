@@ -35,7 +35,7 @@ public final class P4Auto {
         GamePieceCommands.runIntake(intake),
         ShootingCommands.shootAtFixedPosition(flywheel, hood, feedCommand, 3.5),
         Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()),
-        intake.setPosCommand(Intake.Position.STOWED),
+        intake.setSlowStowCommand(),
         autoFactory.trajectoryCmd("p4", 0).beforeStarting(autoFactory.resetOdometry("p4")),
         AutoDriveCommands.followPoint(
             drive, new Pose2d(7.664889812469482, 5.9223713874816895, Rotation2d.fromDegrees(-90))),
