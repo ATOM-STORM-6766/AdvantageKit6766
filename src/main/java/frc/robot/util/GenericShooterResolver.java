@@ -136,7 +136,7 @@ public class GenericShooterResolver {
             driveAngle.minus(config.lastDriveAngle).getRadians() / config.loopPeriodSecs);
     config.lastDriveAngle = driveAngle;
 
-    var robotYaw = Radians.of(driveAngle.getRadians());
+    var robotYaw = Radians.of(driveAngle.rotateBy(Rotation2d.kPi).getRadians());
     var robotYawRate = RadiansPerSecond.of(filteredDriveAngleRate);
     var hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getMeasure();
     var flywheelRps = RotationsPerSecond.of(config.flywheelRpsMap.get(distanceMeters));
