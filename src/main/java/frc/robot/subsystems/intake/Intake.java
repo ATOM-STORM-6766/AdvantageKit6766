@@ -1,12 +1,12 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,16 +20,16 @@ public class Intake extends SubsystemBase {
   }
 
   public enum Position {
-    DEPLOYED(Meters.of(0.0)),
-    STOWED(Meters.of(0.3));
+    DEPLOYED(IntakeConstants.kIntakeMaxPosition),
+    STOWED(IntakeConstants.kIntakeMinPosition);
 
-    private final Distance setpoint;
+    private final Angle setpoint;
 
-    Position(Distance setpoint) {
+    Position(Angle setpoint) {
       this.setpoint = setpoint;
     }
 
-    public Distance getSetpoint() {
+    public Angle getSetpoint() {
       return setpoint;
     }
   }
@@ -84,28 +84,28 @@ public class Intake extends SubsystemBase {
   }
 
   public Command setSlowStowCommand() {
-    Distance target = Position.STOWED.getSetpoint();
+    Angle target = Position.STOWED.getSetpoint();
     return run(() ->
             setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS))
         .until(() -> isAtPosition(target))
         .withName("Intake Slow Stow");
   }
 
-  private void setIntakePositionImpl(Distance targetPositionDistance) {
-    Logger.recordOutput("Intake/API/setpoint", targetPositionDistance);
-    io.setIntakePosition(targetPositionDistance);
+  private void setIntakePositionImpl(Angle targetPositionRotation) {
+    Logger.recordOutput("Intake/API/rotationSetpoint", targetPositionRotation);
+    io.setIntakePosition(targetPositionRotation);
   }
 
-  private void setIntakePositionWithVelocityImpl(Distance targetPosition, double velocityRPS) {
-    Logger.recordOutput("Intake/API/setpoint", targetPosition);
-    Logger.recordOutput("Intake/API/velocitySetpoint", velocityRPS);
-    double direction = targetPosition.gt(inputs.intakePosition) ? 1.0 : -1.0;
+  private void setIntakePositionWithVelocityImpl(Angle targetPosition, double velocityRPS) {
+    Logger.recordOutput("Intake/API/rotationSetpoint", targetPosition);
+    Logger.recordOutput("Intake/API/velocitySetpointRPS", velocityRPS);
+    double direction = targetPosition.gt(inputs.intakePositionRotation) ? 1.0 : -1.0;
     io.setIntakePositionWithVelocity(targetPosition, velocityRPS * direction);
   }
 
-  private boolean isAtPosition(Distance targetPosition) {
-    return Math.abs(inputs.intakePosition.in(Meters) - targetPosition.in(Meters))
-        <= IntakeConstants.kPositionToleranceMeters;
+  private boolean isAtPosition(Angle targetPosition) {
+    return Math.abs(inputs.intakePositionRotation.in(Rotations) - targetPosition.in(Rotations))
+        <= IntakeConstants.kPositionTolerance.in(Rotations);
   }
 
   private boolean isCalibrationStalled() {

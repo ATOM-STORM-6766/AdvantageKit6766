@@ -1,10 +1,12 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -17,24 +19,29 @@ public class IntakeConstants {
   // Gear ratio: motor rotations per output rotation
   public static final double kPositionGearRatio = 66.0 / 14.0 * 18.0 / 18.0;
 
-  public static final double kPositionGearRadius = 0.0254 / 2.0;
-  public static final double kPositionMetersPerMechanismRotation =
-      Math.PI * 2.0 * kPositionGearRadius;
+  public static final double kPositionGearDiameter = 0.0254;
+  public static final double kPositionMetersPerMechanismRotation = Math.PI * kPositionGearDiameter;
 
   public static final double kIntakeMinMechanismRotations = 0.0;
-  public static final double kIntakeMaxMechanismRotations = 2.0;
-  public static final Distance kIntakeMinPosition =
-      Meters.of(kIntakeMinMechanismRotations * kPositionMetersPerMechanismRotation);
-  public static final Distance kIntakeMaxPosition =
-      Meters.of(kIntakeMaxMechanismRotations * kPositionMetersPerMechanismRotation);
+  public static final double kIntakeMaxMechanismRotations = 3.564;
+  public static final Angle kIntakeMinPosition = Rotations.of(kIntakeMinMechanismRotations);
+  public static final Angle kIntakeMaxPosition = Rotations.of(kIntakeMaxMechanismRotations);
 
   public static final double kSlowStowVelocityRPS = 2.0;
-  public static final double kPositionToleranceMeters = 0.01;
+  public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.01));
 
   public static final double kCalibrationVoltage = -5.0;
   public static final double kCalibrationCurrentThreshold = 10.0;
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;
   public static final double kCalibrationDebounceTimeSec = 0.1;
+
+  public static Distance rotationToDistance(Angle position) {
+    return Meters.of(position.in(Rotations) * kPositionMetersPerMechanismRotation);
+  }
+
+  public static Angle distanceToRotation(Distance position) {
+    return Rotations.of(position.in(Meters) / kPositionMetersPerMechanismRotation);
+  }
 
   public static TalonFXConfiguration getRollerConfig() {
     var config = new TalonFXConfiguration();
@@ -56,7 +63,7 @@ public class IntakeConstants {
   public static TalonFXConfiguration getPositionConfig() {
     var config = new TalonFXConfiguration();
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxMechanismRotations;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -69,11 +76,8 @@ public class IntakeConstants {
     config.Slot0.kS = 14.0;
     config.Slot0.kV = 0.0;
     config.Slot0.kA = 0.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 12.0;
-    config.MotionMagic.MotionMagicAcceleration = 12.0;
-    config.MotionMagic.MotionMagicJerk = 40.0;
-    config.MotionMagic.MotionMagicExpo_kV = 0.5;
-    config.MotionMagic.MotionMagicExpo_kA = 0.2;
+    config.MotionMagic.MotionMagicCruiseVelocity = 50.0;
+    config.MotionMagic.MotionMagicAcceleration = 9999.0;
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -16,7 +15,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 
@@ -84,11 +82,10 @@ public class IntakeIOTalonFX implements IntakeIO {
     double positionMechanismRotations =
         BaseStatusSignal.getLatencyCompensatedValue(positionSignal, positionVelocitySignal)
             .in(Rotations);
-    double positionMeters =
-        positionMechanismRotations * IntakeConstants.kPositionMetersPerMechanismRotation;
     double positionMechanismRadPerSec = positionVelocitySignal.getValue().in(RadiansPerSecond);
 
-    inputs.intakePosition = Meters.of(positionMeters);
+    inputs.intakePositionRotation = Rotations.of(positionMechanismRotations);
+    inputs.intakePosition = IntakeConstants.rotationToDistance(inputs.intakePositionRotation);
     inputs.positionStatorAmps = positionStatorCurrentSignal.getValue();
     inputs.positionSupplyAmps = positionSupplyCurrentSignal.getValue();
     inputs.positionVelocity = RadiansPerSecond.of(positionMechanismRadPerSec);
@@ -96,17 +93,17 @@ public class IntakeIOTalonFX implements IntakeIO {
   }
 
   @Override
-  public void setIntakePosition(Distance position) {
+  public void setIntakePosition(Angle position) {
     double setpointMechanismRotations =
         MathUtil.clamp(
-            position.in(Meters) / IntakeConstants.kPositionMetersPerMechanismRotation,
+            position.in(Rotations),
             IntakeConstants.kIntakeMinMechanismRotations,
             IntakeConstants.kIntakeMaxMechanismRotations);
     positionMotor.setControl(positionControl.withPosition(setpointMechanismRotations));
   }
 
   @Override
-  public void setIntakePositionWithVelocity(Distance position, double velocityRPS) {
+  public void setIntakePositionWithVelocity(Angle position, double velocityRPS) {
     positionMotor.setControl(positionWithVelocityControl.withVelocity(velocityRPS));
   }
 
