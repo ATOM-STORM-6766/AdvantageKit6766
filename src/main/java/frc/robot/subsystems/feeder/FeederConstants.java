@@ -14,6 +14,7 @@ public class FeederConstants {
     var config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.Slot0.kP = 5;
     config.Slot0.kI = 0.0;
@@ -35,7 +36,7 @@ public class FeederConstants {
     var config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     config.Slot0.kP = 0.35;
     config.Slot0.kI = 0.0;

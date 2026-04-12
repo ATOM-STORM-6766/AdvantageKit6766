@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public class IntakeConstants {
   // CAN IDs
-  public static final int intakeMotorID = 20;
-  public static final int positionMotorID = 21;
-  public static final int rollerFollowerMotorID = 24;
+  public static final int intakeMotorID = 26;
+  public static final int positionMotorID = 27;
+  public static final int rollerFollowerMotorID = 28;
 
   // Gear ratio: motor rotations per output rotation
   public static final double kPositionGearRatio = 66.0 / 14.0 * 18.0 / 18.0;

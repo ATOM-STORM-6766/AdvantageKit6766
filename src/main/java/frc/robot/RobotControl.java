@@ -162,7 +162,7 @@ public class RobotControl {
             Commands.parallel(
                 flywheel.stopCommand(),
                 feeder.stopCommand(),
-                hood.positionSetpointCommand(() -> Degrees.of(17))));
+                hood.positionSetpointCommand(() -> Degrees.of(15))));
 
     operator.circle().whileTrue(TuningCommand.tuningIntakeSlowStow(intake));
 

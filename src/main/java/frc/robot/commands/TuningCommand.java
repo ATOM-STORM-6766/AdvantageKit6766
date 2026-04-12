@@ -26,12 +26,13 @@ public final class TuningCommand {
 
   public static Command tuningShoot(Feeder feeder, Flywheel flywheel, Hood hood, Intake intake) {
     return Commands.parallel(
-            feeder.setFeederVelocityCommand(
-                () -> RotationsPerSecond.of(intakeFeederRPS.get()),
-                () -> RotationsPerSecond.of(shooterFeederRPS.get())),
+            Commands.waitSeconds(0.6)
+                .andThen(
+                    feeder.setFeederVelocityCommand(
+                        () -> RotationsPerSecond.of(intakeFeederRPS.get()),
+                        () -> RotationsPerSecond.of(shooterFeederRPS.get()))),
             flywheel.setVelocity(() -> RotationsPerSecond.of(flywheelRPS.get())),
-            hood.positionSetpointCommand(() -> Degrees.of(hoodDegrees.get())),
-            intake.setSlowStowCommand())
+            hood.positionSetpointCommand(() -> Degrees.of(hoodDegrees.get())))
         .withName("Tuning Shoot");
   }
 
