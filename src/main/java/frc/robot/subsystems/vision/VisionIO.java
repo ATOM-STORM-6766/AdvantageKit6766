@@ -46,4 +46,22 @@ public interface VisionIO {
   }
 
   public default void updateInputs(VisionIOInputs inputs) {}
+
+  static VisionIO[] createAll(
+      java.util.function.Supplier<edu.wpi.first.math.geometry.Pose2d> poseSupplier) {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new VisionIO[] {
+          new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
+          new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1)
+        };
+      case SIM:
+        return new VisionIO[] {
+          new VisionIOPhotonVisionSim(
+              VisionConstants.camera1Name, VisionConstants.robotToCamera1, poseSupplier)
+        };
+      default:
+        return new VisionIO[] {new VisionIO() {}, new VisionIO() {}};
+    }
+  }
 }

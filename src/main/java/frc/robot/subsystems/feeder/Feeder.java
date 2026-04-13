@@ -11,8 +11,8 @@ public class Feeder extends SubsystemBase {
   private final FeederInputsAutoLogged inputs = new FeederInputsAutoLogged();
   private final FeederIO io;
 
-  public Feeder(final FeederIO io) {
-    this.io = io;
+  public Feeder() {
+    this.io = FeederIO.getIO();
   }
 
   @Override

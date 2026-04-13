@@ -34,4 +34,13 @@ public interface FlywheelIO {
   public void setFlywheelVelocity(AngularVelocity velocity);
 
   public void stop();
+
+  static FlywheelIO getIO() {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new FlywheelIOTalonFX();
+      default:
+        return new FlywheelIOSim();
+    }
+  }
 }

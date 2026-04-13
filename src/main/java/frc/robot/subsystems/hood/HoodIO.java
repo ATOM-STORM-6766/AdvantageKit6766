@@ -28,4 +28,13 @@ public interface HoodIO {
   default void setOpenloopVoltage(Voltage voltage) {}
 
   default void setPosition(Angle hoodPosition) {}
+
+  static HoodIO getIO() {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new HoodIOTalonFX();
+      default:
+        return new HoodIOSim();
+    }
+  }
 }

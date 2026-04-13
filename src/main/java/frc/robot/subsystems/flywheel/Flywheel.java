@@ -13,8 +13,8 @@ public class Flywheel extends SubsystemBase {
   private final FlywheelInputsAutoLogged inputs = new FlywheelInputsAutoLogged();
   private final FlywheelIO io;
 
-  public Flywheel(final FlywheelIO io) {
-    this.io = io;
+  public Flywheel() {
+    this.io = FlywheelIO.getIO();
   }
 
   @Override

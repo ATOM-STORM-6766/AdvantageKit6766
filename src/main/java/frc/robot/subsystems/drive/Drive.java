@@ -99,17 +99,13 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  public Drive(
-      GyroIO gyroIO,
-      ModuleIO flModuleIO,
-      ModuleIO frModuleIO,
-      ModuleIO blModuleIO,
-      ModuleIO brModuleIO) {
-    this.gyroIO = gyroIO;
-    modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
-    modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
-    modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
-    modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+  public Drive() {
+    this.gyroIO = GyroIO.getIO();
+    modules[0] = new Module(ModuleIO.getIO(TunerConstants.FrontLeft), 0, TunerConstants.FrontLeft);
+    modules[1] =
+        new Module(ModuleIO.getIO(TunerConstants.FrontRight), 1, TunerConstants.FrontRight);
+    modules[2] = new Module(ModuleIO.getIO(TunerConstants.BackLeft), 2, TunerConstants.BackLeft);
+    modules[3] = new Module(ModuleIO.getIO(TunerConstants.BackRight), 3, TunerConstants.BackRight);
 
     // 针对 swerve 模板的使用情况上报
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);

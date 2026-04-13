@@ -40,8 +40,8 @@ public class Intake extends SubsystemBase {
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
-  public Intake(IntakeIO io) {
-    this.io = io;
+  public Intake() {
+    this.io = IntakeIO.getIO();
   }
 
   @Override

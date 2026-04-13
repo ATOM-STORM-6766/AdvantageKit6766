@@ -26,8 +26,8 @@ public class Hood extends SubsystemBase {
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(HoodConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
-  public Hood(final HoodIO io) {
-    this.io = io;
+  public Hood() {
+    this.io = HoodIO.getIO();
     setDefaultCommand(positionSetpointCommand(() -> Degrees.of(15.0)));
   }
 

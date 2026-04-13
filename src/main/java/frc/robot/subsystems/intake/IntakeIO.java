@@ -38,4 +38,15 @@ public interface IntakeIO {
     setIntakeVelocity(Volts.of(0));
     setPositionVoltage(Volts.of(0));
   }
+
+  static IntakeIO getIO() {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new IntakeIOTalonFX();
+      case SIM:
+        return new IntakeIOSim();
+      default:
+        return new IntakeIOTalonFX();
+    }
+  }
 }

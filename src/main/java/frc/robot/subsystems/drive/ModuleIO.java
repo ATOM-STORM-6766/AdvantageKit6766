@@ -52,4 +52,20 @@ public interface ModuleIO {
 
   /** Run the turn motor to the specified rotation. */
   public default void setTurnPosition(Rotation2d rotation) {}
+
+  static ModuleIO getIO(
+      com.ctre.phoenix6.swerve.SwerveModuleConstants<
+              com.ctre.phoenix6.configs.TalonFXConfiguration,
+              com.ctre.phoenix6.configs.TalonFXConfiguration,
+              com.ctre.phoenix6.configs.CANcoderConfiguration>
+          constants) {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new ModuleIOTalonFX(constants);
+      case SIM:
+        return new ModuleIOSim(constants);
+      default:
+        return new ModuleIO() {};
+    }
+  }
 }
