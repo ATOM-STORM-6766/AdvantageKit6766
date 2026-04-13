@@ -29,7 +29,7 @@ public interface FlywheelIO {
     public Current currentTorqueAmps3 = Amps.of(0);
   }
 
-  public void updateInputs(FlywheelInputs inputs);
+  public void readInputs(FlywheelInputs inputs);
 
   public void setFlywheelVelocity(AngularVelocity velocity);
 

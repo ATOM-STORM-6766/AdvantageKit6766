@@ -92,7 +92,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   }
 
   @Override
-  public void updateInputs(FlywheelInputs inputs) {
+  public void readInputs(FlywheelInputs inputs) {
     BaseStatusSignal.refreshAll(
         velocitySignal0,
         voltsSignal0,

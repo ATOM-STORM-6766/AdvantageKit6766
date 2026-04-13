@@ -26,7 +26,8 @@ public final class TuningCommand {
 
   public static Command tuningShoot(Feeder feeder, Flywheel flywheel, Hood hood, Intake intake) {
     return Commands.parallel(
-            Commands.waitSeconds(0.6)
+            flywheel
+                .waitForVelocity(() -> RotationsPerSecond.of(flywheelRPS.get()), 5)
                 .andThen(
                     feeder.setFeederVelocityCommand(
                         () -> RotationsPerSecond.of(intakeFeederRPS.get()),

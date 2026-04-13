@@ -19,7 +19,7 @@ public class Flywheel extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    io.readInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
   }
 
@@ -38,15 +38,18 @@ public class Flywheel extends SubsystemBase {
   public Command waitForVelocity(Supplier<AngularVelocity> velocitySupplier, double toleranceRps) {
     return new WaitUntilCommand(
             () -> {
-              AngularVelocity target = velocitySupplier.get();
+              double targetRps = Math.abs(velocitySupplier.get().in(RotationsPerSecond));
               boolean at0 =
-                  Math.abs(inputs.velocity0.minus(target).in(RotationsPerSecond)) < toleranceRps;
+                  Math.abs(inputs.velocity0.in(RotationsPerSecond) - targetRps) < toleranceRps;
               boolean at1 =
-                  Math.abs(inputs.velocity1.minus(target).in(RotationsPerSecond)) < toleranceRps;
+                  Math.abs(inputs.velocity1.in(RotationsPerSecond)) - targetRps < toleranceRps;
               boolean at2 =
-                  Math.abs(inputs.velocity2.minus(target).in(RotationsPerSecond)) < toleranceRps;
+                  Math.abs(inputs.velocity2.in(RotationsPerSecond)) - targetRps < toleranceRps;
               boolean at3 =
-                  Math.abs(inputs.velocity3.minus(target).in(RotationsPerSecond)) < toleranceRps;
+                  Math.abs(inputs.velocity3.in(RotationsPerSecond)) - targetRps < toleranceRps;
+
+              Logger.recordOutput("Flywheel/API/waitForVelocity", at0 && at1 && at2 && at3);
+
               return at0 && at1 && at2 && at3;
             })
         .withName("Flywheel Wait For Velocity");
