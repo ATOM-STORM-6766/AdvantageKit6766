@@ -83,6 +83,12 @@ public class IntakeConstants {
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;
       config.TorqueCurrent.PeakReverseTorqueCurrent = -50.0;
+
+      config.CurrentLimits.SupplyCurrentLimit = 40.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+      config.CurrentLimits.StatorCurrentLimit = 60.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
     }
 
     return config;
