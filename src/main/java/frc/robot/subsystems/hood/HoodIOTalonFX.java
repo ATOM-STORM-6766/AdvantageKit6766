@@ -74,7 +74,6 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void setPosition(Angle hoodPosition) {
-    double positionRotations = Units.radiansToRotations(hoodPosition.in(Radians));
-    hoodMotor.setPosition(positionRotations);
+    hoodMotor.setPosition(hoodPosition);
   }
 }

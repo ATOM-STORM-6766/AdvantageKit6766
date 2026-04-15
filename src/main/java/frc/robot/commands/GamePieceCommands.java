@@ -19,14 +19,14 @@ public final class GamePieceCommands {
 
   public static Command runIntake(Intake intake) {
     return Commands.parallel(
-            intake.setIntakeVelocityCommand(Volts.of(10)),
+            intake.setIntakeVelocityCommand(() -> Volts.of(10)),
             intake.setPosCommand(Intake.Position.DEPLOYED))
         .withName("Run Intake");
   }
 
   public static Command reverseFeed(Intake intake, Feeder feeder) {
     return Commands.parallel(
-            intake.setIntakeVelocityCommand(Volts.of(-10)),
+            intake.setIntakeVelocityCommand(() -> Volts.of(-10)),
             feeder.setFeederVelocityCommand(
                 () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(-40)))
         .withName("Reverse Feed");

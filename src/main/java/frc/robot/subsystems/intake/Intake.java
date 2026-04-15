@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -61,7 +62,7 @@ public class Intake extends SubsystemBase {
                 .andThen(
                     () -> {
                       io.setPositionVoltage(Volts.of(0));
-                      io.setIntakePosition(IntakeConstants.kIntakeMinPosition);
+                      io.setIntakeSensorPosition(IntakeConstants.kIntakeMinPosition);
                       state = State.INITIALIZED;
                       Logger.recordOutput("Intake/API/initailized", true);
                     }),
@@ -70,8 +71,9 @@ public class Intake extends SubsystemBase {
         .withName("Intake Reset to Limit");
   }
 
-  public Command setIntakeVelocityCommand(Voltage voltage) {
-    return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
+  public Command setIntakeVelocityCommand(Supplier<Voltage> voltageSupplier) {
+    return runOnce(() -> io.setIntakeVelocity(voltageSupplier.get()))
+        .withName("Intake Set Intake Velocity");
   }
 
   public Command setPosCommand(Position targetPosition) {
@@ -88,6 +90,7 @@ public class Intake extends SubsystemBase {
     return run(() ->
             setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS))
         .until(() -> isAtPosition(target))
+        .andThen(runOnce(() -> io.stop()))
         .withName("Intake Slow Stow");
   }
 

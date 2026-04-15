@@ -164,9 +164,11 @@ public class RobotControl {
                 feeder.stopCommand(),
                 hood.positionSetpointCommand(() -> Degrees.of(15))));
 
-    operator.circle().whileTrue(TuningCommand.tuningIntakeSlowStow(intake));
+    operator.circle().onTrue(TuningCommand.tuningIntakeSlowStow(intake));
 
     operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake, Intake.Position.DEPLOYED));
+
+    operator.R1().whileTrue(TuningCommand.tuningIntakeRoll(intake)).onFalse(intake.stopCommand());
 
     // 配置传球相关操作手绑定。
     operator

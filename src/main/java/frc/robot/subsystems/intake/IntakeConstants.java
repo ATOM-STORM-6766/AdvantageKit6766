@@ -27,12 +27,12 @@ public class IntakeConstants {
   public static final Angle kIntakeMinPosition = Rotations.of(kIntakeMinMechanismRotations);
   public static final Angle kIntakeMaxPosition = Rotations.of(kIntakeMaxMechanismRotations);
 
-  public static final double kSlowStowVelocityRPS = 2.0;
-  public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.01));
+  public static final double kSlowStowVelocityRPS = 3.0;
+  public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.05));
 
-  public static final double kCalibrationVoltage = -5.0;
+  public static final double kCalibrationVoltage = -0.8;
   public static final double kCalibrationCurrentThreshold = 10.0;
-  public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;
+  public static final double kCalibrationVelocityThresholdRadPerSec = 0.5;
   public static final double kCalibrationDebounceTimeSec = 0.1;
 
   public static Distance rotationToDistance(Angle position) {
@@ -48,11 +48,11 @@ public class IntakeConstants {
 
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
 
     if (RobotBase.isReal()) {
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
       config.CurrentLimits.SupplyCurrentLimit = 40.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
     }
@@ -64,9 +64,10 @@ public class IntakeConstants {
     var config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxMechanismRotations;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kIntakeMinMechanismRotations;
 
     config.Feedback.SensorToMechanismRatio = kPositionGearRatio;
@@ -76,8 +77,8 @@ public class IntakeConstants {
     config.Slot0.kS = 14.0;
     config.Slot0.kV = 0.0;
     config.Slot0.kA = 0.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 50.0;
-    config.MotionMagic.MotionMagicAcceleration = 9999.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
+    config.MotionMagic.MotionMagicAcceleration = 1.0;
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;
