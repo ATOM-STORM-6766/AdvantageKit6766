@@ -73,12 +73,13 @@ public class IntakeConstants {
     config.Feedback.SensorToMechanismRatio = kPositionGearRatio;
 
     config.Slot0.kP = 30.0;
+    config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0;
     config.Slot0.kS = 14.0;
     config.Slot0.kV = 0.0;
     config.Slot0.kA = 0.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
-    config.MotionMagic.MotionMagicAcceleration = 1.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 12.0;
+    config.MotionMagic.MotionMagicAcceleration = 12299.0;
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;

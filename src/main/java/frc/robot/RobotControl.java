@@ -160,6 +160,7 @@ public class RobotControl {
         .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
         .onFalse(
             Commands.parallel(
+                intake.stopCommand(),
                 flywheel.stopCommand(),
                 feeder.stopCommand(),
                 hood.positionSetpointCommand(() -> Degrees.of(15))));

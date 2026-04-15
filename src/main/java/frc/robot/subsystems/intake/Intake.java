@@ -89,10 +89,10 @@ public class Intake extends SubsystemBase {
     Angle target = Position.STOWED.getSetpoint();
     return run(() -> {
           setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS);
-          io.setIntakeVelocity(Volts.of(5));
         })
+        .handleInterrupt(() -> {})
         .until(() -> isAtPosition(target))
-        .andThen(runOnce(() -> io.stop()))
+        .andThen(runOnce(() -> setIntakePositionWithVelocityImpl(target, 0.0)))
         .withName("Intake Slow Stow");
   }
 

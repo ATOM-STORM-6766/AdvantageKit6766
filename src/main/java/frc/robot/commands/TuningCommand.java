@@ -35,6 +35,7 @@ public final class TuningCommand {
                     feeder.setFeederVelocityCommand(
                         () -> RotationsPerSecond.of(intakeFeederRPS.get()),
                         () -> RotationsPerSecond.of(shooterFeederRPS.get()))),
+            intake.setIntakeVelocityCommand(() -> Volts.of(5.0)),
             flywheel.setVelocity(() -> RotationsPerSecond.of(flywheelRPS.get())),
             hood.positionSetpointCommand(() -> Degrees.of(hoodDegrees.get())))
         .withName("Tuning Shoot");
