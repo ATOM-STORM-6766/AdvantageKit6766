@@ -87,8 +87,10 @@ public class Intake extends SubsystemBase {
 
   public Command setSlowStowCommand() {
     Angle target = Position.STOWED.getSetpoint();
-    return run(() ->
-            setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS))
+    return run(() -> {
+          setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS);
+          io.setIntakeVelocity(Volts.of(5));
+        })
         .until(() -> isAtPosition(target))
         .andThen(runOnce(() -> io.stop()))
         .withName("Intake Slow Stow");
