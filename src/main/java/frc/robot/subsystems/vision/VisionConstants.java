@@ -19,17 +19,20 @@ public class VisionConstants {
   public static AprilTagFieldLayout aprilTagLayout = FieldConstants.getAprilTagLayout();
 
   // 摄像头名称，必须与协处理器上配置的名称一致
-  public static String camera0Name = "Front_Camera";
-  public static String camera1Name = "Back_Camera";
+  public static String camera0Name = "Back_Camera";
+  public static String camera1Name = "Left_Camera";
 
   // 机器人到摄像头的变换
   // （Limelight 不使用，在其 Web UI 中配置）
   public static Transform3d robotToCamera0 = // 坐标已经更新前为0 后为1
-      new Transform3d(-0.049141, 0.0, 0.650000, new Rotation3d(0.0, Math.toRadians(-20), 0));
+      new Transform3d(0.310, 0.0, 0.3, new Rotation3d(0.0, Math.toRadians(30), Math.PI));
 
   public static Transform3d robotToCamera1 =
       new Transform3d(
-          -0.328466, 0.0, 0.574812, new Rotation3d(0.0, Math.toRadians(-15.0), Math.PI));
+          -0.01750800,
+          0.33492404,
+          0.34086824,
+          new Rotation3d(0.0, Math.toRadians(10.0), Math.PI / 2));
 
   // 基础过滤阈值
   public static double maxAmbiguity = 0.3;

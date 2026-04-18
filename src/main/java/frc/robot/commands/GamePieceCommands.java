@@ -19,7 +19,7 @@ public final class GamePieceCommands {
 
   public static Command runIntake(Intake intake) {
     return Commands.parallel(
-            intake.setIntakeVelocityCommand(() -> Volts.of(10)),
+            intake.setIntakeVelocityCommand(() -> Volts.of(8)),
             intake.setPosCommand(Intake.Position.DEPLOYED))
         .withName("Run Intake");
   }

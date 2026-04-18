@@ -17,7 +17,7 @@ public class IntakeConstants {
   public static final int rollerFollowerMotorID = 28;
 
   // Gear ratio: motor rotations per output rotation
-  public static final double kPositionGearRatio = 66.0 / 14.0 * 18.0 / 18.0;
+  public static final double kPositionGearRatio = 66.0 / 14.0 * 24.0 / 20.0;
 
   public static final double kPositionGearDiameter = 0.0254;
   public static final double kPositionMetersPerMechanismRotation = Math.PI * kPositionGearDiameter;
@@ -63,7 +63,7 @@ public class IntakeConstants {
   public static TalonFXConfiguration getPositionConfig() {
     var config = new TalonFXConfiguration();
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxMechanismRotations;
@@ -90,8 +90,8 @@ public class IntakeConstants {
     config.MotionMagic.MotionMagicCruiseVelocity = 18;
 
     if (RobotBase.isReal()) {
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -50.0;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 25.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -25.0;
 
       config.CurrentLimits.SupplyCurrentLimit = 40.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;

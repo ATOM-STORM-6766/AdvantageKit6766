@@ -4,6 +4,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.auto.routines.P21Auto;
 import frc.robot.commands.auto.routines.P2Auto;
 import frc.robot.commands.auto.routines.P3Auto;
@@ -85,6 +86,11 @@ public class AutoModeSelector {
             P6MirrorAuto.create(
                 autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
     autoChooser.addCmd("p2_1", () -> P21Auto.create(autoFactory));
+
+    autoChooser.addCmd("sysidDf", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addCmd("sysidDb", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addCmd("sysidQf", () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addCmd("sysidQb", () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     SmartDashboard.putData("Auto Choices", autoChooser);
     Logger.recordOutput("Robot/Auto/ChooserReady", true);
