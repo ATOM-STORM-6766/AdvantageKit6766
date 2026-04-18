@@ -92,7 +92,12 @@ public class Intake extends SubsystemBase {
         })
         .handleInterrupt(() -> {})
         .until(() -> isAtPosition(target))
-        .andThen(runOnce(() -> setIntakePositionWithVelocityImpl(target, 0.0)))
+        .andThen(
+            runOnce(
+                () -> {
+                  setIntakePositionWithVelocityImpl(target, 0.0);
+                  io.setIntakeSensorPosition(IntakeConstants.kIntakeMinPosition);
+                }))
         .withName("Intake Slow Stow");
   }
 

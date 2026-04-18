@@ -27,8 +27,8 @@ public class IntakeConstants {
   public static final Angle kIntakeMinPosition = Rotations.of(kIntakeMinMechanismRotations);
   public static final Angle kIntakeMaxPosition = Rotations.of(kIntakeMaxMechanismRotations);
 
-  public static final double kSlowStowVelocityRPS = 3.0;
-  public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.05));
+  public static final double kSlowStowVelocityRPS = 5.5;
+  public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.01));
 
   public static final double kCalibrationVoltage = -0.8;
   public static final double kCalibrationCurrentThreshold = 10.0;
@@ -72,14 +72,22 @@ public class IntakeConstants {
 
     config.Feedback.SensorToMechanismRatio = kPositionGearRatio;
 
-    config.Slot0.kP = 30.0;
+    config.Slot0.kP = 35.0;
     config.Slot0.kI = 0.0;
-    config.Slot0.kD = 0.0;
-    config.Slot0.kS = 14.0;
-    config.Slot0.kV = 0.0;
+    config.Slot0.kD = 10.0;
+    config.Slot0.kS = 2.0;
+    config.Slot0.kV = 4.0;
     config.Slot0.kA = 0.0;
-    config.MotionMagic.MotionMagicCruiseVelocity = 12.0;
-    config.MotionMagic.MotionMagicAcceleration = 12299.0;
+
+    config.Slot1.kP = 4.0;
+    config.Slot1.kI = 0.0;
+    config.Slot1.kD = 0.0;
+    config.Slot1.kS = 1.0;
+    config.Slot1.kV = 1.5;
+    config.Slot1.kA = 0.0;
+
+    config.MotionMagic.MotionMagicAcceleration = 28;
+    config.MotionMagic.MotionMagicCruiseVelocity = 18;
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 50.0;

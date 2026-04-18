@@ -15,13 +15,13 @@ import frc.robot.util.LoggedTunableNumber;
 
 public final class TuningCommand {
   private static final LoggedTunableNumber intakeFeederRPS =
-      new LoggedTunableNumber("TuningShoot/IntakeFeederRPS", 30.0);
+      new LoggedTunableNumber("TuningShoot/IntakeFeederRPS", 80.0);
   private static final LoggedTunableNumber shooterFeederRPS =
-      new LoggedTunableNumber("TuningShoot/ShooterFeederRPS", 30.0);
+      new LoggedTunableNumber("TuningShoot/ShooterFeederRPS", 80.0);
   private static final LoggedTunableNumber flywheelRPS =
-      new LoggedTunableNumber("TuningShoot/FlywheelRPS", 30.0);
+      new LoggedTunableNumber("TuningShoot/FlywheelRPS", 32.0);
   private static final LoggedTunableNumber hoodDegrees =
-      new LoggedTunableNumber("TuningShoot/HoodDegrees", 17.0);
+      new LoggedTunableNumber("TuningShoot/HoodDegrees", 15.0);
   private static final LoggedTunableNumber intakeRollVoltage =
       new LoggedTunableNumber("TuningIntakeRoll/IntakeRollVoltage", 9.0);
 

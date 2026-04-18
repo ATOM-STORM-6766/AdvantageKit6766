@@ -4,10 +4,12 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -26,12 +28,14 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<AngularVelocity> positionVelocitySignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
   private final StatusSignal<AngularVelocity> velocityFollowerSignal;
+  private final StatusSignal<Voltage> voltageSignal;
+  private final StatusSignal<Voltage> voltageFollowerSignal;
 
   private final MotionMagicTorqueCurrentFOC positionControl =
       new MotionMagicTorqueCurrentFOC(0.0).withUseTimesync(true);
 
-  private final MotionMagicVelocityTorqueCurrentFOC positionWithVelocityControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0.0).withUseTimesync(true);
+  private final VelocityTorqueCurrentFOC positionWithVelocityControl =
+      new VelocityTorqueCurrentFOC(0.0).withUseTimesync(true).withSlot(1);
 
   private final VoltageOut velocityControl =
       new VoltageOut(0).withEnableFOC(true).withUseTimesync(true);
@@ -49,11 +53,13 @@ public class IntakeIOTalonFX implements IntakeIO {
     positionVelocitySignal = positionMotor.getVelocity();
     velocitySignal = rollerMotor.getVelocity();
     velocityFollowerSignal = rollerFollowerMotor.getVelocity();
+    voltageSignal = rollerMotor.getMotorVoltage();
+    voltageFollowerSignal = rollerFollowerMotor.getMotorVoltage();
 
     rollerMotor.getConfigurator().apply(IntakeConstants.getRollerConfig());
     rollerFollowerMotor.getConfigurator().apply(IntakeConstants.getRollerConfig());
-    // rollerFollowerMotor.setControl(
-    //     new Follower(rollerMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+    rollerFollowerMotor.setControl(
+        new Follower(rollerMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     positionMotor.getConfigurator().apply(IntakeConstants.getPositionConfig());
     positionMotor.setPosition(0.0);
 
@@ -64,7 +70,9 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionSupplyCurrentSignal,
         positionVelocitySignal,
         velocitySignal,
-        velocityFollowerSignal);
+        velocityFollowerSignal,
+        voltageSignal,
+        voltageFollowerSignal);
     positionMotor.optimizeBusUtilization();
     rollerMotor.optimizeBusUtilization();
     rollerFollowerMotor.optimizeBusUtilization();
@@ -78,7 +86,9 @@ public class IntakeIOTalonFX implements IntakeIO {
         positionSupplyCurrentSignal,
         positionVelocitySignal,
         velocitySignal,
-        velocityFollowerSignal);
+        velocityFollowerSignal,
+        voltageSignal,
+        voltageFollowerSignal);
 
     inputs.intakePositionRotation = positionSignal.getValue();
     inputs.intakePosition = IntakeConstants.rotationToDistance(inputs.intakePositionRotation);
@@ -106,7 +116,6 @@ public class IntakeIOTalonFX implements IntakeIO {
 
   @Override
   public void setIntakeVelocity(Voltage voltage) {
-    rollerFollowerMotor.setControl(velocityControl.withOutput(voltage.times(-1.0)));
     rollerMotor.setControl(velocityControl.withOutput(voltage));
   }
 
