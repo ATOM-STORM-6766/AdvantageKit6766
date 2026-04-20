@@ -352,19 +352,16 @@ public class Drive extends SubsystemBase {
     var pose = getPose();
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            sample.vx + Constants.AutoConstants.transX.calculate(pose.getX(), sample.x),
-            sample.vy + Constants.AutoConstants.transY.calculate(pose.getY(), sample.y),
+            sample.vx
+                + Constants.DriveControlConstants.TrajectoryFollow.transXController.calculate(
+                    pose.getX(), sample.x),
+            sample.vy
+                + Constants.DriveControlConstants.TrajectoryFollow.transYController.calculate(
+                    pose.getY(), sample.y),
             sample.omega
-                + Constants.AutoConstants.rotation.calculate(
+                + Constants.DriveControlConstants.TrajectoryFollow.rotationController.calculate(
                     pose.getRotation().getRadians(), MathUtil.angleModulus(sample.heading)),
             sample.getPose().getRotation());
-
-    // ChassisSpeeds chassisSpeeds =
-    // ChassisSpeeds.fromFieldRelativeSpeeds(
-    // sample.vx, sample.vy, sample.omega, sample.getPose().getRotation())
-    // .plus(
-    // Constants.AutoConstants.holonomicController.calculate(
-    // getPose(), sample.getPose(), 0, Rotation2d.fromRadians(sample.heading)));
     runVelocity(speeds);
   }
 }

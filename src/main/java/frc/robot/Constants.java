@@ -113,15 +113,7 @@ public final class Constants {
       public static final double ROTATION_KI = 0.0;
       public static final double ROTATION_KD = 0.005;
 
-      public static final double HOLONOMIC_ROTATION_KP = 0.025;
-      public static final double HOLONOMIC_ROTATION_KI = 0.0;
-      public static final double HOLONOMIC_ROTATION_KD = 0.001;
-      public static final double HOLONOMIC_ROTATION_MAX_VELOCITY = 13.200;
-      public static final double HOLONOMIC_ROTATION_MAX_ACCELERATION = 36.366;
-
       public static final double ROTATION_TOLERANCE_RAD = Units.degreesToRadians(2.0);
-      public static final Pose2d CONTROLLER_TOLERANCE =
-          new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(1.0));
 
       public static final PIDController transXController =
           new PIDController(TRANS_X_KP, TRANS_X_KI, TRANS_X_KD);
@@ -129,23 +121,10 @@ public final class Constants {
           new PIDController(TRANS_Y_KP, TRANS_Y_KI, TRANS_Y_KD);
       public static final PIDController rotationController =
           new PIDController(ROTATION_KP, ROTATION_KI, ROTATION_KD);
-      public static final ProfiledPIDController holonomicRotationController =
-          new ProfiledPIDController(
-              HOLONOMIC_ROTATION_KP,
-              HOLONOMIC_ROTATION_KI,
-              HOLONOMIC_ROTATION_KD,
-              new TrapezoidProfile.Constraints(
-                  HOLONOMIC_ROTATION_MAX_VELOCITY, HOLONOMIC_ROTATION_MAX_ACCELERATION));
-      public static final HolonomicDriveController holonomicController =
-          new HolonomicDriveController(
-              transXController, transYController, holonomicRotationController);
 
       static {
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
         rotationController.setTolerance(ROTATION_TOLERANCE_RAD);
-        holonomicRotationController.enableContinuousInput(-Math.PI, Math.PI);
-        holonomicRotationController.setTolerance(ROTATION_TOLERANCE_RAD);
-        holonomicController.setTolerance(CONTROLLER_TOLERANCE);
       }
 
       private TrajectoryFollow() {}
@@ -213,19 +192,6 @@ public final class Constants {
     }
 
     private DriveControlConstants() {}
-  }
-
-  public static class AutoConstants {
-    public static final PIDController transX =
-        DriveControlConstants.TrajectoryFollow.transXController;
-    public static final PIDController transY =
-        DriveControlConstants.TrajectoryFollow.transYController;
-    public static final PIDController rotation =
-        DriveControlConstants.TrajectoryFollow.rotationController;
-    public static final ProfiledPIDController rotation2 =
-        DriveControlConstants.TrajectoryFollow.holonomicRotationController;
-    public static final HolonomicDriveController holonomicController =
-        DriveControlConstants.TrajectoryFollow.holonomicController;
   }
 
   public static enum Mode {
