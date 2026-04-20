@@ -9,31 +9,31 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"10.91634 in",
-    "val":0.277275036
+    "exp":"277.275 mm",
+    "val":0.277275
    },
    "y":{
-    "exp":"10.17815 in",
-    "val":0.25852501
+    "exp":"277.275 mm",
+    "val":0.277275
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-10.91634 in",
-    "val":-0.277275036
+    "exp":"-277.275 mm",
+    "val":-0.277275
    },
    "y":{
-    "exp":"10.17815 in",
-    "val":0.25852501
+    "exp":"277.275 mm",
+    "val":0.277275
    }
   },
   "mass":{
-   "exp":"58 kg",
-   "val":58.0
+   "exp":"46.2 kg",
+   "val":46.2
   },
   "inertia":{
-   "exp":"90 kg m ^ 2",
-   "val":90.0
+   "exp":"10.11099365 kg * m ^ 2",
+   "val":10.11099365
   },
   "gearing":{
    "exp":"6.026785714285714",
@@ -57,16 +57,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"650.97823 mm",
-    "val":0.6509782300000001
+    "exp":"623.39349 mm",
+    "val":0.6233934900000001
    },
    "side":{
-    "exp":"431 mm",
-    "val":0.431
+    "exp":"429.75 mm",
+    "val":0.42975
    },
    "back":{
-    "exp":"443.75 mm",
-    "val":0.44375
+    "exp":"429.75 mm",
+    "val":0.42975
    }
   },
   "differentialTrackWidth":{
@@ -76,9 +76,9 @@
  },
  "generationFeatures":[],
  "codegen":{
-  "root":"..\\C:\\Users\\Holle\\frc\\AdvantageKit_TalonFXSwerveTemplate\\src\\main\\java",
-  "genVars":false,
+  "root":"..\\..\\java\\frc\\robot",
+  "genVars":true,
   "genTrajData":true,
-  "useChoreoLib":false
+  "useChoreoLib":true
  }
 }

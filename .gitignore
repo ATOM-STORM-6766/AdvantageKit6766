@@ -193,3 +193,6 @@ src/main/java/frc/robot/BuildConstants.java
 /.worktrees/
 
 .vscode/
+
+# Ignore docs folder
+docs/

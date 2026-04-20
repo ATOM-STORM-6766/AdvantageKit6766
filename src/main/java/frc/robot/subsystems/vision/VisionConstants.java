@@ -25,7 +25,7 @@ public class VisionConstants {
   // 机器人到摄像头的变换
   // （Limelight 不使用，在其 Web UI 中配置）
   public static Transform3d robotToCamera0 = // 坐标已经更新前为0 后为1
-      new Transform3d(0.310, 0.0, 0.3, new Rotation3d(0.0, Math.toRadians(30), Math.PI));
+      new Transform3d(-0.310, 0.0, 0.3, new Rotation3d(0.0, Math.toRadians(30), Math.PI));
 
   public static Transform3d robotToCamera1 =
       new Transform3d(
