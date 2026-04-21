@@ -1,16 +1,17 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -20,16 +21,16 @@ public class Intake extends SubsystemBase {
   }
 
   public enum Position {
-    DEPLOYED(Meters.of(0.0)),
-    STOWED(Meters.of(0.3));
+    DEPLOYED(IntakeConstants.kIntakeMaxPosition),
+    STOWED(IntakeConstants.kIntakeMinPosition);
 
-    private final Distance setpoint;
+    private final Angle setpoint;
 
-    Position(Distance setpoint) {
+    Position(Angle setpoint) {
       this.setpoint = setpoint;
     }
 
-    public Distance getSetpoint() {
+    public Angle getSetpoint() {
       return setpoint;
     }
   }
@@ -37,11 +38,11 @@ public class Intake extends SubsystemBase {
   private State state = State.UNINITIALIZED;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
   private final IntakeIO io;
-  private final Debouncer calibrationCurrentDebouncer = new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec,
-      Debouncer.DebounceType.kBoth);
+  private final Debouncer calibrationCurrentDebouncer =
+      new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
-  public Intake(IntakeIO io) {
-    this.io = io;
+  public Intake() {
+    this.io = IntakeIO.getIO();
   }
 
   @Override
@@ -56,22 +57,23 @@ public class Intake extends SubsystemBase {
 
   public Command resetToLimitCommand() {
     return Commands.either(
-        run(() -> io.setPositionVoltage(Volts.of(IntakeConstants.kCalibrationVoltage)))
-            .until(this::isCalibrationStalled)
-            .andThen(
-                () -> {
-                  io.setPositionVoltage(Volts.of(0));
-                  io.setIntakePosition(IntakeConstants.kIntakeMinPosition);
-                  state = State.INITIALIZED;
-                  Logger.recordOutput("Intake/API/initailized", true);
-                }),
-        Commands.none(),
-        () -> state == State.UNINITIALIZED)
+            run(() -> io.setPositionVoltage(Volts.of(IntakeConstants.kCalibrationVoltage)))
+                .until(this::isCalibrationStalled)
+                .andThen(
+                    () -> {
+                      io.setPositionVoltage(Volts.of(0));
+                      io.setIntakeSensorPosition(IntakeConstants.kIntakeMinPosition);
+                      state = State.INITIALIZED;
+                      Logger.recordOutput("Intake/API/initailized", true);
+                    }),
+            Commands.none(),
+            () -> state == State.UNINITIALIZED)
         .withName("Intake Reset to Limit");
   }
 
-  public Command setIntakeVelocityCommand(Voltage voltage) {
-    return runOnce(() -> io.setIntakeVelocity(voltage)).withName("Intake Set Intake Velocity");
+  public Command setIntakeVelocityCommand(Supplier<Voltage> voltageSupplier) {
+    return runOnce(() -> io.setIntakeVelocity(voltageSupplier.get()))
+        .withName("Intake Set Intake Velocity");
   }
 
   public Command setPosCommand(Position targetPosition) {
@@ -83,15 +85,45 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> io.stop()).withName("Intake Stop");
   }
 
-  private void setIntakePositionImpl(Distance targetPositionDistance) {
-    Logger.recordOutput("Intake/API/setpoint", targetPositionDistance);
-    io.setIntakePosition(targetPositionDistance);
+  public Command setSlowStowCommand() {
+    Angle target = Position.STOWED.getSetpoint();
+    return run(() -> {
+          setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS);
+        })
+        .handleInterrupt(() -> {})
+        .until(() -> isAtPosition(target))
+        .andThen(
+            runOnce(
+                () -> {
+                  setIntakePositionWithVelocityImpl(target, 0.0);
+                  io.setIntakeSensorPosition(IntakeConstants.kIntakeMinPosition);
+                }))
+        .withName("Intake Slow Stow");
+  }
+
+  private void setIntakePositionImpl(Angle targetPositionRotation) {
+    Logger.recordOutput("Intake/API/rotationSetpoint", targetPositionRotation);
+    io.setIntakePosition(targetPositionRotation);
+  }
+
+  private void setIntakePositionWithVelocityImpl(Angle targetPosition, double velocityRPS) {
+    Logger.recordOutput("Intake/API/rotationSetpoint", targetPosition);
+    Logger.recordOutput("Intake/API/velocitySetpointRPS", velocityRPS);
+    double direction = targetPosition.gt(inputs.intakePositionRotation) ? 1.0 : -1.0;
+    io.setIntakePositionWithVelocity(targetPosition, velocityRPS * direction);
+  }
+
+  private boolean isAtPosition(Angle targetPosition) {
+    return Math.abs(inputs.intakePositionRotation.in(Rotations) - targetPosition.in(Rotations))
+        <= IntakeConstants.kPositionTolerance.in(Rotations);
   }
 
   private boolean isCalibrationStalled() {
-    boolean currentOverThreshold = calibrationCurrentDebouncer.calculate(
-        inputs.positionStatorAmps.abs(Amps) >= IntakeConstants.kCalibrationCurrentThreshold);
-    return inputs.positionVelocity.abs(RadiansPerSecond) <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
+    boolean currentOverThreshold =
+        calibrationCurrentDebouncer.calculate(
+            inputs.positionStatorAmps.abs(Amps) >= IntakeConstants.kCalibrationCurrentThreshold);
+    return inputs.positionVelocity.abs(RadiansPerSecond)
+            <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
         && currentOverThreshold;
   }
 }

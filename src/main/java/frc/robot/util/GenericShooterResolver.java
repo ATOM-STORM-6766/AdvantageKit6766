@@ -16,9 +16,15 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.RobotState;
+import java.util.function.DoubleFunction;
 
 public class GenericShooterResolver {
+
+  public static record ShooterInput(
+      Pose2d robotPose,
+      ChassisSpeeds fieldRelativeSpeeds,
+      Translation3d targetPosition,
+      DoubleFunction<Pose2d> lookaheadPoseProvider) {}
 
   public static class ShooterConfig {
     public InterpolatingDoubleTreeMap flywheelRpsMap = new InterpolatingDoubleTreeMap();
@@ -68,13 +74,17 @@ public class GenericShooterResolver {
     }
   }
 
-  public static ShooterSetpoint resolve(
-      Pose2d robotPose,
-      ChassisSpeeds robotFieldSpeeds,
-      Translation3d targetPosition,
-      ShooterConfig config) {
+  public static ShooterSetpoint resolve(ShooterInput input, ShooterConfig config) {
 
     ShooterSetpoint result = new ShooterSetpoint();
+
+    Pose2d robotPose = input.robotPose();
+    ChassisSpeeds robotFieldSpeeds = input.fieldRelativeSpeeds();
+    Translation3d targetPosition = input.targetPosition();
+    DoubleFunction<Pose2d> lookaheadPoseProvider =
+        input.lookaheadPoseProvider() != null
+            ? input.lookaheadPoseProvider()
+            : ignored -> robotPose;
 
     Translation2d turretOffsetXY =
         new Translation2d(config.robotCenterToTurret.getX(), config.robotCenterToTurret.getY());
@@ -103,7 +113,7 @@ public class GenericShooterResolver {
     int iterations = Math.max(0, config.lookaheadIterations);
     for (int i = 0; i < iterations; i++) {
       double tofSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
-      Pose2d lookaheadRobotPose = RobotState.getInstance().getRobotPose(tofSeconds);
+      Pose2d lookaheadRobotPose = lookaheadPoseProvider.apply(tofSeconds);
       lookaheadPosXY =
           lookaheadRobotPose
               .getTranslation()
@@ -117,8 +127,7 @@ public class GenericShooterResolver {
 
     result.timeOfFlightSeconds = config.timeOfFlightSecondsMap.get(distanceMeters);
 
-    Pose2d finalLookaheadRobotPose =
-        RobotState.getInstance().getRobotPose(result.timeOfFlightSeconds);
+    Pose2d finalLookaheadRobotPose = lookaheadPoseProvider.apply(result.timeOfFlightSeconds);
 
     Translation2d lookaheadRobotCenter = finalLookaheadRobotPose.getTranslation();
 
@@ -136,7 +145,7 @@ public class GenericShooterResolver {
             driveAngle.minus(config.lastDriveAngle).getRadians() / config.loopPeriodSecs);
     config.lastDriveAngle = driveAngle;
 
-    var robotYaw = Radians.of(driveAngle.getRadians());
+    var robotYaw = Radians.of(driveAngle.rotateBy(Rotation2d.kPi).getRadians());
     var robotYawRate = RadiansPerSecond.of(filteredDriveAngleRate);
     var hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getMeasure();
     var flywheelRps = RotationsPerSecond.of(config.flywheelRpsMap.get(distanceMeters));
@@ -153,8 +162,8 @@ public class GenericShooterResolver {
     // 如果启用了方向限制，且虚拟目标点出现在车后面，返回无效
     if (config.restrictToAllianceForward) {
       if (AllianceFlipUtil.shouldFlip()
-          ? (virtualTargetXY.getX() > RobotState.getInstance().getRobotPose().getX())
-          : (virtualTargetXY.getX() < RobotState.getInstance().getRobotPose().getX())) {
+          ? (virtualTargetXY.getX() > finalLookaheadRobotPose.getX())
+          : (virtualTargetXY.getX() < finalLookaheadRobotPose.getX())) {
         return ShooterSetpoint.invalid();
       }
     }

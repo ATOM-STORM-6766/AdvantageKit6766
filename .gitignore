@@ -191,3 +191,8 @@ src/main/java/frc/robot/BuildConstants.java
 
 # Local git worktrees
 /.worktrees/
+
+.vscode/
+
+# Ignore docs folder
+docs/

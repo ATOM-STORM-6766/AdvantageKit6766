@@ -6,8 +6,10 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
@@ -16,6 +18,7 @@ import frc.robot.Constants;
 public class FeederIOTalonFX implements FeederIO {
   private final TalonFX shooterFeedMotor;
   private final TalonFX intakeFeedMotor;
+  private final TalonFX intakeFeedFollowerMotor;
 
   private final StatusSignal<AngularVelocity> shooterVelocitySignal;
   private final StatusSignal<Voltage> shooterVoltsSignal;
@@ -25,14 +28,16 @@ public class FeederIOTalonFX implements FeederIO {
   private final StatusSignal<Voltage> intakeVoltsSignal;
   private final StatusSignal<Current> intakeCurrentSignal;
 
-  private final MotionMagicVelocityTorqueCurrentFOC shooterVelocityControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
+  private final VelocityTorqueCurrentFOC shooterVelocityControl =
+      new VelocityTorqueCurrentFOC(0).withUseTimesync(true);
 
   private final DutyCycleOut intakeVelocityControl = new DutyCycleOut(0).withUseTimesync(true);
 
   public FeederIOTalonFX() {
     shooterFeedMotor = new TalonFX(FeederConstants.kShooterFeedMotorCanID, Constants.kCANBus);
     intakeFeedMotor = new TalonFX(FeederConstants.kIntakeFeedMotorCanID, Constants.kCANBus);
+    intakeFeedFollowerMotor =
+        new TalonFX(FeederConstants.kIntakeFeedFollowerMotorCanID, Constants.kCANBus);
 
     shooterVelocitySignal = shooterFeedMotor.getVelocity();
     shooterVoltsSignal = shooterFeedMotor.getMotorVoltage();
@@ -44,6 +49,10 @@ public class FeederIOTalonFX implements FeederIO {
 
     shooterFeedMotor.getConfigurator().apply(FeederConstants.getShooterFeedTalonFXConfig());
     intakeFeedMotor.getConfigurator().apply(FeederConstants.getIntakeFeedTalonFXConfig());
+    intakeFeedFollowerMotor.getConfigurator().apply(FeederConstants.getIntakeFeedTalonFXConfig());
+
+    intakeFeedFollowerMotor.setControl(
+        new Follower(intakeFeedMotor.getDeviceID(), MotorAlignmentValue.Opposed));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50,
@@ -56,6 +65,7 @@ public class FeederIOTalonFX implements FeederIO {
 
     shooterFeedMotor.optimizeBusUtilization();
     intakeFeedMotor.optimizeBusUtilization();
+    intakeFeedFollowerMotor.optimizeBusUtilization();
   }
 
   @Override

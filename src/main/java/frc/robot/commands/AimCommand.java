@@ -8,15 +8,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class AimCommand {
-  private static final LoggedTunableNumber hoodPos = new LoggedTunableNumber("Hood/Position", 30.0);
-  private static final LoggedTunableNumber flywheelRPS =
-      new LoggedTunableNumber("Flywheel/RPS", 0.0);
-
   public static Command prepare(
       RobotContainer container,
       Supplier<Angle> hoodPitchSupplier,
@@ -34,10 +29,8 @@ public class AimCommand {
 
             // 启动 Hood 旋转
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
-            Commands.sequence(
-                container
-                    .getFlywheel()
-                    .setVelocity(container.getAimSubsystem()::getFlywheelVelocity)))
+            // 启动飞轮
+            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity))
         .withName("Prepare Aim");
   }
 
@@ -90,10 +83,8 @@ public class AimCommand {
             prepare(
                 container,
                 container.getAimSubsystem()::getHoodPitch,
-                // () -> Degrees.of(hoodPos.get()),
                 container.getAimSubsystem()::getRobotYawRad,
                 container.getAimSubsystem()::getRobotYawRateRadPerSec,
-                // () -> RobotState.getInstance().getRobotPose().getRotation(),
                 xSupplier,
                 ySupplier))
         .withName("Auto Aim At Target");

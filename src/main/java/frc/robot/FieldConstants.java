@@ -36,7 +36,9 @@ public class FieldConstants {
 
     public static final Pose2d blink =
         new Pose2d(
-            2.792485475540161, 1.834878921508789, Rotation2d.fromRadians(0.8832554013068488));
+            2.792485475540161,
+            1.834878921508789,
+            Rotation2d.fromRadians(0.8832554013068488).rotateBy(Rotation2d.kPi));
   }
 
   public static AprilTagFieldLayout getAprilTagLayout() {

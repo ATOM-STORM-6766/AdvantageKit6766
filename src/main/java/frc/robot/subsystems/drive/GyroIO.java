@@ -27,4 +27,13 @@ public interface GyroIO {
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}
+
+  static GyroIO getIO() {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new GyroIOPigeon2();
+      default:
+        return new GyroIO() {};
+    }
+  }
 }

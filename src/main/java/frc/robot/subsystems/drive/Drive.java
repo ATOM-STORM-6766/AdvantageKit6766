@@ -99,17 +99,13 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  public Drive(
-      GyroIO gyroIO,
-      ModuleIO flModuleIO,
-      ModuleIO frModuleIO,
-      ModuleIO blModuleIO,
-      ModuleIO brModuleIO) {
-    this.gyroIO = gyroIO;
-    modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
-    modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
-    modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
-    modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+  public Drive() {
+    this.gyroIO = GyroIO.getIO();
+    modules[0] = new Module(ModuleIO.getIO(TunerConstants.FrontLeft), 0, TunerConstants.FrontLeft);
+    modules[1] =
+        new Module(ModuleIO.getIO(TunerConstants.FrontRight), 1, TunerConstants.FrontRight);
+    modules[2] = new Module(ModuleIO.getIO(TunerConstants.BackLeft), 2, TunerConstants.BackLeft);
+    modules[3] = new Module(ModuleIO.getIO(TunerConstants.BackRight), 3, TunerConstants.BackRight);
 
     // 针对 swerve 模板的使用情况上报
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -356,19 +352,16 @@ public class Drive extends SubsystemBase {
     var pose = getPose();
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            sample.vx + Constants.AutoConstants.transX.calculate(pose.getX(), sample.x),
-            sample.vy + Constants.AutoConstants.transY.calculate(pose.getY(), sample.y),
+            sample.vx
+                + Constants.DriveControlConstants.TrajectoryFollow.transXController.calculate(
+                    pose.getX(), sample.x),
+            sample.vy
+                + Constants.DriveControlConstants.TrajectoryFollow.transYController.calculate(
+                    pose.getY(), sample.y),
             sample.omega
-                + Constants.AutoConstants.rotation.calculate(
+                + Constants.DriveControlConstants.TrajectoryFollow.rotationController.calculate(
                     pose.getRotation().getRadians(), MathUtil.angleModulus(sample.heading)),
             sample.getPose().getRotation());
-
-    // ChassisSpeeds chassisSpeeds =
-    // ChassisSpeeds.fromFieldRelativeSpeeds(
-    // sample.vx, sample.vy, sample.omega, sample.getPose().getRotation())
-    // .plus(
-    // Constants.AutoConstants.holonomicController.calculate(
-    // getPose(), sample.getPose(), 0, Rotation2d.fromRadians(sample.heading)));
     runVelocity(speeds);
   }
 }

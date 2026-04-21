@@ -7,10 +7,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 public class FlywheelIOSim extends FlywheelIOTalonFX {
-  private static final DCMotor FLYWHEEL_MOTOR = DCMotor.getKrakenX60Foc(1);
+  private static final DCMotor FLYWHEEL_MOTOR = DCMotor.getKrakenX60Foc(4);
   private static final double FLYWHEEL_MOMENT_OF_INERTIA = 0.004;
 
-  private final FlywheelSim sim0, sim1, sim2, sim3;
+  private final FlywheelSim sim0;
   private final Notifier simNotifier;
   private double lastUpdateTimestamp;
 
@@ -21,9 +21,6 @@ public class FlywheelIOSim extends FlywheelIOTalonFX {
         LinearSystemId.createFlywheelSystem(
             FLYWHEEL_MOTOR, FLYWHEEL_MOMENT_OF_INERTIA, FlywheelConstants.kFlywheelGearRatio);
     sim0 = new FlywheelSim(system, FLYWHEEL_MOTOR, FLYWHEEL_MOMENT_OF_INERTIA);
-    sim1 = new FlywheelSim(system, FLYWHEEL_MOTOR, FLYWHEEL_MOMENT_OF_INERTIA);
-    sim2 = new FlywheelSim(system, FLYWHEEL_MOTOR, FLYWHEEL_MOMENT_OF_INERTIA);
-    sim3 = new FlywheelSim(system, FLYWHEEL_MOTOR, FLYWHEEL_MOMENT_OF_INERTIA);
 
     lastUpdateTimestamp = Timer.getFPGATimestamp();
     simNotifier = new Notifier(this::updateSim);
@@ -44,25 +41,19 @@ public class FlywheelIOSim extends FlywheelIOTalonFX {
 
     double leaderMotorVoltage = motor0State.getMotorVoltage();
     sim0.setInputVoltage(leaderMotorVoltage);
-    sim1.setInputVoltage(leaderMotorVoltage);
-    sim2.setInputVoltage(leaderMotorVoltage);
-    sim3.setInputVoltage(leaderMotorVoltage);
 
     motor0State.setRotorVelocity(
         sim0.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
     motor1State.setRotorVelocity(
-        sim1.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
+        sim0.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
     motor2State.setRotorVelocity(
-        sim2.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
+        sim0.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
     motor3State.setRotorVelocity(
-        sim3.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
+        sim0.getAngularVelocityRPM() / 60.0 * FlywheelConstants.kFlywheelGearRatio);
 
     double timestamp = Timer.getFPGATimestamp();
     double dt = timestamp - lastUpdateTimestamp;
     lastUpdateTimestamp = timestamp;
     sim0.update(dt);
-    sim1.update(dt);
-    sim2.update(dt);
-    sim3.update(dt);
   }
 }

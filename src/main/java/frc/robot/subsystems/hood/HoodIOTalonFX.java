@@ -1,14 +1,11 @@
 package frc.robot.subsystems.hood;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
@@ -21,7 +18,7 @@ import frc.robot.Constants;
 
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
-  private final PositionVoltage positionControl = new PositionVoltage(0);
+  private final PositionTorqueCurrentFOC positionControl = new PositionTorqueCurrentFOC(0);
   private final VoltageOut voltageControl = new VoltageOut(0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<AngularVelocity> velocitySignal;
@@ -51,15 +48,8 @@ public class HoodIOTalonFX implements HoodIO {
     BaseStatusSignal.refreshAll(
         positionSignal, velocitySignal, voltsSignal, currentStatorSignal, currentSupplySignal);
 
-    double hoodRotorPositionRadians =
-        BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal).in(Radians);
-    double hoodPositionRadians = (hoodRotorPositionRadians / HoodConstants.kHoodGearRatio);
-
-    Angle hoodPosition = Radians.of(hoodPositionRadians);
-    inputs.position = hoodPosition;
-    double hoodVelocityRadPerSec =
-        velocitySignal.getValue().in(RadiansPerSecond) / HoodConstants.kHoodGearRatio;
-    inputs.velocity = Degrees.per(Second).of(Units.radiansToDegrees(hoodVelocityRadPerSec));
+    inputs.position = BaseStatusSignal.getLatencyCompensatedValue(positionSignal, velocitySignal);
+    inputs.velocity = velocitySignal.getValue();
     inputs.appliedVolts = voltsSignal.getValue();
     inputs.currentStatorAmps = currentStatorSignal.getValue();
     inputs.currentSupplyAmps = currentSupplySignal.getValue();
@@ -73,9 +63,8 @@ public class HoodIOTalonFX implements HoodIO {
             HoodConstants.kHoodMinPosition.in(Radians),
             HoodConstants.kHoodMaxPosition.in(Radians));
     double setpointRotations = Units.radiansToRotations(setpointRadians);
-    double setpointRotor = setpointRotations * HoodConstants.kHoodGearRatio;
 
-    hoodMotor.setControl(positionControl.withPosition(setpointRotor));
+    hoodMotor.setControl(positionControl.withPosition(setpointRotations));
   }
 
   @Override
@@ -84,9 +73,7 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setRotorPosition(Angle hoodPosition) {
-    double positionRotations = Units.radiansToRotations(hoodPosition.in(Radians));
-    double positionRotor = positionRotations * HoodConstants.kHoodGearRatio;
-    hoodMotor.setPosition(positionRotor);
+  public void setPosition(Angle hoodPosition) {
+    hoodMotor.setPosition(hoodPosition);
   }
 }

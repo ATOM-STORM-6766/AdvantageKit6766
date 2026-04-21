@@ -26,8 +26,8 @@ public class Hood extends SubsystemBase {
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(HoodConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
 
-  public Hood(final HoodIO io) {
-    this.io = io;
+  public Hood() {
+    this.io = HoodIO.getIO();
     setDefaultCommand(positionSetpointCommand(() -> Degrees.of(15.0)));
   }
 
@@ -65,7 +65,7 @@ public class Hood extends SubsystemBase {
             runOnce(
                 () -> {
                   io.setOpenloopVoltage(Volts.of(0.0));
-                  io.setRotorPosition(HoodConstants.kHoodMinPosition);
+                  io.setPosition(HoodConstants.kHoodMinPosition);
                   state = State.INITIALIZED;
                 }))
         .withName("Hood Reset to Limit");

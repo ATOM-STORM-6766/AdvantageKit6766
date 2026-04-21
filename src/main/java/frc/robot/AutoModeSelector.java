@@ -4,12 +4,14 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.auto.routines.H1Auto;
 import frc.robot.commands.auto.routines.P21Auto;
-import frc.robot.commands.auto.routines.P2Auto;
 import frc.robot.commands.auto.routines.P3Auto;
 import frc.robot.commands.auto.routines.P4Auto;
 import frc.robot.commands.auto.routines.P6Auto;
 import frc.robot.commands.auto.routines.P6MirrorAuto;
+import frc.robot.commands.auto.routines.TestAuto;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -68,8 +70,8 @@ public class AutoModeSelector {
             });
 
     autoChooser.addCmd(
-        "P2",
-        () -> P2Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
+        "H1",
+        () -> H1Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
     autoChooser.addCmd(
         "P3",
         () -> P3Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
@@ -85,6 +87,15 @@ public class AutoModeSelector {
             P6MirrorAuto.create(
                 autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
     autoChooser.addCmd("p2_1", () -> P21Auto.create(autoFactory));
+
+    autoChooser.addCmd(
+        "test",
+        () -> TestAuto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
+
+    autoChooser.addCmd("sysidDf", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addCmd("sysidDb", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addCmd("sysidQf", () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addCmd("sysidQb", () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     SmartDashboard.putData("Auto Choices", autoChooser);
     Logger.recordOutput("Robot/Auto/ChooserReady", true);

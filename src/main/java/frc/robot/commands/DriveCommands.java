@@ -19,11 +19,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
@@ -35,10 +35,6 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 2.0;
-  private static final double ANGLE_KD = 0.1;
-  private static final double ANGLE_MAX_VELOCITY = 13.200;
-  private static final double ANGLE_MAX_ACCELERATION = 36.366 / 2;
   private static final double FF_START_DELAY = 2.0; // 秒
   private static final double FF_RAMP_RATE = 0.1; // 伏/秒
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // 弧度/秒
@@ -148,17 +144,10 @@ public class DriveCommands {
       DoubleSupplier ySupplier,
       Supplier<Rotation2d> rotationSupplier) {
 
-    // 创建 PID 控制器
     ProfiledPIDController angleController =
-        new ProfiledPIDController(
-            ANGLE_KP,
-            0.0,
-            ANGLE_KD,
-            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
-    angleController.enableContinuousInput(-Math.PI, Math.PI);
-    angleController.setTolerance(Units.degreesToRadians(2.0));
-
-    SimpleMotorFeedforward angleFeedforward = new SimpleMotorFeedforward(0.0, 0.1, 0.2);
+        Constants.DriveControlConstants.JoystickAngleHold.createAngleController();
+    SimpleMotorFeedforward angleFeedforward =
+        Constants.DriveControlConstants.JoystickAngleHold.createAngleFeedforward();
 
     // 构造指令
     return Commands.run(

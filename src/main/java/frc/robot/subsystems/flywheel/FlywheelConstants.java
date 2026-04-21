@@ -1,6 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -8,38 +9,35 @@ public class FlywheelConstants {
   // CAN IDs
   public static final int kFlywheelMotorCanID0 = 11;
   public static final int kFlywheelMotorCanID1 = 12;
-  public static final int kFlywheelMotorCanID2 = 13;
-  public static final int kFlywheelMotorCanID3 = 14;
-  // Gear ratio: motor rotations per output rotation
-  // Example: For a 2:1 gearbox, set this to 2.0
-  public static final double kFlywheelGearRatio = 1.0;
+  public static final int kFlywheelMotorCanID2 = 14;
+  public static final int kFlywheelMotorCanID3 = 13;
 
-  // Velocity targets (in RPM)
-  public static final double kFlywheelIdleVelocityRPM = 0.0;
-  public static final double kFlywheelVelocityTolerance = 50.0; // RPM
+  // Gear ratio: motor rotations per output rotation
+  public static final double kFlywheelGearRatio = 32.0 / 24.0;
 
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
 
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // PID + Feedforward configuration 这里为原来的没铜轮的值
-    config.Slot0.kP = 5.5;
+    config.Feedback.SensorToMechanismRatio = kFlywheelGearRatio;
+
+    config.Slot0.kP = 9.0;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0;
-    config.Slot0.kS = 3;
-    config.Slot0.kV = 0.2; // Ampere per RPS //volts per RPS
+    config.Slot0.kS = 2.5;
+    config.Slot0.kV = 0.1;
 
-    // Current limits (real robot only)
+    config.MotionMagic.MotionMagicCruiseVelocity = 69.0;
+    config.MotionMagic.MotionMagicAcceleration = 200.0;
+
     if (RobotBase.isReal()) {
-      config.CurrentLimits.StatorCurrentLimit = 120.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.CurrentLimits.SupplyCurrentLimit = 80.0;
-      config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
-      config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
+      config.CurrentLimits.SupplyCurrentLimit = 40.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = false;
     }
 
     return config;

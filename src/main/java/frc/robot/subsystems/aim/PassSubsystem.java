@@ -16,6 +16,7 @@ import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.util.GenericShooterResolver;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
+import frc.robot.util.GenericShooterResolver.ShooterInput;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -46,8 +47,13 @@ public class PassSubsystem extends SubsystemBase {
 
     ShooterConfig passConfig = Constants.PASS_CONFIG;
 
-    ShooterSetpoint setpoint =
-        GenericShooterResolver.resolve(robotPose, robotSpeeds, target, passConfig);
+    ShooterInput input =
+        new ShooterInput(
+            robotPose,
+            robotSpeeds,
+            target,
+            lookaheadSeconds -> RobotState.getInstance().getRobotPose(lookaheadSeconds));
+    ShooterSetpoint setpoint = GenericShooterResolver.resolve(input, passConfig);
 
     latestSetpoint = setpoint;
 

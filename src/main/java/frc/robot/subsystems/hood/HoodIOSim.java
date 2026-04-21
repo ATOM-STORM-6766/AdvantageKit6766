@@ -97,7 +97,6 @@ public class HoodIOSim extends HoodIOTalonFX {
       simState.setRotorVelocity(0.0);
     } else {
       simulatedStall = false;
-      simState.setRotorVelocity(0.0);
     }
 
     double rotorPosition = Units.radiansToRotations(simPositionRads) * HoodConstants.kHoodGearRatio;

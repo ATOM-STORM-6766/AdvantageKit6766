@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,9 +15,11 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FollowPoint;
 import frc.robot.commands.GamePieceCommands;
 import frc.robot.commands.PassCommand;
+import frc.robot.commands.TuningCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.AllianceFlipUtil;
 
@@ -26,6 +29,7 @@ public class RobotControl {
   private final Flywheel flywheel;
   private final Feeder feeder;
   private final Intake intake;
+  private final Hood hood;
   private final CommandXboxController controller;
   private final CommandPS5Controller operator;
 
@@ -35,6 +39,7 @@ public class RobotControl {
     this.flywheel = robotContainer.getFlywheel();
     this.feeder = robotContainer.getFeeder();
     this.intake = robotContainer.getIntake();
+    this.hood = robotContainer.getHood();
     this.controller = robotContainer.getController();
     this.operator = robotContainer.getOperator();
   }
@@ -150,6 +155,22 @@ public class RobotControl {
   }
 
   private void configureOperatorBindings() {
+    operator
+        .triangle()
+        .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
+        .onFalse(
+            Commands.parallel(
+                intake.stopCommand(),
+                flywheel.stopCommand(),
+                feeder.stopCommand(),
+                hood.positionSetpointCommand(() -> Degrees.of(15))));
+
+    operator.circle().onTrue(TuningCommand.tuningIntakeSlowStow(intake));
+
+    operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake, Intake.Position.DEPLOYED));
+
+    operator.R1().whileTrue(TuningCommand.tuningIntakeRoll(intake)).onFalse(intake.stopCommand());
+
     // 配置传球相关操作手绑定。
     operator
         .cross()

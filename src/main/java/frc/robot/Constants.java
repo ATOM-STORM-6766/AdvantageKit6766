@@ -19,10 +19,12 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
@@ -97,23 +99,99 @@ public final class Constants {
     return config;
   }
 
-  public static class AutoConstants {
-    public static PIDController transX = new PIDController(0.08, 0, 0.001);
-    public static PIDController transY = new PIDController(0.06, 0, 0.001);
-    public static PIDController rotation = new PIDController(0.015, 0, 0.005);
-    public static ProfiledPIDController rotation2 =
-        new ProfiledPIDController(
-            0.025, 0, 0.001, new TrapezoidProfile.Constraints(13.200, 36.366));
-    public static HolonomicDriveController holonomicController =
-        new HolonomicDriveController(transX, transY, rotation2);
+  public static class DriveControlConstants {
+    public static class TrajectoryFollow {
+      public static final double TRANS_X_KP = 0.08;
+      public static final double TRANS_X_KI = 0.0;
+      public static final double TRANS_X_KD = 0.001;
 
-    static {
-      rotation.enableContinuousInput(-Math.PI, Math.PI);
-      rotation.setTolerance(Math.toRadians(2));
-      rotation2.enableContinuousInput(-Math.PI, Math.PI);
-      rotation2.setTolerance(Math.toRadians(2));
-      holonomicController.setTolerance(new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(1)));
+      public static final double TRANS_Y_KP = 0.06;
+      public static final double TRANS_Y_KI = 0.0;
+      public static final double TRANS_Y_KD = 0.001;
+
+      public static final double ROTATION_KP = 0.015;
+      public static final double ROTATION_KI = 0.0;
+      public static final double ROTATION_KD = 0.005;
+
+      public static final double ROTATION_TOLERANCE_RAD = Units.degreesToRadians(2.0);
+
+      public static final PIDController transXController =
+          new PIDController(TRANS_X_KP, TRANS_X_KI, TRANS_X_KD);
+      public static final PIDController transYController =
+          new PIDController(TRANS_Y_KP, TRANS_Y_KI, TRANS_Y_KD);
+      public static final PIDController rotationController =
+          new PIDController(ROTATION_KP, ROTATION_KI, ROTATION_KD);
+
+      static {
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
+        rotationController.setTolerance(ROTATION_TOLERANCE_RAD);
+      }
+
+      private TrajectoryFollow() {}
     }
+
+    public static class FollowPoint {
+      public static final double TRANSLATION_KP = 5.0;
+      public static final double TRANSLATION_KI = 0.0;
+      public static final double TRANSLATION_KD = 0.0;
+
+      public static final double ROTATION_KP = 5.0;
+      public static final double ROTATION_KI = 0.0;
+      public static final double ROTATION_KD = 0.0;
+      public static final double ROTATION_MAX_VELOCITY = 13.200;
+      public static final double ROTATION_MAX_ACCELERATION = 36.366;
+
+      public static final Pose2d CONTROLLER_TOLERANCE =
+          new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(1.0));
+
+      public static final PIDController translationController =
+          new PIDController(TRANSLATION_KP, TRANSLATION_KI, TRANSLATION_KD);
+      public static final ProfiledPIDController rotationController =
+          new ProfiledPIDController(
+              ROTATION_KP,
+              ROTATION_KI,
+              ROTATION_KD,
+              new TrapezoidProfile.Constraints(ROTATION_MAX_VELOCITY, ROTATION_MAX_ACCELERATION));
+      public static final HolonomicDriveController holonomicController =
+          new HolonomicDriveController(
+              translationController, translationController, rotationController);
+
+      static {
+        holonomicController.setTolerance(CONTROLLER_TOLERANCE);
+      }
+
+      private FollowPoint() {}
+    }
+
+    public static class JoystickAngleHold {
+      public static final double KP = 2.0;
+      public static final double KI = 0.0;
+      public static final double KD = 0.1;
+      public static final double MAX_VELOCITY = 13.200;
+      public static final double MAX_ACCELERATION = 36.366 / 2.0;
+      public static final double TOLERANCE_RAD = Units.degreesToRadians(2.0);
+
+      public static final double FF_KS = 0.0;
+      public static final double FF_KV = 0.1;
+      public static final double FF_KA = 0.2;
+
+      public static ProfiledPIDController createAngleController() {
+        ProfiledPIDController controller =
+            new ProfiledPIDController(
+                KP, KI, KD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+        controller.enableContinuousInput(-Math.PI, Math.PI);
+        controller.setTolerance(TOLERANCE_RAD);
+        return controller;
+      }
+
+      public static SimpleMotorFeedforward createAngleFeedforward() {
+        return new SimpleMotorFeedforward(FF_KS, FF_KV, FF_KA);
+      }
+
+      private JoystickAngleHold() {}
+    }
+
+    private DriveControlConstants() {}
   }
 
   public static enum Mode {

@@ -28,4 +28,13 @@ public interface FeederIO {
   default void setIntakeVelocity(AngularVelocity velocity) {}
 
   default void stop() {}
+
+  static FeederIO getIO() {
+    switch (frc.robot.Constants.currentMode) {
+      case REAL:
+        return new FeederIOTalonFX();
+      default:
+        return new FeederIOSim();
+    }
+  }
 }
