@@ -14,7 +14,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelSetpoint;
 import frc.robot.util.GenericShooterResolver;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
@@ -69,11 +68,8 @@ public class PassSubsystem extends SubsystemBase {
     }
   }
 
-  public FlywheelSetpoint getFlywheelSetpoint() {
-    return new FlywheelSetpoint(
-        lastValidSetpoint.flywheelRps,
-        lastValidSetpoint.flywheelRps,
-        lastValidSetpoint.flywheelRps);
+  public AngularVelocity getFlywheelVelocity() {
+    return lastValidSetpoint.flywheelRps;
   }
 
   public Angle getHoodPitch() {

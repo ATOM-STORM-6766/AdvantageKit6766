@@ -53,11 +53,11 @@ public class AllianceFlipUtil {
   }
 
   // public static Rotation3d mirror(Rotation3d rotation) {
-  //   return rotation.rotateBy(new Rotation3d(0.0, Math.PI, 0.0));
+  // return rotation.rotateBy(new Rotation3d(0.0, Math.PI, 0.0));
   // }
 
   // public static Pose3d mirror(Pose3d pose) {
-  //   return new Pose3d(mirror(pose.getTranslation()), mirror(pose.getRotation()));
+  // return new Pose3d(mirror(pose.getTranslation()), mirror(pose.getRotation()));
   // }
 
   public static Pose2d mirror(Pose2d pose) {
@@ -67,8 +67,12 @@ public class AllianceFlipUtil {
         Rotation2d.fromDegrees(-pose.getRotation().getDegrees()));
   }
 
+  public static boolean isAllianceKnown() {
+    return DriverStation.getAlliance().isPresent();
+  }
+
   public static boolean shouldFlip() {
-    return DriverStation.getAlliance().isPresent()
-        && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+    return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+        == DriverStation.Alliance.Red;
   }
 }

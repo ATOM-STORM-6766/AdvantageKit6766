@@ -34,30 +34,10 @@ public class AimCommand {
 
             // 启动 Hood 旋转
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
-
-            // 先反转喂料 0.6s，清理卡球
             Commands.sequence(
-                // container
-                //     .getFlywheel()
-                //     .setVelocity(
-                //         () ->
-                //             new FlywheelSetpoint(
-                //                 RotationsPerSecond.of(-30.0),
-                //                 RotationsPerSecond.of(-30.0),
-                //                 RotationsPerSecond.of(-30.0)))
-                //     .andThen(container.getFlywheel().stopCommand())
-                //     .withTimeout(0.6),
-
-                // 设置飞轮速度
                 container
                     .getFlywheel()
-                    .setVelocity(container.getAimSubsystem()::getFlywheelSetpoint)))
-        // .setVelocity(
-        //     () ->
-        //         new FlywheelSetpoint(
-        //             RotationsPerSecond.of(flywheelRPS.get()),
-        //             RotationsPerSecond.of(flywheelRPS.get()),
-        //             RotationsPerSecond.of(flywheelRPS.get())))))
+                    .setVelocity(container.getAimSubsystem()::getFlywheelVelocity)))
         .withName("Prepare Aim");
   }
 
@@ -71,7 +51,7 @@ public class AimCommand {
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
 
             // 设置飞轮速度
-            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelSetpoint))
+            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity))
         .withName("Prepare Aim No Move");
   }
 

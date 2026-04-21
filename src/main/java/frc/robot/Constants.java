@@ -36,7 +36,7 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static final CANBus kCANBus = new CANBus("rio");
+  public static final CANBus kCANBus = CANBus.roboRIO();
 
   public static final ShooterConfig SHOOTER_CONFIG = createShooterConfig();
   public static final ShooterConfig PASS_CONFIG = createPassConfig();

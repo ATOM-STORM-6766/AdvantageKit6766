@@ -1,34 +1,49 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix6.CANBus;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class IntakeConstants {
-  public static final CANBus canBus = CANBus.roboRIO();
-
+  // CAN IDs
   public static final int intakeMotorID = 20;
   public static final int positionMotorID = 21;
-  public static final double maxRotation = 0.314698 + 0.03;
-  public static final double minRotation = 0.0;
-  public static final double positionGearRatio =
-      60.0 / 8 * 58 / 20 * 30 / 15; // 43.5 注意int和float的除号"/"区别
 
-  public static final double kCalibrationVoltage = 1.0;
-  public static final double kCalibrationCurrentThreshold = 2.0; // Amperes
-  public static final double kCalibrationVelocityThresholdRadPerSec = 0.025;
+  // Gear ratio: motor rotations per output rotation
+  public static final double kPositionGearRatio = 10.0;
+  public static final double kRollerGearRatio = 1.0;
 
-  public static TalonFXConfiguration getTalonFXConfig() {
+  public static final double kPositionGearRadius = 0.03;
+  public static final double kPositionMetersPerMechanismRotation =
+      Math.PI * 2.0 * kPositionGearRadius;
+
+  public static final double kIntakeMinMechanismRotations = 0.0;
+  public static final double kIntakeMaxMechanismRotations = 2.0;
+  public static final Distance kIntakeMinPosition =
+      Meters.of(kIntakeMinMechanismRotations * kPositionMetersPerMechanismRotation);
+  public static final Distance kIntakeMaxPosition =
+      Meters.of(kIntakeMaxMechanismRotations * kPositionMetersPerMechanismRotation);
+  public static final double kIntakeMinRotorRotations =
+      kIntakeMinMechanismRotations * kPositionGearRatio;
+  public static final double kIntakeMaxRotorRotations =
+      kIntakeMaxMechanismRotations * kPositionGearRatio;
+
+  public static final double kCalibrationVoltage = -5.0;
+  public static final double kCalibrationCurrentThreshold = 10.0;
+  public static final double kCalibrationVelocityThresholdRadPerSec = 0.1;
+  public static final double kCalibrationDebounceTimeSec = 0.1;
+
+  public static TalonFXConfiguration getRollerConfig() {
     var config = new TalonFXConfiguration();
 
     // Motor output
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // PID + Feedforward configuration 这里为原来的没铜轮的值
     config.Slot0.kP = 0.2;
     config.Slot0.kI = 0.0;
     config.Slot0.kD = 0.0005;
@@ -43,7 +58,7 @@ public class IntakeConstants {
       config.CurrentLimits.StatorCurrentLimit = 40.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.01;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
       config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.02;
     }
 
@@ -53,20 +68,20 @@ public class IntakeConstants {
   public static TalonFXConfiguration getPositionConfig() {
     var config = new TalonFXConfiguration();
 
-    config.Feedback.SensorToMechanismRatio = positionGearRatio;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxRotation;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxRotorRotations;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotation;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kIntakeMinRotorRotations;
 
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     config.Slot0.kP = 30.0;
     config.Slot0.kD = 0.0;
     config.Slot0.kS = 0.0;
     config.Slot0.kV = 0.0;
     config.Slot0.kA = 0.05;
-    config.Slot0.kG = 0.3;
+    config.MotionMagic.MotionMagicCruiseVelocity = 1.0;
+    config.MotionMagic.MotionMagicAcceleration = 4.0;
+    config.MotionMagic.MotionMagicJerk = 40.0;
     config.MotionMagic.MotionMagicExpo_kV = 0.5;
     config.MotionMagic.MotionMagicExpo_kA = 0.2;
 

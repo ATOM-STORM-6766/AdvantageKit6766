@@ -188,3 +188,6 @@ src/main/java/frc/robot/BuildConstants.java
 
 # Trae
 .trae
+
+# Local git worktrees
+/.worktrees/

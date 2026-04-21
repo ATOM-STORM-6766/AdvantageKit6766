@@ -1,12 +1,12 @@
 package frc.robot.subsystems.flywheel;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
@@ -17,6 +17,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   protected final TalonFX motor0;
   protected final TalonFX motor1;
   protected final TalonFX motor2;
+  protected final TalonFX motor3;
 
   private final StatusSignal<AngularVelocity> velocitySignal0;
   private final StatusSignal<Voltage> voltsSignal0;
@@ -30,16 +31,18 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Voltage> voltsSignal2;
   private final StatusSignal<Current> currentTorqueSignal2;
 
-  private final MotionMagicVelocityTorqueCurrentFOC velocityControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true);
+  private final StatusSignal<AngularVelocity> velocitySignal3;
+  private final StatusSignal<Voltage> voltsSignal3;
+  private final StatusSignal<Current> currentTorqueSignal3;
 
-  private final MotionMagicVelocityTorqueCurrentFOC boostControl =
-      new MotionMagicVelocityTorqueCurrentFOC(0).withUseTimesync(true).withSlot(0);
+  private final VelocityTorqueCurrentFOC velocityControl =
+      new VelocityTorqueCurrentFOC(0).withUseTimesync(true);
 
   public FlywheelIOTalonFX() {
     motor0 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID0, Constants.kCANBus);
     motor1 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID1, Constants.kCANBus);
     motor2 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID2, Constants.kCANBus);
+    motor3 = new TalonFX(FlywheelConstants.kFlywheelMotorCanID3, Constants.kCANBus);
 
     velocitySignal0 = motor0.getVelocity();
     voltsSignal0 = motor0.getMotorVoltage();
@@ -53,9 +56,18 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     voltsSignal2 = motor2.getMotorVoltage();
     currentTorqueSignal2 = motor2.getTorqueCurrent();
 
+    velocitySignal3 = motor3.getVelocity();
+    voltsSignal3 = motor3.getMotorVoltage();
+    currentTorqueSignal3 = motor3.getTorqueCurrent();
+
     motor0.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
     motor1.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
     motor2.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
+    motor3.getConfigurator().apply(FlywheelConstants.getTalonFXConfig());
+
+    motor1.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Aligned));
+    motor2.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Aligned));
+    motor3.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Aligned));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50,
@@ -67,11 +79,15 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         currentTorqueSignal1,
         velocitySignal2,
         voltsSignal2,
-        currentTorqueSignal2);
+        currentTorqueSignal2,
+        velocitySignal3,
+        voltsSignal3,
+        currentTorqueSignal3);
 
     motor0.optimizeBusUtilization();
     motor1.optimizeBusUtilization();
     motor2.optimizeBusUtilization();
+    motor3.optimizeBusUtilization();
   }
 
   @Override
@@ -85,7 +101,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         currentTorqueSignal1,
         velocitySignal2,
         voltsSignal2,
-        currentTorqueSignal2);
+        currentTorqueSignal2,
+        velocitySignal3,
+        voltsSignal3,
+        currentTorqueSignal3);
 
     inputs.velocity0 = velocitySignal0.getValue();
     inputs.appliedVolts0 = voltsSignal0.getValue();
@@ -98,44 +117,19 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     inputs.velocity2 = velocitySignal2.getValue();
     inputs.appliedVolts2 = voltsSignal2.getValue();
     inputs.currentTorqueAmps2 = currentTorqueSignal2.getValue();
+
+    inputs.velocity3 = velocitySignal3.getValue();
+    inputs.appliedVolts3 = voltsSignal3.getValue();
+    inputs.currentTorqueAmps3 = currentTorqueSignal3.getValue();
   }
 
   @Override
-  public void setFlywheelVelocity(FlywheelSetpoint velocities) {
-    motor0.setControl(velocityControl.withVelocity(velocities.motor0()));
-    motor1.setControl(velocityControl.withVelocity(velocities.motor1()));
-    motor2.setControl(velocityControl.withVelocity(velocities.motor2()));
+  public void setFlywheelVelocity(AngularVelocity velocity) {
+    motor0.setControl(velocityControl.withVelocity(velocity));
   }
 
   @Override
   public void stop() {
     motor0.setControl(new CoastOut());
-    motor1.setControl(new CoastOut());
-    motor2.setControl(new CoastOut());
-  }
-
-  @Override // 我深知这不优雅，谁能拯救我
-  public void setFlywheelWithBoost(FlywheelSetpoint velocities, boolean[] isBoost) {
-    motor0.setControl(
-        isBoost[0]
-            ? boostControl
-                .withVelocity(velocities.motor0())
-                .withFeedForward(
-                    FlywheelConstants.kFlywheelBoost * velocities.motor0().in(RotationsPerSecond))
-            : velocityControl.withVelocity(velocities.motor0()));
-    motor1.setControl(
-        isBoost[1]
-            ? boostControl
-                .withVelocity(velocities.motor1())
-                .withFeedForward(
-                    FlywheelConstants.kFlywheelBoost * velocities.motor1().in(RotationsPerSecond))
-            : velocityControl.withVelocity(velocities.motor1()));
-    motor2.setControl(
-        isBoost[2]
-            ? boostControl
-                .withVelocity(velocities.motor2())
-                .withFeedForward(
-                    FlywheelConstants.kFlywheelBoost * velocities.motor2().in(RotationsPerSecond))
-            : velocityControl.withVelocity(velocities.motor2()));
   }
 }

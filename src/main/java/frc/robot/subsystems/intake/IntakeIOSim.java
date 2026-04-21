@@ -1,112 +1,116 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class IntakeIOSim implements IntakeIO {
+public class IntakeIOSim extends IntakeIOTalonFX {
   private static final DCMotor POSITION_MOTOR = DCMotor.getKrakenX60(1);
   private static final DCMotor INTAKE_MOTOR = DCMotor.getKrakenX44(1);
-
-  // 这里的惯性需要根据实际机械结构估算
   private static final double POSITION_MOMENT_OF_INERTIA = 0.05;
   private static final double INTAKE_MOMENT_OF_INERTIA = 0.005;
+  private static final double SIM_STALL_CURRENT_AMPS = IntakeConstants.kCalibrationCurrentThreshold + 5.0;
 
   private final DCMotorSim positionSim;
   private final DCMotorSim intakeSim;
-
-  // 简单的 PID 控制器模拟闭环控制
-  private final PIDController positionController = new PIDController(10.0, 0.0, 0.0);
-
-  private boolean positionClosedLoop = false;
-
-  private double positionAppliedVolts = 0.0;
-  private double intakeAppliedVolts = 0.0;
+  private final Notifier simNotifier;
+  private double lastUpdateTimestamp;
+  private boolean simulatedStall = false;
 
   public IntakeIOSim() {
-    // 初始化 Intake 展开机构的仿真模型
-    positionSim =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                POSITION_MOTOR, POSITION_MOMENT_OF_INERTIA, IntakeConstants.positionGearRatio),
-            POSITION_MOTOR);
+    super();
 
-    // 初始化滚轮电机的仿真模型
-    intakeSim =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
-            INTAKE_MOTOR);
+    positionSim = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(
+            POSITION_MOTOR, POSITION_MOMENT_OF_INERTIA, IntakeConstants.kPositionGearRatio),
+        POSITION_MOTOR);
+    intakeSim = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(INTAKE_MOTOR, INTAKE_MOMENT_OF_INERTIA, 1.0),
+        INTAKE_MOTOR);
 
-    // 初始位置设置，例如收起状态
-    positionSim.setState(Units.rotationsToRadians(IntakeConstants.minRotation), 0.0);
+    lastUpdateTimestamp = Timer.getFPGATimestamp();
+
+    // 模拟初始位置是随机的
+    positionSim.setState(Rotations.of(0.8).in(Radians), 0.0);
+
+    simNotifier = new Notifier(this::updateSimState);
+    simNotifier.startPeriodic(0.005);
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
-    // 运行闭环控制计算
-    if (positionClosedLoop) {
-      positionAppliedVolts = positionController.calculate(positionSim.getAngularPositionRad());
+  public void readInputs(IntakeIOInputs inputs) {
+    super.readInputs(inputs);
+
+    if (simulatedStall) {
+      inputs.positionStatorAmps = Amp.of(SIM_STALL_CURRENT_AMPS);
+      double supplyAmps = Math.max(inputs.positionSupplyAmps.in(Amps), SIM_STALL_CURRENT_AMPS);
+      inputs.positionSupplyAmps = Amp.of(supplyAmps);
+      inputs.positionVelocity = RadiansPerSecond.of(0.0);
     }
-    // 应用电压并更新物理仿真
-    positionSim.setInputVoltage(MathUtil.clamp(positionAppliedVolts, -12.0, 12.0));
-    intakeSim.setInputVoltage(MathUtil.clamp(intakeAppliedVolts, -12.0, 12.0));
+  }
 
-    positionSim.update(0.02);
-    intakeSim.update(0.02);
+  private void updateSimState() {
+    var positionSimState = positionMotor.getSimState();
+    var intakeSimState = rollerMotor.getSimState();
 
-    // 可以在这里添加硬限位的逻辑
-    double posRad = positionSim.getAngularPositionRad();
-    double minRad = Units.rotationsToRadians(IntakeConstants.minRotation);
-    double maxRad = Units.rotationsToRadians(IntakeConstants.maxRotation);
+    positionSimState.setSupplyVoltage(12.0);
+    intakeSimState.setSupplyVoltage(12.0);
 
-    if (posRad < minRad) {
-      positionSim.setState(minRad, 0);
-    } else if (posRad > maxRad) {
-      positionSim.setState(maxRad, 0);
+    double positionVoltage = MathUtil.clamp(positionSimState.getMotorVoltage(), -12.0, 12.0);
+    double intakeVoltage = MathUtil.clamp(intakeSimState.getMotorVoltage(), -12.0, 12.0);
+
+    positionSim.setInput(positionVoltage);
+    intakeSim.setInput(intakeVoltage);
+
+    double timestamp = Timer.getFPGATimestamp();
+    double dt = timestamp - lastUpdateTimestamp;
+    lastUpdateTimestamp = timestamp;
+
+    positionSim.update(dt);
+    intakeSim.update(dt);
+
+    double positionRadians = positionSim.getAngularPositionRad();
+    double minRadians = Units.rotationsToRadians(IntakeConstants.kIntakeMinMechanismRotations);
+    double maxRadians = Units.rotationsToRadians(IntakeConstants.kIntakeMaxMechanismRotations);
+
+    if (positionRadians < minRadians) {
+      positionRadians = minRadians;
+      positionSim.setState(positionRadians, 0.0);
+    } else if (positionRadians > maxRadians) {
+      positionRadians = maxRadians;
+      positionSim.setState(positionRadians, 0.0);
     }
 
-    // 更新 Inputs
-    inputs.intakePosition = positionSim.getAngularPosition();
-    inputs.positionVelocity = positionSim.getAngularVelocity();
-    inputs.positionCurrent = Amp.of(positionSim.getCurrentDrawAmps());
-    inputs.intakeVelocity = intakeSim.getAngularVelocity();
-  }
+    boolean atMin = positionRadians <= minRadians;
+    boolean atMax = positionRadians >= maxRadians;
+    double positionVelocityRadPerSec = positionSim.getAngularVelocityRadPerSec();
+    boolean pushingMin = positionVoltage < 0.0;
+    boolean pushingMax = positionVoltage > 0.0;
 
-  @Override
-  public void setIntakePosition(Angle position) {
-    positionClosedLoop = true;
-    positionController.setSetpoint(position.in(Radians));
-  }
+    if ((atMin && pushingMin) || (atMax && pushingMax)) {
+      simulatedStall = true;
+      positionVelocityRadPerSec = 0.0;
+      positionSim.setState(positionRadians, 0.0);
+    } else {
+      simulatedStall = false;
+    }
 
-  @Override
-  public void setIntakeVelocity(Voltage voltage) {
-    intakeAppliedVolts = voltage.in(Volts);
-  }
+    double rotorPosition = Units.radiansToRotations(positionRadians) * IntakeConstants.kPositionGearRatio;
+    double rotorVelocity = Units.radiansToRotations(positionVelocityRadPerSec) * IntakeConstants.kPositionGearRatio;
+    positionSimState.setRawRotorPosition(rotorPosition);
+    positionSimState.setRotorVelocity(rotorVelocity);
 
-  @Override
-  public void setPositionVoltage(Voltage voltage) {
-    positionClosedLoop = false;
-    positionAppliedVolts = voltage.in(Volts);
-  }
-
-  @Override
-  public void setPosition(double positionRotations) {
-    positionSim.setState(
-        Units.rotationsToRadians(positionRotations), positionSim.getAngularVelocityRadPerSec());
-  }
-
-  @Override
-  public void setPositionCurrent(Current current) {
-    // 这里我们简单地将电流转换为电压，实际情况可能需要更复杂的模型
-    double voltage = current.in(Amps) * 0.5; // 假设每安培对应0.5伏特
-    setPositionVoltage(Volts.of(voltage));
+    intakeSimState.setRotorVelocity(
+        Units.radiansToRotations(intakeSim.getAngularVelocityRadPerSec()));
   }
 }

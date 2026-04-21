@@ -10,14 +10,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -40,8 +39,7 @@ public class FollowChoreoPathCommand extends Command {
   private Timer timer = new Timer();
   private Trajectory<SwerveSample> trajectory;
   private Trajectory<SwerveSample> m_trajectory;
-  private BooleanSupplier m_isRed =
-      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+  private BooleanSupplier m_isRed = AllianceFlipUtil::shouldFlip;
   /**
    * Create an auto routine that handles path splitting and events.
    *
