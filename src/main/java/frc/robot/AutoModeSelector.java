@@ -4,48 +4,43 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.auto.routines.H1Auto;
-import frc.robot.commands.auto.routines.P21Auto;
-import frc.robot.commands.auto.routines.P3Auto;
+import frc.robot.commands.auto.routines.P2Auto;
 import frc.robot.commands.auto.routines.P4Auto;
 import frc.robot.commands.auto.routines.P6Auto;
-import frc.robot.commands.auto.routines.P6MirrorAuto;
 import frc.robot.commands.auto.routines.TestAuto;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.LoggedTunableBoolean;
 import org.littletonrobotics.junction.Logger;
 
 public class AutoModeSelector {
   private final RobotContainer robotContainer;
   private final Drive drive;
-  private final Flywheel flywheel;
-  private final Feeder feeder;
-  private final Hood hood;
-  private final Intake intake;
-  private final AutoChooser autoChooser = new AutoChooser();
+  private AutoChooser autoChooser = new AutoChooser();
+  private static final LoggedTunableBoolean shouldMirror =
+      new LoggedTunableBoolean("shouldMirror", false);
 
   private AutoFactory autoFactory;
 
   public AutoModeSelector(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
     this.drive = robotContainer.getDrive();
-    this.flywheel = robotContainer.getFlywheel();
-    this.feeder = robotContainer.getFeeder();
-    this.hood = robotContainer.getHood();
-    this.intake = robotContainer.getIntake();
 
     SmartDashboard.putData("Auto Choices", autoChooser);
   }
 
   public void update() {
-    if (autoFactory != null) {
+    boolean mirrorChanged = shouldMirror.hasChanged(shouldMirror.hashCode());
+    if (autoFactory != null && !mirrorChanged) {
       Logger.recordOutput("Robot/Auto/ChooserReady", true);
       return;
+    }
+
+    if (mirrorChanged) {
+      autoChooser = new AutoChooser();
     }
 
     if (!AllianceFlipUtil.isAllianceKnown()) {
@@ -69,28 +64,15 @@ public class AutoModeSelector {
               Logger.recordOutput("Odometry/TrajectoryIsFinished", isFinished);
             });
 
-    autoChooser.addCmd(
-        "H1",
-        () -> H1Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
-    autoChooser.addCmd(
-        "P3",
-        () -> P3Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
-    autoChooser.addCmd(
-        "P4",
-        () -> P4Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
-    autoChooser.addCmd(
-        "P6",
-        () -> P6Auto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
-    autoChooser.addCmd(
-        "P6_mirror",
-        () ->
-            P6MirrorAuto.create(
-                autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
-    autoChooser.addCmd("p2_1", () -> P21Auto.create(autoFactory));
+    CommandScheduler.getInstance().schedule(autoFactory.warmupCmd());
+
+    autoChooser.addCmd("H1", () -> H1Auto.create(autoFactory, robotContainer, shouldMirror.get()));
+    autoChooser.addCmd("P2", () -> P2Auto.create(autoFactory, robotContainer, shouldMirror.get()));
+    autoChooser.addCmd("P4", () -> P4Auto.create(autoFactory, robotContainer, shouldMirror.get()));
+    autoChooser.addCmd("P6", () -> P6Auto.create(autoFactory, robotContainer, shouldMirror.get()));
 
     autoChooser.addCmd(
-        "test",
-        () -> TestAuto.create(autoFactory, robotContainer, drive, flywheel, feeder, hood, intake));
+        "test", () -> TestAuto.create(autoFactory, robotContainer, shouldMirror.get()));
 
     autoChooser.addCmd("sysidDf", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addCmd("sysidDb", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
