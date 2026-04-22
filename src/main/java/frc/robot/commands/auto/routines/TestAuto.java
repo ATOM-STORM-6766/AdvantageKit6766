@@ -17,6 +17,6 @@ public final class TestAuto {
     var trj = ChoreoTraj.ALL_TRAJECTORIES.get("test");
     return Commands.sequence(
         AutoDriveCommands.resetOdometry(drive, trj.initialPoseBlue(), shouldMirror),
-        FollowTrajectory.create(autoFactory, drive, trj, 0, shouldMirror));
+        FollowTrajectory.createOptional(autoFactory, drive, trj, shouldMirror));
   }
 }

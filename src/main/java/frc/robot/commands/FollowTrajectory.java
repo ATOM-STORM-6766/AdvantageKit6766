@@ -17,4 +17,12 @@ public class FollowTrajectory {
             AutoDriveCommands.followPoint(drive, trj.segment(segment).endPoseBlue(), shouldMirror))
         .withName("Follow Trajectory: " + trj.name());
   }
+
+  public static Command createOptional(
+      AutoFactory autoFactory, Drive drive, ChoreoTraj trj, boolean shouldMirror) {
+    return autoFactory
+        .trajectoryCmd(trj.name(), shouldMirror ? AutoTrajectory::mirrorY : t -> t)
+        .andThen(AutoDriveCommands.followPoint(drive, trj.endPoseBlue(), shouldMirror))
+        .withName("Follow Trajectory: " + trj.name());
+  }
 }

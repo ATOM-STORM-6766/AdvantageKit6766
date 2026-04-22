@@ -59,27 +59,23 @@ public final class Constants {
 
     config.maxFlywheelRps = 100 / 1.2;
 
-    config.hoodPitchRadiansMap.put(1.50, Rotation2d.fromDegrees(25.0));
-    config.hoodPitchRadiansMap.put(1.90, Rotation2d.fromDegrees(25.5));
-    config.hoodPitchRadiansMap.put(2.30, Rotation2d.fromDegrees(28.0));
-    config.hoodPitchRadiansMap.put(2.70, Rotation2d.fromDegrees(30.0));
-    config.hoodPitchRadiansMap.put(3.10, Rotation2d.fromDegrees(30.0));
-    config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(30.0));
-    config.hoodPitchRadiansMap.put(3.90, Rotation2d.fromDegrees(34.0));
-    config.hoodPitchRadiansMap.put(4.30, Rotation2d.fromDegrees(35.0));
-    config.hoodPitchRadiansMap.put(4.70, Rotation2d.fromDegrees(35.0));
-    config.hoodPitchRadiansMap.put(5.10, Rotation2d.fromDegrees(35.0));
+    config.hoodPitchRadiansMap.put(1.50, Rotation2d.fromDegrees(15.0));
+    config.hoodPitchRadiansMap.put(1.80, Rotation2d.fromDegrees(15.0));
+    config.hoodPitchRadiansMap.put(2.10, Rotation2d.fromDegrees(16.0));
+    config.hoodPitchRadiansMap.put(2.40, Rotation2d.fromDegrees(18.0));
+    config.hoodPitchRadiansMap.put(2.70, Rotation2d.fromDegrees(20.0));
+    config.hoodPitchRadiansMap.put(3.00, Rotation2d.fromDegrees(22.0));
+    config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(25.0));
+    config.hoodPitchRadiansMap.put(4.00, Rotation2d.fromDegrees(31.0));
 
-    config.flywheelRpsMap.put(1.50, 43.0 + 2);
-    config.flywheelRpsMap.put(1.90, 47.0 + 2);
-    config.flywheelRpsMap.put(2.30, 50.5 + 2);
-    config.flywheelRpsMap.put(2.70, 51.0 + 2);
-    config.flywheelRpsMap.put(3.10, 55.5 + 2);
-    config.flywheelRpsMap.put(3.50, 55.5 + 2);
-    config.flywheelRpsMap.put(3.90, 55.0 + 2);
-    config.flywheelRpsMap.put(4.30, 62.0 + 2);
-    config.flywheelRpsMap.put(4.70, 61.5 + 2);
-    config.flywheelRpsMap.put(5.10, 64.0 + 2);
+    config.flywheelRpsMap.put(1.50, 26.8 + 1.0);
+    config.flywheelRpsMap.put(1.80, 28.0 + 1.0);
+    config.flywheelRpsMap.put(2.10, 30.0 + 1.0);
+    config.flywheelRpsMap.put(2.40, 30.0 + 1.0);
+    config.flywheelRpsMap.put(2.70, 31.0 + 1.0);
+    config.flywheelRpsMap.put(3.00, 32.0 + 1.0);
+    config.flywheelRpsMap.put(3.50, 34.0 + 1.0);
+    config.flywheelRpsMap.put(4.00, 34.0 + 1.0);
 
     config.timeOfFlightSecondsMap.put(1.50, 0.95);
     config.timeOfFlightSecondsMap.put(1.90, 0.98);
@@ -101,15 +97,15 @@ public final class Constants {
 
   public static class DriveControlConstants {
     public static class TrajectoryFollow {
-      public static final double TRANS_X_KP = 0.08;
-      public static final double TRANS_X_KI = 0.0;
-      public static final double TRANS_X_KD = 0.001;
+      public static final double TRANS_X_KP = 0.8;
+      public static final double TRANS_X_KI = 0.0015;
+      public static final double TRANS_X_KD = 0.000;
 
-      public static final double TRANS_Y_KP = 0.06;
-      public static final double TRANS_Y_KI = 0.0;
-      public static final double TRANS_Y_KD = 0.001;
+      public static final double TRANS_Y_KP = 0.8;
+      public static final double TRANS_Y_KI = 0.0015;
+      public static final double TRANS_Y_KD = 0.000;
 
-      public static final double ROTATION_KP = 0.015;
+      public static final double ROTATION_KP = 0.5;
       public static final double ROTATION_KI = 0.0;
       public static final double ROTATION_KD = 0.005;
 
