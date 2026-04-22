@@ -27,7 +27,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj BL_V2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.empty(),
-        15.02359,
+        15.04653,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
@@ -41,21 +41,21 @@ public record ChoreoTraj(
     public static final ChoreoTraj hblueqin = new ChoreoTraj(
         "hblueqin",
         OptionalInt.empty(),
-        10.17513,
+        11.23528,
         new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(3.05394, 5.76681, Rotation2d.fromRadians(2.26893))
     );
     public static final ChoreoTraj hblueqin$0 = new ChoreoTraj(
         "hblueqin",
         OptionalInt.of(0),
-        3.69847,
+        4.23555,
         new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(3.01473, 5.54133, Rotation2d.fromRadians(2.58309))
     );
     public static final ChoreoTraj hblueqin$1 = new ChoreoTraj(
         "hblueqin",
         OptionalInt.of(1),
-        6.476659999999999,
+        6.99973,
         new Pose2d(3.01473, 5.54133, Rotation2d.fromRadians(2.58309)),
         new Pose2d(3.05394, 5.76681, Rotation2d.fromRadians(2.26893))
     );
