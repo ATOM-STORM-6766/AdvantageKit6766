@@ -27,9 +27,9 @@ public record ChoreoTraj(
     public static final ChoreoTraj BL_V2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.empty(),
-        11.85571,
+        15.02359,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(3.13392, 5.55648, Rotation2d.fromRadians(2.26893))
+        new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj h1 = new ChoreoTraj(
         "h1",
@@ -150,6 +150,13 @@ public record ChoreoTraj(
         new Pose2d(7.53253, 5.93629, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487))
     );
+    public static final ChoreoTraj STBL_V1 = new ChoreoTraj(
+        "STBL_V1",
+        OptionalInt.empty(),
+        9.3189,
+        new Pose2d(3.55927, 7.60877, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(8.15408, 0.51476, Rotation2d.fromRadians(0))
+    );
     public static final ChoreoTraj test = new ChoreoTraj(
         "test",
         OptionalInt.empty(),
@@ -181,6 +188,7 @@ public record ChoreoTraj(
         Map.entry("p6$0", p6$0),
         Map.entry("p6$1", p6$1),
         Map.entry("p6$2", p6$2),
+        Map.entry("STBL_V1", STBL_V1),
         Map.entry("test", test)
     );
 
