@@ -31,6 +31,27 @@ public record ChoreoTraj(
         new Pose2d(4.6708, 7.40456, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.84174, 5.64195, Rotation2d.fromRadians(-2.25752))
     );
+    public static final ChoreoTraj hblueqin = new ChoreoTraj(
+        "hblueqin",
+        OptionalInt.empty(),
+        10.17513,
+        new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.05394, 5.76681, Rotation2d.fromRadians(2.26893))
+    );
+    public static final ChoreoTraj hblueqin$0 = new ChoreoTraj(
+        "hblueqin",
+        OptionalInt.of(0),
+        3.69847,
+        new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.01473, 5.54133, Rotation2d.fromRadians(2.58309))
+    );
+    public static final ChoreoTraj hblueqin$1 = new ChoreoTraj(
+        "hblueqin",
+        OptionalInt.of(1),
+        6.476659999999999,
+        new Pose2d(3.01473, 5.54133, Rotation2d.fromRadians(2.58309)),
+        new Pose2d(3.05394, 5.76681, Rotation2d.fromRadians(2.26893))
+    );
     public static final ChoreoTraj p2 = new ChoreoTraj(
         "p2",
         OptionalInt.empty(),
@@ -69,56 +90,56 @@ public record ChoreoTraj(
     public static final ChoreoTraj p4 = new ChoreoTraj(
         "p4",
         OptionalInt.empty(),
-        6.91466,
+        6.17911,
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
-        new Pose2d(2.69548, 2.67116, Rotation2d.fromRadians(-2.35617))
+        new Pose2d(2.69548, 2.67116, Rotation2d.fromRadians(-2.35615))
     );
     public static final ChoreoTraj p4$0 = new ChoreoTraj(
         "p4",
         OptionalInt.of(0),
-        1.86049,
+        1.47707,
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
         new Pose2d(7.66489, 5.92237, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj p4$1 = new ChoreoTraj(
         "p4",
         OptionalInt.of(1),
-        3.15213,
+        3.14246,
         new Pose2d(7.66489, 5.92237, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(7.53114, 2.89751, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj p4$2 = new ChoreoTraj(
         "p4",
         OptionalInt.of(2),
-        1.9020399999999995,
+        1.5595799999999995,
         new Pose2d(7.53114, 2.89751, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.69548, 2.67116, Rotation2d.fromRadians(-2.35617))
+        new Pose2d(2.69548, 2.67116, Rotation2d.fromRadians(-2.35615))
     );
     public static final ChoreoTraj p6 = new ChoreoTraj(
         "p6",
         OptionalInt.empty(),
-        6.44941,
+        5.60575,
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487))
     );
     public static final ChoreoTraj p6$0 = new ChoreoTraj(
         "p6",
         OptionalInt.of(0),
-        2.04485,
+        1.61623,
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
         new Pose2d(7.85894, 7.02906, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj p6$1 = new ChoreoTraj(
         "p6",
         OptionalInt.of(1),
-        2.55927,
+        2.5253300000000003,
         new Pose2d(7.85894, 7.02906, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(7.53253, 5.93629, Rotation2d.fromRadians(-1.5708))
     );
     public static final ChoreoTraj p6$2 = new ChoreoTraj(
         "p6",
         OptionalInt.of(2),
-        1.8452900000000003,
+        1.4641899999999994,
         new Pose2d(7.53253, 5.93629, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487))
     );
@@ -129,6 +150,13 @@ public record ChoreoTraj(
         new Pose2d(7.28079, 6.78883, Rotation2d.fromRadians(0)),
         new Pose2d(7.28079, 6.78883, Rotation2d.fromRadians(0))
     );
+    public static final ChoreoTraj BL_V2 = new ChoreoTraj(
+        "BL_V2",
+        OptionalInt.empty(),
+        12.43028,
+        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.13392, 5.55648, Rotation2d.fromRadians(2.26893))
+    );
 
     /**
      * A map between trajectory names and their corresponding data.
@@ -136,6 +164,9 @@ public record ChoreoTraj(
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
         Map.entry("h1", h1),
+        Map.entry("hblueqin", hblueqin),
+        Map.entry("hblueqin$0", hblueqin$0),
+        Map.entry("hblueqin$1", hblueqin$1),
         Map.entry("p2", p2),
         Map.entry("p2$0", p2$0),
         Map.entry("p2$1", p2$1),
@@ -149,7 +180,8 @@ public record ChoreoTraj(
         Map.entry("p6$0", p6$0),
         Map.entry("p6$1", p6$1),
         Map.entry("p6$2", p6$2),
-        Map.entry("test", test)
+        Map.entry("test", test),
+        Map.entry("BL_V2", BL_V2)
     );
 
     /**
