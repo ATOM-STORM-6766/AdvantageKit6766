@@ -10,7 +10,7 @@ import edu.wpi.first.math.util.Units;
 
 public class FieldConstants {
   public static AprilTagFieldLayout aprilTagLayout = // TODO: 更新为正确的布局
-      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
   public static final double fieldWidth = aprilTagLayout.getFieldWidth();
   public static final double fieldLength = aprilTagLayout.getFieldLength();
 
