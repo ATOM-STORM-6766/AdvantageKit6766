@@ -53,15 +53,20 @@ public interface VisionIO {
       case REAL:
         return new VisionIO[] {
           new VisionIOPhotonVision(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
-          new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1)
+          new VisionIOPhotonVision(VisionConstants.camera1Name, VisionConstants.robotToCamera1),
+          new VisionIOPhotonVision(VisionConstants.camera2Name, VisionConstants.robotToCamera2)
         };
       case SIM:
         return new VisionIO[] {
           new VisionIOPhotonVisionSim(
-              VisionConstants.camera1Name, VisionConstants.robotToCamera1, poseSupplier)
+              VisionConstants.camera0Name, VisionConstants.robotToCamera0, poseSupplier),
+          new VisionIOPhotonVisionSim(
+              VisionConstants.camera1Name, VisionConstants.robotToCamera1, poseSupplier),
+          new VisionIOPhotonVisionSim(
+              VisionConstants.camera2Name, VisionConstants.robotToCamera2, poseSupplier)
         };
       default:
-        return new VisionIO[] {new VisionIO() {}, new VisionIO() {}};
+        return new VisionIO[] {new VisionIO() {}, new VisionIO() {}, new VisionIO() {}};
     }
   }
 }

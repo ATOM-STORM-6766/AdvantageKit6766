@@ -21,18 +21,20 @@ public class VisionConstants {
   // 摄像头名称，必须与协处理器上配置的名称一致
   public static String camera0Name = "Back_Camera";
   public static String camera1Name = "Left_Camera";
+  public static String camera2Name = "Right_Camera";
 
   // 机器人到摄像头的变换
   // （Limelight 不使用，在其 Web UI 中配置）
   public static Transform3d robotToCamera0 = // 坐标已经更新前为0 后为1
-      new Transform3d(-0.310, 0.0, 0.3, new Rotation3d(0.0, Math.toRadians(30), Math.PI));
+      new Transform3d(-0.317145, 0.0, 0.304125, new Rotation3d(0.0, Math.toRadians(30), Math.PI));
 
   public static Transform3d robotToCamera1 =
       new Transform3d(
-          -0.01750800,
-          0.33492404,
-          0.34086824,
-          new Rotation3d(0.0, Math.toRadians(10.0), Math.PI / 2));
+          -0.17500, 0.334924, 0.340868, new Rotation3d(0.0, Math.toRadians(10.0), Math.PI / 2));
+
+  public static Transform3d robotToCamera2 =
+      new Transform3d(
+          -0.007500, -0.334924, 0.340868, new Rotation3d(0.0, Math.toRadians(-10.0), -Math.PI / 2));
 
   // 基础过滤阈值
   public static double maxAmbiguity = 0.3;
@@ -48,7 +50,8 @@ public class VisionConstants {
   public static double[] cameraStdDevFactors =
       new double[] {
         1.0, // 摄像头 0
-        1.0 // 摄像头 1
+        1.0, // 摄像头 1
+        1.0 // 摄像头 2
       };
 
   // MegaTag 2 观测的乘数
