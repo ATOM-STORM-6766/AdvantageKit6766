@@ -41,23 +41,30 @@ public record ChoreoTraj(
     public static final ChoreoTraj hblueqin_left = new ChoreoTraj(
         "hblueqin_left",
         OptionalInt.empty(),
-        11.23528,
+        11.32657,
         new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(3.05394, 5.76681, Rotation2d.fromRadians(2.26893))
     );
     public static final ChoreoTraj hblueqin_left$0 = new ChoreoTraj(
         "hblueqin_left",
         OptionalInt.of(0),
-        4.23555,
+        4.35224,
         new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(3.01473, 5.54133, Rotation2d.fromRadians(2.58309))
     );
     public static final ChoreoTraj hblueqin_left$1 = new ChoreoTraj(
         "hblueqin_left",
         OptionalInt.of(1),
-        6.99973,
+        6.97433,
         new Pose2d(3.01473, 5.54133, Rotation2d.fromRadians(2.58309)),
         new Pose2d(3.05394, 5.76681, Rotation2d.fromRadians(2.26893))
+    );
+    public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
+        "hbluesteal_left",
+        OptionalInt.empty(),
+        11.81782,
+        new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
     );
     public static final ChoreoTraj p2 = new ChoreoTraj(
         "p2",
@@ -157,12 +164,12 @@ public record ChoreoTraj(
         new Pose2d(3, 5, Rotation2d.fromRadians(0)),
         new Pose2d(3, 5, Rotation2d.fromRadians(1.5708))
     );
-    public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
-        "hbluesteal_left",
+    public static final ChoreoTraj hblueqin_right = new ChoreoTraj(
+        "hblueqin_right",
         OptionalInt.empty(),
-        12.13787,
-        new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
+        15.21221,
+        new Pose2d(4.44408, 0.48371, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(8.42622, 0.66252, Rotation2d.fromRadians(0))
     );
 
     /**
@@ -175,6 +182,7 @@ public record ChoreoTraj(
         Map.entry("hblueqin_left", hblueqin_left),
         Map.entry("hblueqin_left$0", hblueqin_left$0),
         Map.entry("hblueqin_left$1", hblueqin_left$1),
+        Map.entry("hbluesteal_left", hbluesteal_left),
         Map.entry("p2", p2),
         Map.entry("p2$0", p2$0),
         Map.entry("p2$1", p2$1),
@@ -189,7 +197,7 @@ public record ChoreoTraj(
         Map.entry("p6$1", p6$1),
         Map.entry("p6$2", p6$2),
         Map.entry("test", test),
-        Map.entry("hbluesteal_left", hbluesteal_left)
+        Map.entry("hblueqin_right", hblueqin_right)
     );
 
     /**
