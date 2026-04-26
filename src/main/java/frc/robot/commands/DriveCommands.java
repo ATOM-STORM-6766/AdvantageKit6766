@@ -145,9 +145,9 @@ public class DriveCommands {
       Supplier<Rotation2d> rotationSupplier) {
 
     ProfiledPIDController angleController =
-        Constants.DriveControlConstants.JoystickAngleHold.createAngleController();
+        Constants.DriveControlConstants.JoystickAngleHold.angleController;
     SimpleMotorFeedforward angleFeedforward =
-        Constants.DriveControlConstants.JoystickAngleHold.createAngleFeedforward();
+        Constants.DriveControlConstants.JoystickAngleHold.angleFeedforward;
 
     // 构造指令
     return Commands.run(

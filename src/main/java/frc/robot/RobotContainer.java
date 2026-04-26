@@ -12,6 +12,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.DriveControlConstants.FollowPoint;
+import frc.robot.Constants.DriveControlConstants.JoystickAngleHold;
+import frc.robot.Constants.DriveControlConstants.TrajectoryFollow;
 import frc.robot.subsystems.aim.AimSubsystem;
 import frc.robot.subsystems.aim.PassSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -59,6 +62,10 @@ public class RobotContainer {
     autoModeSelector.update();
     robotControl = new RobotControl(this);
     robotControl.configure();
+
+    TrajectoryFollow.publishToSmartDashboard();
+    FollowPoint.publishToSmartDashboard();
+    JoystickAngleHold.publishToSmartDashboard();
   }
 
   public Hood getHood() {

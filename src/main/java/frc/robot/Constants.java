@@ -26,6 +26,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.util.GenericShooterResolver.ShooterConfig;
 
@@ -123,6 +124,12 @@ public final class Constants {
         rotationController.setTolerance(ROTATION_TOLERANCE_RAD);
       }
 
+      public static void publishToSmartDashboard() {
+        SmartDashboard.putData("TrajectoryFollow/TransX", transXController);
+        SmartDashboard.putData("TrajectoryFollow/TransY", transYController);
+        SmartDashboard.putData("TrajectoryFollow/Rotation", rotationController);
+      }
+
       private TrajectoryFollow() {}
     }
 
@@ -156,6 +163,11 @@ public final class Constants {
         holonomicController.setTolerance(CONTROLLER_TOLERANCE);
       }
 
+      public static void publishToSmartDashboard() {
+        SmartDashboard.putData("FollowPoint/Translation", translationController);
+        SmartDashboard.putData("FollowPoint/Rotation", rotationController);
+      }
+
       private FollowPoint() {}
     }
 
@@ -171,17 +183,19 @@ public final class Constants {
       public static final double FF_KV = 0.1;
       public static final double FF_KA = 0.2;
 
-      public static ProfiledPIDController createAngleController() {
-        ProfiledPIDController controller =
-            new ProfiledPIDController(
-                KP, KI, KD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
-        controller.enableContinuousInput(-Math.PI, Math.PI);
-        controller.setTolerance(TOLERANCE_RAD);
-        return controller;
+      public static final ProfiledPIDController angleController =
+          new ProfiledPIDController(
+              KP, KI, KD, new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+      public static final SimpleMotorFeedforward angleFeedforward =
+          new SimpleMotorFeedforward(FF_KS, FF_KV, FF_KA);
+
+      static {
+        angleController.enableContinuousInput(-Math.PI, Math.PI);
+        angleController.setTolerance(TOLERANCE_RAD);
       }
 
-      public static SimpleMotorFeedforward createAngleFeedforward() {
-        return new SimpleMotorFeedforward(FF_KS, FF_KV, FF_KA);
+      public static void publishToSmartDashboard() {
+        SmartDashboard.putData("JoystickAngleHold/Angle", angleController);
       }
 
       private JoystickAngleHold() {}
