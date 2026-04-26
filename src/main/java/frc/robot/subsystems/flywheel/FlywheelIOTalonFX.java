@@ -71,7 +71,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     motor3.setControl(new Follower(motor0.getDeviceID(), MotorAlignmentValue.Opposed));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50,
+        60,
         velocitySignal0,
         voltsSignal0,
         currentTorqueSignal0,

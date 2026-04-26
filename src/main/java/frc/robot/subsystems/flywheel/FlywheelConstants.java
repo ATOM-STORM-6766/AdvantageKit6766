@@ -30,8 +30,8 @@ public class FlywheelConstants {
     config.Slot0.kS = 2.5;
     config.Slot0.kV = 0.1;
 
-    config.MotionMagic.MotionMagicCruiseVelocity = 69.0;
-    config.MotionMagic.MotionMagicAcceleration = 200.0;
+    config.MotionMagic.MotionMagicCruiseVelocity = 100.0;
+    config.MotionMagic.MotionMagicAcceleration = 2000.0;
 
     if (RobotBase.isReal()) {
       config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
