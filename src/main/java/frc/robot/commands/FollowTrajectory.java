@@ -18,7 +18,7 @@ public class FollowTrajectory {
         .withName("Follow Trajectory: " + trj.name());
   }
 
-  public static Command createOptional(
+  public static Command create(
       AutoFactory autoFactory, Drive drive, ChoreoTraj trj, boolean shouldMirror) {
     return autoFactory
         .trajectoryCmd(trj.name(), shouldMirror ? AutoTrajectory::mirrorY : t -> t)
