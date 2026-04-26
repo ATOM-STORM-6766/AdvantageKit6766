@@ -24,6 +24,7 @@ public class AutoModeSelector {
       new LoggedTunableBoolean("shouldMirror", false);
 
   private AutoFactory autoFactory;
+  private boolean isMirror = false;
 
   public AutoModeSelector(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
@@ -65,14 +66,19 @@ public class AutoModeSelector {
             });
 
     CommandScheduler.getInstance().schedule(autoFactory.warmupCmd());
-
-    autoChooser.addCmd("H1", () -> H1Auto.create(autoFactory, robotContainer, shouldMirror.get()));
-    autoChooser.addCmd("P2", () -> P2Auto.create(autoFactory, robotContainer, shouldMirror.get()));
-    autoChooser.addCmd("P4", () -> P4Auto.create(autoFactory, robotContainer, shouldMirror.get()));
-    autoChooser.addCmd("P6", () -> P6Auto.create(autoFactory, robotContainer, shouldMirror.get()));
+    isMirror = shouldMirror.get();
 
     autoChooser.addCmd(
-        "test", () -> TestAuto.create(autoFactory, robotContainer, shouldMirror.get()));
+        mirrorName("H1"), () -> H1Auto.create(autoFactory, robotContainer, isMirror));
+    autoChooser.addCmd(
+        mirrorName("P2"), () -> P2Auto.create(autoFactory, robotContainer, isMirror));
+    autoChooser.addCmd(
+        mirrorName("P4"), () -> P4Auto.create(autoFactory, robotContainer, isMirror));
+    autoChooser.addCmd(
+        mirrorName("P6"), () -> P6Auto.create(autoFactory, robotContainer, isMirror));
+
+    autoChooser.addCmd(
+        mirrorName("test"), () -> TestAuto.create(autoFactory, robotContainer, isMirror));
 
     autoChooser.addCmd("sysidDf", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addCmd("sysidDb", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
@@ -85,5 +91,9 @@ public class AutoModeSelector {
 
   public Command selectedCommand() {
     return autoChooser.selectedCommand();
+  }
+
+  private String mirrorName(String name) {
+    return name + (isMirror ? " (mirrored)" : "");
   }
 }
