@@ -21,6 +21,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.light.Light;
 import frc.robot.util.AllianceFlipUtil;
 
 public class RobotControl {
@@ -30,6 +31,7 @@ public class RobotControl {
   private final Feeder feeder;
   private final Intake intake;
   private final Hood hood;
+  private final Light light;
   private final CommandXboxController controller;
   private final CommandPS5Controller operator;
 
@@ -40,6 +42,7 @@ public class RobotControl {
     this.feeder = robotContainer.getFeeder();
     this.intake = robotContainer.getIntake();
     this.hood = robotContainer.getHood();
+    this.light = robotContainer.getLight();
     this.controller = robotContainer.getController();
     this.operator = robotContainer.getOperator();
   }
@@ -95,12 +98,19 @@ public class RobotControl {
     controller
         .a()
         .whileTrue(
-            AimCommand.autoAimAtTarget(
-                robotContainer,
-                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX()))
-        .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+            light
+                .setStateCommand(Light.LightState.AIM)
+                .andThen(
+                    AimCommand.autoAimAtTarget(
+                        robotContainer,
+                        () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                        () -> -controller.getLeftY(),
+                        () -> -controller.getLeftX())))
+        .onFalse(
+            Commands.parallel(
+                flywheel.stopCommand(),
+                feeder.stopCommand(),
+                light.setStateCommand(Light.LightState.ALLIANCE)));
 
     controller
         .x()

@@ -22,6 +22,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.light.Light;
 import frc.robot.subsystems.vision.Vision;
 
 /**
@@ -38,6 +39,7 @@ public class RobotContainer {
   private final Intake intake;
   private final AimSubsystem aimSubsystem;
   private final PassSubsystem passSubsystem;
+  private final Light light;
 
   // 控制器
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -51,6 +53,7 @@ public class RobotContainer {
   public RobotContainer() {
     aimSubsystem = new AimSubsystem();
     passSubsystem = new PassSubsystem();
+    light = new Light();
     drive = new Drive();
     vision = new Vision(drive::addVisionMeasurement, drive::getPose);
     flywheel = new Flywheel();
@@ -98,6 +101,10 @@ public class RobotContainer {
 
   public Vision getVision() {
     return vision;
+  }
+
+  public Light getLight() {
+    return light;
   }
 
   public AutoModeSelector getAutoModeSelector() {
