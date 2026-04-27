@@ -53,7 +53,7 @@ public final class Constants {
   private static ShooterConfig createShooterConfig() {
     ShooterConfig config = new ShooterConfig();
 
-    config.robotCenterToTurret = new Translation3d(-0.235, 0.0, 0.63);
+    config.robotCenterToTurret = new Translation3d(-0.178, 0.0, 0.50);
 
     config.minHoodPitchDegrees = HoodConstants.kHoodMinPosition.in(Degree);
     config.maxHoodPitchDegrees = HoodConstants.kHoodMaxPosition.in(Degree);
