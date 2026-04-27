@@ -18,6 +18,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import java.util.function.DoubleFunction;
 
+import org.littletonrobotics.junction.Logger;
+
 public class GenericShooterResolver {
 
   public static record ShooterInput(
@@ -105,6 +107,7 @@ public class GenericShooterResolver {
     double distanceMeters = targetXY.getDistance(turretFieldPosXY);
     if (config.restrictToAllianceForward
         && (distanceMeters < config.minRange || distanceMeters > config.maxRange)) {
+      Logger.recordOutput("Aiming/InvalidDistance", distanceMeters);
       return ShooterSetpoint.invalid();
     }
 
