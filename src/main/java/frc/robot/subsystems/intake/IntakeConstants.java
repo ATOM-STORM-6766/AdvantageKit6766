@@ -74,7 +74,7 @@ public class IntakeConstants {
 
     config.Slot0.kP = 35.0;
     config.Slot0.kI = 0.0;
-    config.Slot0.kD = 10.0;
+    config.Slot0.kD = 20.0;
     config.Slot0.kS = 2.0;
     config.Slot0.kV = 4.0;
     config.Slot0.kA = 0.0;
@@ -86,7 +86,7 @@ public class IntakeConstants {
     config.Slot1.kV = 1.5;
     config.Slot1.kA = 0.0;
 
-    config.MotionMagic.MotionMagicAcceleration = 28;
+    config.MotionMagic.MotionMagicAcceleration = 18;
     config.MotionMagic.MotionMagicCruiseVelocity = 18;
 
     if (RobotBase.isReal()) {
