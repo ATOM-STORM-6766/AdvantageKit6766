@@ -15,6 +15,8 @@ public class FlywheelConstants {
   // Gear ratio: motor rotations per output rotation
   public static final double kFlywheelGearRatio = 32.0 / 24.0;
 
+  public static final double kVelocityToleranceRps = 1.0;
+
   public static TalonFXConfiguration getTalonFXConfig() {
     var config = new TalonFXConfiguration();
 

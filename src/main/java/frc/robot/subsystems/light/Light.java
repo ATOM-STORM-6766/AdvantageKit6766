@@ -80,8 +80,8 @@ public class Light extends SubsystemBase {
           setRightBarColor(allianceColor);
         }
         case AIM -> {
-          setLeftBarColor(LightConstants.kYellow);
-          setRightBarColor(LightConstants.kYellow);
+          setLeftBarColor(LightConstants.kMagenta);
+          setRightBarColor(LightConstants.kMagenta);
         }
         case READY -> {
           setLeftBarColor(LightConstants.kGreen);

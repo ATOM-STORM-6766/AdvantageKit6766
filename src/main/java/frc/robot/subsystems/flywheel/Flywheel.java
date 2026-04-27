@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelInputsAutoLogged inputs = new FlywheelInputsAutoLogged();
   private final FlywheelIO io;
+  private AngularVelocity targetVelocity = RotationsPerSecond.of(0);
 
   public Flywheel() {
     this.io = FlywheelIO.getIO();
@@ -55,7 +56,18 @@ public class Flywheel extends SubsystemBase {
         .withName("Flywheel Wait For Velocity");
   }
 
+  public boolean isAtTargetVelocity() {
+    double targetRps = targetVelocity.in(RotationsPerSecond);
+    if (targetRps == 0) return false;
+    double tol = FlywheelConstants.kVelocityToleranceRps;
+    return Math.abs(inputs.velocity0.in(RotationsPerSecond) - targetRps) < tol
+        && Math.abs(inputs.velocity1.in(RotationsPerSecond) - targetRps) < tol
+        && Math.abs(inputs.velocity2.in(RotationsPerSecond) - targetRps) < tol
+        && Math.abs(inputs.velocity3.in(RotationsPerSecond) - targetRps) < tol;
+  }
+
   private void setVelocityImpl(AngularVelocity velocity) {
+    targetVelocity = velocity;
     Logger.recordOutput("Flywheel/API/setVelocity", velocity);
     io.setFlywheelVelocity(velocity);
   }

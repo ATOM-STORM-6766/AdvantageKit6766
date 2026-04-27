@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoDriveCommands;
 import frc.robot.commands.DriveCommands;
@@ -53,6 +54,15 @@ public class RobotControl {
 
     // 配置操作手柄相关绑定。
     configureOperatorBindings();
+
+    // 瞄准中飞轮就绪时自动切换灯光为 READY 状态。
+    new Trigger(() -> controller.a().getAsBoolean() && flywheel.isAtTargetVelocity())
+        .onTrue(light.setStateCommand(Light.LightState.READY))
+        .onFalse(
+            Commands.either(
+                light.setStateCommand(Light.LightState.AIM),
+                light.setStateCommand(Light.LightState.ALLIANCE),
+                controller.a()));
   }
 
   private void configureControllerBindings() {
