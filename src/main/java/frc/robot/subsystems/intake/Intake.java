@@ -98,6 +98,7 @@ public class Intake extends SubsystemBase {
                 () -> {
                   setIntakePositionWithVelocityImpl(target, 0.0);
                   io.setIntakeSensorPosition(IntakeConstants.kIntakeMinPosition);
+                  setIntakePositionImpl(target);
                 }))
         .withName("Intake Slow Stow");
   }

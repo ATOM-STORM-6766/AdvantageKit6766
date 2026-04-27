@@ -34,7 +34,6 @@ public final class H1Auto {
         FollowTrajectory.create(autoFactory, drive, trj, 0, shouldMirror),
         AutoDriveCommands.zeroChassisSpeeds(drive),
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 2),
             ShootingCommands.autoAimShot(
                 container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6)),
         ShootingCommands.stopShooting(flywheel, feeder, intake));

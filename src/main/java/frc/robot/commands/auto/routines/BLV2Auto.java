@@ -38,7 +38,6 @@ public final class BLV2Auto {
 
         // First shot
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 2),
             ShootingCommands.autoAimShot(
                 container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),
@@ -56,7 +55,6 @@ public final class BLV2Auto {
 
         // Second shot
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 2),
             ShootingCommands.autoAimShot(
                 container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),

@@ -36,8 +36,7 @@ public final class ShootingCommands {
   public static Command stopShooting(Flywheel flywheel, Feeder feeder, Intake intake) {
     return Commands.parallel(
             flywheel.stopCommand(),
-            feeder.stopCommand(),
-            intake.setSlowStowCommand().andThen(intake.stopCommand()))
+            feeder.stopCommand())
         .withName("Stop Shooting");
   }
 }

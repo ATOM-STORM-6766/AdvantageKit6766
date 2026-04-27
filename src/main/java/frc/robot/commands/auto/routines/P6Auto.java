@@ -47,8 +47,7 @@ public final class P6Auto {
         // 自动瞄准并射击
         Commands.parallel(
                 ShootingCommands.autoAimShot(
-                    container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6),
-                GamePieceCommands.feedAndStow(intake, feeder, 1))
+                    container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 6))
             .withTimeout(6),
 
         // 停止射击并前往第一个点位
