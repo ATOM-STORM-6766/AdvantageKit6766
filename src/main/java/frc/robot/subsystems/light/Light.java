@@ -55,8 +55,7 @@ public class Light extends SubsystemBase {
           RGBWColor c = LightConstants.getRGBWColor(color);
           setLeftBarColor(c);
           setRightBarColor(c);
-        },
-        this);
+        });
   }
 
   public void setState(LightState state) {
@@ -64,7 +63,7 @@ public class Light extends SubsystemBase {
   }
 
   public Command setStateCommand(LightState state) {
-    return Commands.runOnce(() -> setState(state), this);
+    return Commands.runOnce(() -> setState(state));
   }
 
   @Override

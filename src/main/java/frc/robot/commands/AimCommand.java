@@ -30,7 +30,13 @@ public class AimCommand {
             // 启动 Hood 旋转
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
             // 启动飞轮
-            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity))
+            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity),
+            // 等待到速后传球
+            container
+                .getFlywheel()
+                .waitForVelocity(container.getAimSubsystem()::getFlywheelVelocity, 5)
+                .andThen(
+                    GamePieceCommands.feedAndStow(container.getIntake(), container.getFeeder(), 0)))
         .withName("Prepare Aim");
   }
 
