@@ -66,13 +66,6 @@ public record ChoreoTraj(
         new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.29389)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
-    public static final ChoreoTraj h1 = new ChoreoTraj(
-        "h1",
-        OptionalInt.empty(),
-        5.28814,
-        new Pose2d(4.6708, 7.40456, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.84174, 5.64195, Rotation2d.fromRadians(-2.25752))
-    );
     public static final ChoreoTraj hblueqin_left = new ChoreoTraj(
         "hblueqin_left",
         OptionalInt.empty(),
@@ -101,152 +94,12 @@ public record ChoreoTraj(
         new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
     );
-    public static final ChoreoTraj p2 = new ChoreoTraj(
-        "p2",
+    public static final ChoreoTraj hblue_nobump = new ChoreoTraj(
+        "hblue_nobump",
         OptionalInt.empty(),
-        5.00763,
-        new Pose2d(3.53283, 6.34, Rotation2d.fromRadians(-3.13107)),
-        new Pose2d(6.19827, 5.65149, Rotation2d.fromRadians(-0.03024))
-    );
-    public static final ChoreoTraj p2$0 = new ChoreoTraj(
-        "p2",
-        OptionalInt.of(0),
-        1.02555,
-        new Pose2d(3.53283, 6.34, Rotation2d.fromRadians(-3.13107)),
-        new Pose2d(1.46849, 6, Rotation2d.fromRadians(3.14159))
-    );
-    public static final ChoreoTraj p2$1 = new ChoreoTraj(
-        "p2",
-        OptionalInt.of(1),
-        0.7345200000000001,
-        new Pose2d(1.46849, 6, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.07268, 5.12604, Rotation2d.fromRadians(2.74391))
-    );
-    public static final ChoreoTraj p2$2 = new ChoreoTraj(
-        "p2",
-        OptionalInt.of(2),
-        0.8513200000000001,
-        new Pose2d(2.07268, 5.12604, Rotation2d.fromRadians(2.74391)),
-        new Pose2d(0.67048, 4.76481, Rotation2d.fromRadians(3.14159))
-    );
-    public static final ChoreoTraj p2$3 = new ChoreoTraj(
-        "p2",
-        OptionalInt.of(3),
-        2.3962399999999997,
-        new Pose2d(0.67048, 4.76481, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(6.19827, 5.65149, Rotation2d.fromRadians(-0.03024))
-    );
-    public static final ChoreoTraj p4 = new ChoreoTraj(
-        "p4",
-        OptionalInt.empty(),
-        6.91466,
-        new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
-        new Pose2d(2.69548, 2.67116, Rotation2d.fromRadians(-2.35617))
-    );
-    public static final ChoreoTraj p4$0 = new ChoreoTraj(
-        "p4",
-        OptionalInt.of(0),
-        1.86049,
-        new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
-        new Pose2d(7.66489, 5.92237, Rotation2d.fromRadians(-1.5708))
-    );
-    public static final ChoreoTraj p4$1 = new ChoreoTraj(
-        "p4",
-        OptionalInt.of(1),
-        3.15213,
-        new Pose2d(7.66489, 5.92237, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(7.53114, 2.89751, Rotation2d.fromRadians(-1.5708))
-    );
-    public static final ChoreoTraj p4$2 = new ChoreoTraj(
-        "p4",
-        OptionalInt.of(2),
-        1.9020399999999995,
-        new Pose2d(7.53114, 2.89751, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.69548, 2.67116, Rotation2d.fromRadians(-2.35617))
-    );
-    public static final ChoreoTraj p6 = new ChoreoTraj(
-        "p6",
-        OptionalInt.empty(),
-        6.44941,
-        new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
-        new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487))
-    );
-    public static final ChoreoTraj p6$0 = new ChoreoTraj(
-        "p6",
-        OptionalInt.of(0),
-        2.04485,
-        new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487)),
-        new Pose2d(7.85894, 7.02906, Rotation2d.fromRadians(-1.5708))
-    );
-    public static final ChoreoTraj p6$1 = new ChoreoTraj(
-        "p6",
-        OptionalInt.of(1),
-        2.55927,
-        new Pose2d(7.85894, 7.02906, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(7.53253, 5.93629, Rotation2d.fromRadians(-1.5708))
-    );
-    public static final ChoreoTraj p6$2 = new ChoreoTraj(
-        "p6",
-        OptionalInt.of(2),
-        1.8452900000000003,
-        new Pose2d(7.53253, 5.93629, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(3.51402, 5.62074, Rotation2d.fromRadians(2.17487))
-    );
-    public static final ChoreoTraj test = new ChoreoTraj(
-        "test",
-        OptionalInt.empty(),
-        2.68448,
-        new Pose2d(3, 5, Rotation2d.fromRadians(0)),
-        new Pose2d(3, 5, Rotation2d.fromRadians(1.5708))
-    );
-    public static final ChoreoTraj BL_V2_copy1 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.empty(),
-        15.04372,
-        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
-    );
-    public static final ChoreoTraj BL_V2_copy1$0 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.of(0),
-        3.44169,
-        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(6.79825, 4.8878, Rotation2d.fromRadians(-2.54372))
-    );
-    public static final ChoreoTraj BL_V2_copy1$1 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.of(1),
-        1.6011700000000002,
-        new Pose2d(6.79825, 4.8878, Rotation2d.fromRadians(-2.54372)),
-        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.26893))
-    );
-    public static final ChoreoTraj BL_V2_copy1$2 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.of(2),
-        1.1144600000000002,
-        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.26893)),
-        new Pose2d(3.43705, 7.49117, Rotation2d.fromRadians(0))
-    );
-    public static final ChoreoTraj BL_V2_copy1$3 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.of(3),
-        4.487549999999999,
-        new Pose2d(3.43705, 7.49117, Rotation2d.fromRadians(0)),
-        new Pose2d(7.48475, 5.65455, Rotation2d.fromRadians(2.07427))
-    );
-    public static final ChoreoTraj BL_V2_copy1$4 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.of(4),
-        1.6156100000000002,
-        new Pose2d(7.48475, 5.65455, Rotation2d.fromRadians(2.07427)),
-        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.26893))
-    );
-    public static final ChoreoTraj BL_V2_copy1$5 = new ChoreoTraj(
-        "BL_V2_copy1",
-        OptionalInt.of(5),
-        2.783240000000001,
-        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.26893)),
-        new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
+        4.75088,
+        new Pose2d(4.48289, 7.6243, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.11686, 7.28279, Rotation2d.fromRadians(2.0944))
     );
 
     /**
@@ -260,32 +113,11 @@ public record ChoreoTraj(
         Map.entry("BL_V2$2", BL_V2$2),
         Map.entry("BL_V2$3", BL_V2$3),
         Map.entry("BL_V2$4", BL_V2$4),
-        Map.entry("h1", h1),
         Map.entry("hblueqin_left", hblueqin_left),
         Map.entry("hblueqin_left$0", hblueqin_left$0),
         Map.entry("hblueqin_left$1", hblueqin_left$1),
         Map.entry("hbluesteal_left", hbluesteal_left),
-        Map.entry("p2", p2),
-        Map.entry("p2$0", p2$0),
-        Map.entry("p2$1", p2$1),
-        Map.entry("p2$2", p2$2),
-        Map.entry("p2$3", p2$3),
-        Map.entry("p4", p4),
-        Map.entry("p4$0", p4$0),
-        Map.entry("p4$1", p4$1),
-        Map.entry("p4$2", p4$2),
-        Map.entry("p6", p6),
-        Map.entry("p6$0", p6$0),
-        Map.entry("p6$1", p6$1),
-        Map.entry("p6$2", p6$2),
-        Map.entry("test", test),
-        Map.entry("BL_V2_copy1", BL_V2_copy1),
-        Map.entry("BL_V2_copy1$0", BL_V2_copy1$0),
-        Map.entry("BL_V2_copy1$1", BL_V2_copy1$1),
-        Map.entry("BL_V2_copy1$2", BL_V2_copy1$2),
-        Map.entry("BL_V2_copy1$3", BL_V2_copy1$3),
-        Map.entry("BL_V2_copy1$4", BL_V2_copy1$4),
-        Map.entry("BL_V2_copy1$5", BL_V2_copy1$5)
+        Map.entry("hblue_nobump", hblue_nobump)
     );
 
     /**
