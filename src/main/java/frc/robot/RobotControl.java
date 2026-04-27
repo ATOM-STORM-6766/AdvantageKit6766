@@ -120,6 +120,7 @@ public class RobotControl {
             Commands.parallel(
                 flywheel.stopCommand(),
                 feeder.stopCommand(),
+                intake.stopCommand(),
                 light.setStateCommand(Light.LightState.ALLIANCE)));
 
     controller
