@@ -55,6 +55,8 @@ public final class Constants {
 
     config.robotCenterToTurret = new Translation3d(-0.178, 0.0, 0.50);
 
+    config.shootingDirection = Rotation2d.kPi;
+
     config.minHoodPitchDegrees = HoodConstants.kHoodMinPosition.in(Degree);
     config.maxHoodPitchDegrees = HoodConstants.kHoodMaxPosition.in(Degree);
 

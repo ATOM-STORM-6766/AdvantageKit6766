@@ -17,7 +17,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import java.util.function.DoubleFunction;
-
 import org.littletonrobotics.junction.Logger;
 
 public class GenericShooterResolver {
@@ -35,6 +34,8 @@ public class GenericShooterResolver {
     public InterpolatingDoubleTreeMap timeOfFlightSecondsMap = new InterpolatingDoubleTreeMap();
 
     public Translation3d robotCenterToTurret = new Translation3d();
+
+    public Rotation2d shootingDirection = Rotation2d.kPi;
 
     public double minRange = 0.0;
     public double maxRange = 999.0;
@@ -107,7 +108,8 @@ public class GenericShooterResolver {
     double distanceMeters = targetXY.getDistance(turretFieldPosXY);
     if (config.restrictToAllianceForward
         && (distanceMeters < config.minRange || distanceMeters > config.maxRange)) {
-      Logger.recordOutput("Aiming/InvalidDistance", distanceMeters);
+      Logger.recordOutput("Aiming/InvalidReason/InvalidDistance", distanceMeters);
+
       return ShooterSetpoint.invalid();
     }
 
@@ -139,16 +141,25 @@ public class GenericShooterResolver {
     result.virtualTarget =
         new Translation3d(virtualTargetXY.getX(), virtualTargetXY.getY(), targetPosition.getZ());
 
-    Translation2d yawTargetVector = targetXY.minus(lookaheadRobotCenter);
+    Rotation2d shootingDirectionInverse = config.shootingDirection.unaryMinus();
 
-    Rotation2d driveAngle = yawTargetVector.getAngle();
-    if (config.lastDriveAngle == null) config.lastDriveAngle = driveAngle;
+    Rotation2d desiredHeading =
+        targetXY.minus(lookaheadRobotCenter).getAngle().rotateBy(shootingDirectionInverse);
+
+    for (int i = 0; i < 3; i++) {
+      Translation2d turretAtHeading =
+          lookaheadRobotCenter.plus(turretOffsetXY.rotateBy(desiredHeading));
+      desiredHeading =
+          targetXY.minus(turretAtHeading).getAngle().rotateBy(shootingDirectionInverse);
+    }
+
+    if (config.lastDriveAngle == null) config.lastDriveAngle = desiredHeading;
     double filteredDriveAngleRate =
         config.driveAngleFilter.calculate(
-            driveAngle.minus(config.lastDriveAngle).getRadians() / config.loopPeriodSecs);
-    config.lastDriveAngle = driveAngle;
+            desiredHeading.minus(config.lastDriveAngle).getRadians() / config.loopPeriodSecs);
+    config.lastDriveAngle = desiredHeading;
 
-    var robotYaw = Radians.of(driveAngle.rotateBy(Rotation2d.kPi).getRadians());
+    var robotYaw = Radians.of(desiredHeading.getRadians());
     var robotYawRate = RadiansPerSecond.of(filteredDriveAngleRate);
     var hoodPitch = config.hoodPitchRadiansMap.get(distanceMeters).getMeasure();
     var flywheelRps = RotationsPerSecond.of(config.flywheelRpsMap.get(distanceMeters));
