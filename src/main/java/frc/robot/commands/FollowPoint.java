@@ -24,7 +24,7 @@ public class FollowPoint extends Command {
     Pose2d currentPose = m_drive.getPose();
     var targetChassisSpeeds =
         Constants.DriveControlConstants.FollowPoint.holonomicController.calculate(
-            currentPose, targetPose, 0, targetPose.getRotation());
+            currentPose, targetPose, 0.1, targetPose.getRotation());
     m_drive.runVelocity(targetChassisSpeeds);
   }
 

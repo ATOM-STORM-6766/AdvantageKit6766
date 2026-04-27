@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.auto.routines.BLV2Auto;
 import frc.robot.commands.auto.routines.H1Auto;
 import frc.robot.commands.auto.routines.P2Auto;
 import frc.robot.commands.auto.routines.P4Auto;
@@ -68,6 +69,8 @@ public class AutoModeSelector {
     CommandScheduler.getInstance().schedule(autoFactory.warmupCmd());
     isMirror = shouldMirror.get();
 
+    autoChooser.addCmd(
+        mirrorName("BL_V2"), () -> BLV2Auto.create(autoFactory, robotContainer, isMirror));
     autoChooser.addCmd(
         mirrorName("H1"), () -> H1Auto.create(autoFactory, robotContainer, isMirror));
     autoChooser.addCmd(
