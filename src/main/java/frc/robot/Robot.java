@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -177,6 +179,11 @@ public class Robot extends LoggedRobot {
     // this line or comment it out.
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
+      CommandScheduler.getInstance().schedule(robotContainer.getFlywheel().stopCommand());
+      CommandScheduler.getInstance().schedule(robotContainer.getFeeder().stopCommand());
+      CommandScheduler.getInstance().schedule(robotContainer.getIntake().stopCommand());
+      CommandScheduler.getInstance()
+          .schedule(robotContainer.getHood().positionSetpointCommand(() -> Degrees.of(0)));
     }
 
     Command resetCommand =

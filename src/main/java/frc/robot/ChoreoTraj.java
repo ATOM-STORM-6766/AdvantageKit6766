@@ -27,43 +27,43 @@ public record ChoreoTraj(
     public static final ChoreoTraj BL_V2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.empty(),
-        15.08672,
+        14.3701,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj BL_V2$0 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(0),
-        3.44835,
+        3.33756,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(6.79825, 4.8878, Rotation2d.fromRadians(-2.51631))
+        new Pose2d(6.79825, 4.8878, Rotation2d.fromRadians(-2.63416))
     );
     public static final ChoreoTraj BL_V2$1 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(1),
-        1.61082,
-        new Pose2d(6.79825, 4.8878, Rotation2d.fromRadians(-2.51631)),
-        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.26893))
+        1.4520400000000002,
+        new Pose2d(6.79825, 4.8878, Rotation2d.fromRadians(-2.63416)),
+        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.29389))
     );
     public static final ChoreoTraj BL_V2$2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(2),
-        5.613300000000001,
-        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.26893)),
-        new Pose2d(7.48475, 5.65455, Rotation2d.fromRadians(1.9805))
+        5.567740000000001,
+        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.29389)),
+        new Pose2d(7.48475, 5.65455, Rotation2d.fromRadians(1.80932))
     );
     public static final ChoreoTraj BL_V2$3 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(3),
-        1.6224699999999999,
-        new Pose2d(7.48475, 5.65455, Rotation2d.fromRadians(1.9805)),
-        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.26893))
+        1.4472699999999996,
+        new Pose2d(7.48475, 5.65455, Rotation2d.fromRadians(1.80932)),
+        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.29389))
     );
     public static final ChoreoTraj BL_V2$4 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(4),
-        2.7917799999999993,
-        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.26893)),
+        2.5654900000000005,
+        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.29389)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj h1 = new ChoreoTraj(

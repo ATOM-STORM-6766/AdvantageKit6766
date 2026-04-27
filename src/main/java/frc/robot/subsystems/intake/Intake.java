@@ -96,7 +96,6 @@ public class Intake extends SubsystemBase {
         .andThen(
             Commands.runOnce(
                 () -> {
-                  setIntakePositionWithVelocityImpl(target, 0.0);
                   io.setIntakeSensorPosition(IntakeConstants.kIntakeMinPosition);
                   setIntakePositionImpl(target);
                 }))
