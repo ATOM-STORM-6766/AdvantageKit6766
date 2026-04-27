@@ -39,7 +39,6 @@ public interface IntakeIO {
 
   public default void stop() {
     setIntakeVelocity(Volts.of(0));
-    setPositionVoltage(Volts.of(0));
   }
 
   static IntakeIO getIO() {

@@ -90,8 +90,8 @@ public class IntakeConstants {
     config.MotionMagic.MotionMagicCruiseVelocity = 18;
 
     if (RobotBase.isReal()) {
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 25.0;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -25.0;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 15.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -15.0;
 
       config.CurrentLimits.SupplyCurrentLimit = 40.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
