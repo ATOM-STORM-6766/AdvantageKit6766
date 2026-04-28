@@ -24,41 +24,6 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj hblueqin_left = new ChoreoTraj(
-        "hblueqin_left",
-        OptionalInt.empty(),
-        11.92549,
-        new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.8064, 5.45107, Rotation2d.fromRadians(2.58309))
-    );
-    public static final ChoreoTraj hblueqin_left$0 = new ChoreoTraj(
-        "hblueqin_left",
-        OptionalInt.of(0),
-        4.85774,
-        new Pose2d(4.42124, 7.62197, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.79088, 5.45884, Rotation2d.fromRadians(2.58309))
-    );
-    public static final ChoreoTraj hblueqin_left$1 = new ChoreoTraj(
-        "hblueqin_left",
-        OptionalInt.of(1),
-        7.06775,
-        new Pose2d(2.79088, 5.45884, Rotation2d.fromRadians(2.58309)),
-        new Pose2d(2.8064, 5.45107, Rotation2d.fromRadians(2.58309))
-    );
-    public static final ChoreoTraj hblue_nobump = new ChoreoTraj(
-        "hblue_nobump",
-        OptionalInt.empty(),
-        4.75088,
-        new Pose2d(4.48289, 7.6243, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(3.11686, 7.28279, Rotation2d.fromRadians(2.0944))
-    );
-    public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
-        "hbluesteal_left",
-        OptionalInt.empty(),
-        11.81782,
-        new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
-    );
     public static final ChoreoTraj BL_V2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.empty(),
@@ -101,23 +66,74 @@ public record ChoreoTraj(
         new Pose2d(2.86849, 5.8, Rotation2d.fromRadians(2.29389)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
+    public static final ChoreoTraj BL_V3 = new ChoreoTraj(
+        "BL_V3",
+        OptionalInt.empty(),
+        14.0908,
+        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.44, 7.35, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj BL_V3$0 = new ChoreoTraj(
+        "BL_V3",
+        OptionalInt.of(0),
+        3.8381,
+        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(6.4, 5.7, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj BL_V3$1 = new ChoreoTraj(
+        "BL_V3",
+        OptionalInt.of(1),
+        1.7566500000000005,
+        new Pose2d(6.4, 5.7, Rotation2d.fromRadians(0)),
+        new Pose2d(2.8, 5.8, Rotation2d.fromRadians(2.2))
+    );
+    public static final ChoreoTraj BL_V3$2 = new ChoreoTraj(
+        "BL_V3",
+        OptionalInt.of(2),
+        5.485539999999999,
+        new Pose2d(2.8, 5.8, Rotation2d.fromRadians(2.2)),
+        new Pose2d(6.4, 5.7, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj BL_V3$3 = new ChoreoTraj(
+        "BL_V3",
+        OptionalInt.of(3),
+        3.01051,
+        new Pose2d(6.4, 5.7, Rotation2d.fromRadians(0)),
+        new Pose2d(3.44, 7.35, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
+        "hbluesteal_left",
+        OptionalInt.empty(),
+        11.81782,
+        new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
+    );
+    public static final ChoreoTraj hblue_nobump = new ChoreoTraj(
+        "hblue_nobump",
+        OptionalInt.empty(),
+        4.75088,
+        new Pose2d(4.48289, 7.6243, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.11686, 7.28279, Rotation2d.fromRadians(2.0944))
+    );
 
     /**
      * A map between trajectory names and their corresponding data.
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-        Map.entry("hblueqin_left", hblueqin_left),
-        Map.entry("hblueqin_left$0", hblueqin_left$0),
-        Map.entry("hblueqin_left$1", hblueqin_left$1),
-        Map.entry("hblue_nobump", hblue_nobump),
-        Map.entry("hbluesteal_left", hbluesteal_left),
         Map.entry("BL_V2", BL_V2),
         Map.entry("BL_V2$0", BL_V2$0),
         Map.entry("BL_V2$1", BL_V2$1),
         Map.entry("BL_V2$2", BL_V2$2),
         Map.entry("BL_V2$3", BL_V2$3),
-        Map.entry("BL_V2$4", BL_V2$4)
+        Map.entry("BL_V2$4", BL_V2$4),
+        Map.entry("BL_V3", BL_V3),
+        Map.entry("BL_V3$0", BL_V3$0),
+        Map.entry("BL_V3$1", BL_V3$1),
+        Map.entry("BL_V3$2", BL_V3$2),
+        Map.entry("BL_V3$3", BL_V3$3),
+        Map.entry("hbluesteal_left", hbluesteal_left),
+        Map.entry("hblue_nobump", hblue_nobump)
     );
 
     /**
