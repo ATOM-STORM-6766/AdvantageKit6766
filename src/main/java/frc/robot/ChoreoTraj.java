@@ -62,43 +62,43 @@ public record ChoreoTraj(
     public static final ChoreoTraj BL_V2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.empty(),
-        14.70222,
+        16.1053,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj BL_V2$0 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(0),
-        3.89686,
+        3.89065,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(6.4, 5.8, Rotation2d.fromRadians(2.26893))
+        new Pose2d(6.4, 5.8, Rotation2d.fromRadians(2.29))
     );
     public static final ChoreoTraj BL_V2$1 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(1),
-        1.2431599999999996,
-        new Pose2d(6.4, 5.8, Rotation2d.fromRadians(2.26893)),
-        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.29389))
+        1.23151,
+        new Pose2d(6.4, 5.8, Rotation2d.fromRadians(2.29)),
+        new Pose2d(2.85297, 5.8, Rotation2d.fromRadians(2.29))
     );
     public static final ChoreoTraj BL_V2$2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(2),
-        5.91391,
-        new Pose2d(2.85297, 5.55197, Rotation2d.fromRadians(2.29389)),
+        6.711429999999999,
+        new Pose2d(2.85297, 5.8, Rotation2d.fromRadians(2.29)),
         new Pose2d(6.4, 5.8, Rotation2d.fromRadians(2.26893))
     );
     public static final ChoreoTraj BL_V2$3 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(3),
-        1.0828000000000007,
+        1.0812600000000003,
         new Pose2d(6.4, 5.8, Rotation2d.fromRadians(2.26893)),
-        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.29389))
+        new Pose2d(2.86849, 5.8, Rotation2d.fromRadians(2.29389))
     );
     public static final ChoreoTraj BL_V2$4 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.of(4),
-        2.5654900000000005,
-        new Pose2d(2.86849, 5.55974, Rotation2d.fromRadians(2.29389)),
+        3.1904500000000002,
+        new Pose2d(2.86849, 5.8, Rotation2d.fromRadians(2.29389)),
         new Pose2d(7.63406, 7.44578, Rotation2d.fromRadians(0))
     );
 
