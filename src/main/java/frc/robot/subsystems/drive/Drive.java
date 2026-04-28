@@ -169,7 +169,7 @@ public class Drive extends SubsystemBase {
       }
 
       // 更新陀螺仪角度
-      if (false) { // gyroInputs.connected) {
+      if (gyroInputs.connected) { // gyroInputs.connected) {
         // 使用真实陀螺仪角度
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
