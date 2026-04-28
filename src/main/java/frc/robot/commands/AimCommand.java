@@ -39,16 +39,18 @@ public class AimCommand {
                 () -> ySupplier.getAsDouble() * 0.6,
                 robotYaw),
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
-            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity),
-            Commands.waitUntil(() -> isRobotAtTargetAngle(container))
-                .andThen(
-                    container
-                        .getFlywheel()
-                        .waitForVelocity(
-                            container.getAimSubsystem()::getFlywheelVelocity,
-                            FlywheelConstants.kVelocityToleranceRps))
-                .andThen(
-                    GamePieceCommands.feedAndStow(container.getIntake(), container.getFeeder(), 0)))
+            container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity)
+            // Commands.waitUntil(() -> isRobotAtTargetAngle(container))
+            //     .andThen(
+            //         container
+            //             .getFlywheel()
+            //             .waitForVelocity(
+            //                 container.getAimSubsystem()::getFlywheelVelocity,
+            //                 FlywheelConstants.kVelocityToleranceRps))
+            //     .andThen(
+            //         GamePieceCommands.feedAndStow(container.getIntake(), container.getFeeder(),
+            // 0))
+            )
         .withName("Prepare Aim");
   }
 
