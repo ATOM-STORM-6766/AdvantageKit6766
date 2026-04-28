@@ -7,7 +7,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.auto.routines.BLV2Auto;
+import frc.robot.commands.auto.routines.BLV3Auto;
 import frc.robot.commands.auto.routines.H1Auto;
+import frc.robot.commands.auto.routines.L123Auto;
 import frc.robot.commands.auto.routines.P2Auto;
 import frc.robot.commands.auto.routines.P4Auto;
 import frc.robot.commands.auto.routines.P6Auto;
@@ -71,6 +73,10 @@ public class AutoModeSelector {
 
     autoChooser.addCmd(
         mirrorName("BL_V2"), () -> BLV2Auto.create(autoFactory, robotContainer, isMirror));
+    autoChooser.addCmd(
+        mirrorName("BL_V3"), () -> BLV3Auto.create(autoFactory, robotContainer, isMirror));
+    autoChooser.addCmd(
+        mirrorName("L123"), () -> L123Auto.create(autoFactory, robotContainer, isMirror));
     autoChooser.addCmd(
         mirrorName("H1"), () -> H1Auto.create(autoFactory, robotContainer, isMirror));
     autoChooser.addCmd(
