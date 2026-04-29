@@ -34,30 +34,30 @@ public record ChoreoTraj(
     public static final ChoreoTraj L2 = new ChoreoTraj(
         "L2",
         OptionalInt.empty(),
-        6.853,
+        6.85904,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
     );
     public static final ChoreoTraj L2$0 = new ChoreoTraj(
         "L2",
         OptionalInt.of(0),
-        1.10034,
+        1.10036,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
         new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj L2$1 = new ChoreoTraj(
         "L2",
         OptionalInt.of(1),
-        4.63831,
+        4.64432,
         new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0)),
-        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(1.5708))
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365))
     );
     public static final ChoreoTraj L2$2 = new ChoreoTraj(
         "L2",
         OptionalInt.of(2),
-        1.11435,
-        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(1.5708)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
+        1.1143600000000005,
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
     );
     public static final ChoreoTraj hblue_nobump = new ChoreoTraj(
         "hblue_nobump",
