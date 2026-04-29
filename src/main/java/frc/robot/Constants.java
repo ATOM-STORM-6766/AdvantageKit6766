@@ -203,6 +203,25 @@ public final class Constants {
       private JoystickAngleHold() {}
     }
 
+    public static class FollowPointConstants {
+      public static final double DRIVE_KP = 1.5;
+      public static final double DRIVE_KD = 0.0;
+      public static final double THETA_KP = 3.0;
+      public static final double THETA_KD = 0.1;
+
+      public static final double DRIVE_MAX_VELOCITY = 5.0;
+      public static final double DRIVE_MAX_ACCELERATION = 8.0;
+      public static final double THETA_MAX_VELOCITY = 11.2;
+      public static final double THETA_MAX_ACCELERATION = 14.0;
+
+      public static final double DRIVE_TOLERANCE = 0.02;
+      public static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);
+      public static final double SETPOINT_MIN_VELOCITY = -0.5;
+      public static final double MIN_DISTANCE_VELOCITY_CORRECTION = 0.01;
+
+      private FollowPointConstants() {}
+    }
+
     public static class MoveToTrenchConstants {
       // 平移：参考 TrajectoryFollow(0.8) 与 FollowPoint(5.0) 之间，带前馈结构可适当偏高
       public static final double DRIVE_KP = 1.5;
@@ -215,11 +234,11 @@ public final class Constants {
 
       // 平移限速：最大速度保守，加速度降低以改善启动平滑性
       public static final double DRIVE_MAX_VELOCITY = 5.0;
-      public static final double DRIVE_MAX_ACCELERATION = 3.0;
+      public static final double DRIVE_MAX_ACCELERATION = 8.0;
 
       // 旋转限速：对齐 JoystickAngleHold 已验证的实测值
-      public static final double THETA_MAX_VELOCITY = 13.2; // rad/s，原 8.73
-      public static final double THETA_MAX_ACCELERATION = 18.0; // rad/s²，原 8.0
+      public static final double THETA_MAX_VELOCITY = 11.2; // rad/s，原 8.73
+      public static final double THETA_MAX_ACCELERATION = 14.0; // rad/s²，原 8.0
 
       public static final double DRIVE_TOLERANCE = 0.01;
       public static final double THETA_TOLERANCE = Units.degreesToRadians(1.0);

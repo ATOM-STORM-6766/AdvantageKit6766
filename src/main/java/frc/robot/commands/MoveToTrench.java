@@ -89,14 +89,18 @@ public class MoveToTrench extends Command {
   @Override
   public void initialize() {
     Pose2d currentPose = drive.getPose();
-    ChassisSpeeds fieldVelocity = RobotState.getInstance().getFieldRelativeSpeeds();
+    ChassisSpeeds fieldVelocity = drive.getFieldRelativeChassisSpeeds();
 
     driveController.reset();
     thetaController.reset(
         currentPose.getRotation().getRadians(), fieldVelocity.omegaRadiansPerSecond);
     lastSetpointTranslation = currentPose.getTranslation();
-    lastSetpointVelocity =
+
+    Translation2d rawVelocity =
         new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond);
+    double speed = rawVelocity.getNorm();
+    lastSetpointVelocity =
+        speed > DRIVE_MAX_VELOCITY ? rawVelocity.times(DRIVE_MAX_VELOCITY / speed) : rawVelocity;
   }
 
   @Override
