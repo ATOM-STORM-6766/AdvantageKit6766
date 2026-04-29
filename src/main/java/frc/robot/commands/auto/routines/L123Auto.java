@@ -51,6 +51,7 @@ public final class L123Auto {
         GamePieceCommands.runIntake(intake, true),
         FollowTrajectory.create(autoFactory, drive, l2, 0, shouldMirror),
         FollowTrajectory.create(autoFactory, drive, l2, 1, shouldMirror),
+        FollowTrajectory.create(autoFactory, drive, l2, 2, shouldMirror),
 
         // Shot 2
         AutoDriveCommands.zeroChassisSpeeds(drive),

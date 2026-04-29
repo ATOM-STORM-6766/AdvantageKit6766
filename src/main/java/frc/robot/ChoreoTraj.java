@@ -24,6 +24,76 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
+    public static final ChoreoTraj L3 = new ChoreoTraj(
+        "L3",
+        OptionalInt.empty(),
+        1.06801,
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
+        new Pose2d(2.83279, 7.21147, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj L2 = new ChoreoTraj(
+        "L2",
+        OptionalInt.empty(),
+        6.853,
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
+    );
+    public static final ChoreoTraj L2$0 = new ChoreoTraj(
+        "L2",
+        OptionalInt.of(0),
+        1.10034,
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
+        new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj L2$1 = new ChoreoTraj(
+        "L2",
+        OptionalInt.of(1),
+        4.63831,
+        new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0)),
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(1.5708))
+    );
+    public static final ChoreoTraj L2$2 = new ChoreoTraj(
+        "L2",
+        OptionalInt.of(2),
+        1.11435,
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
+    );
+    public static final ChoreoTraj hblue_nobump = new ChoreoTraj(
+        "hblue_nobump",
+        OptionalInt.empty(),
+        4.75088,
+        new Pose2d(4.48289, 7.6243, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3.11686, 7.28279, Rotation2d.fromRadians(2.0944))
+    );
+    public static final ChoreoTraj L1 = new ChoreoTraj(
+        "L1",
+        OptionalInt.empty(),
+        4.0438,
+        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj L1$0 = new ChoreoTraj(
+        "L1",
+        OptionalInt.of(0),
+        2.92647,
+        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj L1$1 = new ChoreoTraj(
+        "L1",
+        OptionalInt.of(1),
+        1.11733,
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(0)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
+        "hbluesteal_left",
+        OptionalInt.empty(),
+        11.81782,
+        new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
+        new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
+    );
     public static final ChoreoTraj BL_V2 = new ChoreoTraj(
         "BL_V2",
         OptionalInt.empty(),
@@ -108,75 +178,22 @@ public record ChoreoTraj(
         new Pose2d(2.8, 5.8, Rotation2d.fromRadians(2.2)),
         new Pose2d(3.44, 7.35, Rotation2d.fromRadians(0))
     );
-    public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
-        "hbluesteal_left",
-        OptionalInt.empty(),
-        11.81782,
-        new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
-    );
-    public static final ChoreoTraj hblue_nobump = new ChoreoTraj(
-        "hblue_nobump",
-        OptionalInt.empty(),
-        4.75088,
-        new Pose2d(4.48289, 7.6243, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(3.11686, 7.28279, Rotation2d.fromRadians(2.0944))
-    );
-    public static final ChoreoTraj L1 = new ChoreoTraj(
-        "L1",
-        OptionalInt.empty(),
-        4.83249,
-        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(0))
-    );
-    public static final ChoreoTraj L1$0 = new ChoreoTraj(
-        "L1",
-        OptionalInt.of(0),
-        3.6588,
-        new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(5.8, 5.6, Rotation2d.fromRadians(0))
-    );
-    public static final ChoreoTraj L1$1 = new ChoreoTraj(
-        "L1",
-        OptionalInt.of(1),
-        1.1736900000000001,
-        new Pose2d(5.8, 5.6, Rotation2d.fromRadians(0)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(0))
-    );
-    public static final ChoreoTraj L2 = new ChoreoTraj(
-        "L2",
-        OptionalInt.empty(),
-        7.68722,
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
-    );
-    public static final ChoreoTraj L2$0 = new ChoreoTraj(
-        "L2",
-        OptionalInt.of(0),
-        6.51353,
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
-        new Pose2d(5.8, 5.6, Rotation2d.fromRadians(1.5708))
-    );
-    public static final ChoreoTraj L2$1 = new ChoreoTraj(
-        "L2",
-        OptionalInt.of(1),
-        1.1736899999999997,
-        new Pose2d(5.8, 5.6, Rotation2d.fromRadians(1.5708)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
-    );
-    public static final ChoreoTraj L3 = new ChoreoTraj(
-        "L3",
-        OptionalInt.empty(),
-        1.19629,
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
-        new Pose2d(3.5, 7.38, Rotation2d.fromRadians(0))
-    );
 
     /**
      * A map between trajectory names and their corresponding data.
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
+        Map.entry("L3", L3),
+        Map.entry("L2", L2),
+        Map.entry("L2$0", L2$0),
+        Map.entry("L2$1", L2$1),
+        Map.entry("L2$2", L2$2),
+        Map.entry("hblue_nobump", hblue_nobump),
+        Map.entry("L1", L1),
+        Map.entry("L1$0", L1$0),
+        Map.entry("L1$1", L1$1),
+        Map.entry("hbluesteal_left", hbluesteal_left),
         Map.entry("BL_V2", BL_V2),
         Map.entry("BL_V2$0", BL_V2$0),
         Map.entry("BL_V2$1", BL_V2$1),
@@ -188,16 +205,7 @@ public record ChoreoTraj(
         Map.entry("BL_V3$1", BL_V3$1),
         Map.entry("BL_V3$2", BL_V3$2),
         Map.entry("BL_V3$3", BL_V3$3),
-        Map.entry("BL_V3$4", BL_V3$4),
-        Map.entry("hbluesteal_left", hbluesteal_left),
-        Map.entry("hblue_nobump", hblue_nobump),
-        Map.entry("L1", L1),
-        Map.entry("L1$0", L1$0),
-        Map.entry("L1$1", L1$1),
-        Map.entry("L2", L2),
-        Map.entry("L2$0", L2$0),
-        Map.entry("L2$1", L2$1),
-        Map.entry("L3", L3)
+        Map.entry("BL_V3$4", BL_V3$4)
     );
 
     /**
