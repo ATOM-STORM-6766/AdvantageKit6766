@@ -1,6 +1,5 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -172,21 +171,21 @@ public class RobotControl {
   }
 
   private void configureOperatorBindings() {
-    operator
-        .triangle()
-        .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
-        .onFalse(
-            Commands.parallel(
-                intake.stopCommand(),
-                flywheel.stopCommand(),
-                feeder.stopCommand(),
-                hood.positionSetpointCommand(() -> Degrees.of(15))));
+    // operator
+    //     .triangle()
+    //     .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
+    //     .onFalse(
+    //         Commands.parallel(
+    //             intake.stopCommand(),
+    //             flywheel.stopCommand(),
+    //             feeder.stopCommand(),
+    //             hood.positionSetpointCommand(() -> Degrees.of(15))));
 
     operator.circle().onTrue(TuningCommand.tuningIntakeSlowStow(intake));
 
-    operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake, Intake.Position.DEPLOYED));
+    // operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake, Intake.Position.DEPLOYED));
 
-    operator.R1().whileTrue(TuningCommand.tuningIntakeRoll(intake)).onFalse(intake.stopCommand());
+    // operator.R1().whileTrue(TuningCommand.tuningIntakeRoll(intake)).onFalse(intake.stopCommand());
 
     operator.L2().whileTrue(intake.unProtectedExtend()).onFalse(intake.stopPosition());
 
