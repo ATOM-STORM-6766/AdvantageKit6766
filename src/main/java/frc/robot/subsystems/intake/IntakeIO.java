@@ -21,6 +21,7 @@ public interface IntakeIO {
     public AngularVelocity positionVelocity = RotationsPerSecond.of(0.0);
     public Current positionStatorAmps = Amp.of(0.0);
     public Current positionSupplyAmps = Amp.of(0.0);
+    public Current positionTorqueAmps = Amp.of(0.0);
     public AngularVelocity intakeVelocity0 = RotationsPerSecond.of(0.0);
     public AngularVelocity intakeVelocity1 = RotationsPerSecond.of(0.0);
   }
@@ -28,6 +29,8 @@ public interface IntakeIO {
   public void readInputs(IntakeIOInputs inputs);
 
   public void setIntakePosition(Angle position);
+
+  public void setIntakeCollisionPosition(Angle position);
 
   public void setIntakeVelocity(Voltage voltage);
 

@@ -188,6 +188,8 @@ public class RobotControl {
 
     operator.R1().whileTrue(TuningCommand.tuningIntakeRoll(intake)).onFalse(intake.stopCommand());
 
+    operator.L2().whileTrue(intake.unProtectedExtend()).onFalse(intake.stopPosition());
+
     // 配置传球相关操作手绑定。
     operator
         .cross()

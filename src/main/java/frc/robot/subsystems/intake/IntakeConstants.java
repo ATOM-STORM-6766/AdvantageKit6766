@@ -35,6 +35,12 @@ public class IntakeConstants {
   public static final double kCalibrationVelocityThresholdRadPerSec = 0.5;
   public static final double kCalibrationDebounceTimeSec = 0.1;
 
+  public static final double kCollisionCurrentThreshold = 7.0; // 正值阈值 (A)
+  public static final double kCollisionVelocityThreshold = -4.0; // 负速度阈值 (rad/s), 检测时取负
+  public static final double kCollisionDebounceTimeSec = 0.04;
+  public static final double kCollisionCooldownSec = 0.5;
+  public static final double kSlipCalibrationSec = 0.15;
+
   public static Distance rotationToDistance(Angle position) {
     return Meters.of(position.in(Rotations) * kPositionMetersPerMechanismRotation);
   }
@@ -86,17 +92,24 @@ public class IntakeConstants {
     config.Slot1.kV = 1.5;
     config.Slot1.kA = 0.0;
 
+    config.Slot2.kP = 35.0;
+    config.Slot2.kI = 0.0;
+    config.Slot2.kD = 4.0;
+    config.Slot2.kS = 4.0;
+    config.Slot2.kV = 10.0;
+    config.Slot2.kA = 0.0;
+
     config.MotionMagic.MotionMagicAcceleration = 18;
     config.MotionMagic.MotionMagicCruiseVelocity = 18;
 
     if (RobotBase.isReal()) {
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 15.0;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -15.0;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 8.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -40.0;
 
       config.CurrentLimits.SupplyCurrentLimit = 40.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-      config.CurrentLimits.StatorCurrentLimit = 60.0;
+      config.CurrentLimits.StatorCurrentLimit = 120.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
     }
 

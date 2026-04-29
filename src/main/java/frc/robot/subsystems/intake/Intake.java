@@ -22,7 +22,8 @@ public class Intake extends SubsystemBase {
 
   public enum Position {
     DEPLOYED(IntakeConstants.kIntakeMaxPosition),
-    STOWED(IntakeConstants.kIntakeMinPosition);
+    STOWED(IntakeConstants.kIntakeMinPosition),
+    COLLISION(Rotations.of(2.1));
 
     private final Angle setpoint;
 
@@ -40,15 +41,55 @@ public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final Debouncer calibrationCurrentDebouncer =
       new Debouncer(IntakeConstants.kCalibrationDebounceTimeSec, Debouncer.DebounceType.kBoth);
+  private final Debouncer slipCurrentDebouncer =
+      new Debouncer(IntakeConstants.kSlipCalibrationSec, Debouncer.DebounceType.kBoth);
+
+  private final Debouncer collisionDebouncer =
+      new Debouncer(IntakeConstants.kCollisionDebounceTimeSec, Debouncer.DebounceType.kBoth);
+  private final Debouncer collisionCooldownDebouncer =
+      new Debouncer(IntakeConstants.kCollisionCooldownSec, Debouncer.DebounceType.kFalling);
+  private boolean collisionDetected = false;
+  private Position lastTargetPosition = Position.STOWED;
 
   public Intake() {
     this.io = IntakeIO.getIO();
+    setDefaultCommand(defaultPositionCommand());
   }
 
   @Override
   public void periodic() {
     io.readInputs(inputs);
     Logger.processInputs("Intake", inputs);
+
+    boolean rawCollision = checkCollisionProtection();
+    Logger.recordOutput("Intake/RawCollision", rawCollision);
+
+    collisionDetected = collisionCooldownDebouncer.calculate(rawCollision);
+    Logger.recordOutput("Intake/CollisionCooldown", collisionDetected);
+  }
+
+  /** 检测碰撞，返回是否触发了碰撞保护 */
+  private boolean checkCollisionProtection() {
+    // 仅在初始化完成后启用
+    if (state != State.INITIALIZED) return false;
+
+    if (inputs.intakePositionRotation.lte(Position.COLLISION.getSetpoint())) {
+      return false;
+    }
+
+    boolean velocityNegative =
+        inputs.positionVelocity.in(RadiansPerSecond) <= IntakeConstants.kCollisionVelocityThreshold;
+
+    boolean torquePositiveHigh =
+        inputs.positionTorqueAmps.in(Amps) >= IntakeConstants.kCollisionCurrentThreshold;
+
+    boolean isCollision = collisionDebouncer.calculate(velocityNegative && torquePositiveHigh);
+
+    if (isCollision) {
+      return true;
+    }
+
+    return false;
   }
 
   public boolean isInitialized() {
@@ -71,14 +112,47 @@ public class Intake extends SubsystemBase {
         .withName("Intake Reset to Limit");
   }
 
+  public Command unProtectedExtend() {
+    return run(() -> io.setPositionVoltage(Volts.of(3.0)))
+        .until(this::isSlipStalled)
+        .andThen(
+            () -> {
+              io.setPositionVoltage(Volts.of(0));
+              io.setIntakeSensorPosition(IntakeConstants.kIntakeMaxPosition);
+            });
+  }
+
+  public Command stopPosition() {
+    return runOnce(() -> io.setPositionVoltage(Volts.of(0.0)));
+  }
+
   public Command setIntakeVelocityCommand(Supplier<Voltage> voltageSupplier) {
     return runOnce(() -> io.setIntakeVelocity(voltageSupplier.get()))
         .withName("Intake Set Intake Velocity");
   }
 
   public Command setPosCommand(Position targetPosition) {
-    return Commands.runOnce(() -> setIntakePositionImpl(targetPosition.getSetpoint()))
+    return Commands.run(
+            () -> {
+              lastTargetPosition = targetPosition;
+              if (collisionDetected) {
+                setIntakePositionCollisionImpl(Position.COLLISION.getSetpoint());
+              } else {
+                setIntakePositionImpl(targetPosition.getSetpoint());
+              }
+            })
         .withName("Intake Set Position");
+  }
+
+  private Command defaultPositionCommand() {
+    return run(() -> {
+          if (collisionDetected) {
+            setIntakePositionCollisionImpl(Position.COLLISION.getSetpoint());
+          } else {
+            setIntakePositionImpl(lastTargetPosition.getSetpoint());
+          }
+        })
+        .withName("Intake Default Position");
   }
 
   public Command stopCommand() {
@@ -89,9 +163,9 @@ public class Intake extends SubsystemBase {
     Angle target = Position.STOWED.getSetpoint();
     return Commands.run(
             () -> {
+              lastTargetPosition = Position.STOWED;
               setIntakePositionWithVelocityImpl(target, IntakeConstants.kSlowStowVelocityRPS);
             })
-        .handleInterrupt(() -> {})
         .until(() -> isAtPosition(target))
         .andThen(
             Commands.runOnce(
@@ -105,6 +179,11 @@ public class Intake extends SubsystemBase {
   private void setIntakePositionImpl(Angle targetPositionRotation) {
     Logger.recordOutput("Intake/API/rotationSetpoint", targetPositionRotation);
     io.setIntakePosition(targetPositionRotation);
+  }
+
+  private void setIntakePositionCollisionImpl(Angle targetPositionRotation) {
+    Logger.recordOutput("Intake/API/rotationSetpoint", targetPositionRotation);
+    io.setIntakeCollisionPosition(targetPositionRotation);
   }
 
   private void setIntakePositionWithVelocityImpl(Angle targetPosition, double velocityRPS) {
@@ -126,5 +205,12 @@ public class Intake extends SubsystemBase {
     return inputs.positionVelocity.abs(RadiansPerSecond)
             <= IntakeConstants.kCalibrationVelocityThresholdRadPerSec
         && currentOverThreshold;
+  }
+
+  private boolean isSlipStalled() {
+    boolean currentOverThreshold =
+        slipCurrentDebouncer.calculate(
+            inputs.positionStatorAmps.abs(Amps) >= IntakeConstants.kCalibrationCurrentThreshold);
+    return currentOverThreshold;
   }
 }
