@@ -47,7 +47,7 @@ public final class TuningCommand {
   }
 
   public static Command tuningIntakeSetPos(Intake intake, Position position) {
-    return intake.setPosCommand(position).withName("Tuning Intake Set Position");
+    return intake.setPosCommand(position, false).withName("Tuning Intake Set Position");
   }
 
   public static Command tuningIntakeRoll(Intake intake) {

@@ -27,7 +27,7 @@ public final class BLV3Auto {
 
     return Commands.sequence(
         GamePieceCommands.resetMechanisms(intake, hood),
-        GamePieceCommands.runIntake(intake),
+        GamePieceCommands.runIntake(intake, true),
         AutoDriveCommands.resetOdometry(drive, trj.initialPoseBlue(), shouldMirror),
 
         // Seg 0 (~3.4s): sweep right side to collect notes
@@ -46,7 +46,7 @@ public final class BLV3Auto {
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // Seg 2 (~1.1s): short transit to upper-left; redeploy intake on the way
-        GamePieceCommands.runIntake(intake),
+        GamePieceCommands.runIntake(intake, true),
         FollowTrajectory.create(autoFactory, drive, trj, 2, shouldMirror),
 
         // // Seg 3 (~4.5s): long sweep to collect notes from lower-right area

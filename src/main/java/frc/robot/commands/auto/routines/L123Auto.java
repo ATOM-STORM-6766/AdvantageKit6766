@@ -30,7 +30,7 @@ public final class L123Auto {
 
     return Commands.sequence(
         GamePieceCommands.resetMechanisms(intake, hood),
-        GamePieceCommands.runIntake(intake),
+        GamePieceCommands.runIntake(intake, true),
         AutoDriveCommands.resetOdometry(drive, l1.initialPoseBlue(), shouldMirror),
 
         // L1
@@ -48,7 +48,7 @@ public final class L123Auto {
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // L2
-        GamePieceCommands.runIntake(intake),
+        GamePieceCommands.runIntake(intake, true),
         FollowTrajectory.create(autoFactory, drive, l2, 0, shouldMirror),
         FollowTrajectory.create(autoFactory, drive, l2, 1, shouldMirror),
 
@@ -63,7 +63,7 @@ public final class L123Auto {
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // L3
-        GamePieceCommands.runIntake(intake),
+        GamePieceCommands.runIntake(intake, true),
         FollowTrajectory.create(autoFactory, drive, l3, shouldMirror));
   }
 }

@@ -131,17 +131,19 @@ public class Intake extends SubsystemBase {
         .withName("Intake Set Intake Velocity");
   }
 
-  public Command setPosCommand(Position targetPosition) {
-    return Commands.run(
-            () -> {
-              lastTargetPosition = targetPosition;
-              if (collisionDetected) {
-                setIntakePositionCollisionImpl(Position.COLLISION.getSetpoint());
-              } else {
-                setIntakePositionImpl(targetPosition.getSetpoint());
-              }
-            })
-        .withName("Intake Set Position");
+  public Command setPosCommand(Position targetPosition, boolean once) {
+    Runnable action =
+        () -> {
+          lastTargetPosition = targetPosition;
+          if (collisionDetected) {
+            setIntakePositionCollisionImpl(Position.COLLISION.getSetpoint());
+          } else {
+            setIntakePositionImpl(targetPosition.getSetpoint());
+          }
+        };
+    return once
+        ? Commands.runOnce(action).withName("Intake Set Position Once")
+        : Commands.run(action).withName("Intake Set Position Repeat");
   }
 
   private Command defaultPositionCommand() {

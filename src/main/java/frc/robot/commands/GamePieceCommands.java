@@ -17,10 +17,10 @@ public final class GamePieceCommands {
         .withName("Reset Mechanisms");
   }
 
-  public static Command runIntake(Intake intake) {
+  public static Command runIntake(Intake intake, boolean once) {
     return Commands.parallel(
             intake.setIntakeVelocityCommand(() -> Volts.of(8)),
-            intake.setPosCommand(Intake.Position.DEPLOYED))
+            intake.setPosCommand(Intake.Position.DEPLOYED, once))
         .withName("Run Intake");
   }
 

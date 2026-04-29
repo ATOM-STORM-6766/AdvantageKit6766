@@ -88,7 +88,7 @@ public class RobotControl {
     // 配置 intake、喂料与射球相关驾驶绑定。
     controller
         .rightBumper()
-        .whileTrue(GamePieceCommands.runIntake(intake))
+        .whileTrue(GamePieceCommands.runIntake(intake, false))
         .onFalse(GamePieceCommands.stopIntakeAndFeeder(intake, feeder));
 
     controller
