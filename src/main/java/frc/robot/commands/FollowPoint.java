@@ -142,7 +142,12 @@ public class FollowPoint extends Command {
 
   @Override
   public boolean isFinished() {
-    return withinTolerance(DRIVE_TOLERANCE, Rotation2d.fromRadians(THETA_TOLERANCE));
+    ChassisSpeeds fieldVelocity = drive.getFieldRelativeChassisSpeeds();
+    double speed =
+        new Translation2d(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond)
+            .getNorm();
+    double dynamicDriveTol = Math.max(DRIVE_TOLERANCE, LOOKAHEAD_SECS * speed);
+    return withinTolerance(dynamicDriveTol, Rotation2d.fromRadians(THETA_TOLERANCE));
   }
 
   @Override

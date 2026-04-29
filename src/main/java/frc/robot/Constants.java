@@ -218,6 +218,7 @@ public final class Constants {
       public static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);
       public static final double SETPOINT_MIN_VELOCITY = -0.5;
       public static final double MIN_DISTANCE_VELOCITY_CORRECTION = 0.01;
+      public static final double LOOKAHEAD_SECS = 0.1;
 
       private FollowPointConstants() {}
     }
