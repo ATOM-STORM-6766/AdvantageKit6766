@@ -204,9 +204,9 @@ public final class Constants {
     }
 
     public static class FollowPointConstants {
-      public static final double DRIVE_KP = 1.5;
+      public static final double DRIVE_KP = 3.5;
       public static final double DRIVE_KD = 0.0;
-      public static final double THETA_KP = 3.0;
+      public static final double THETA_KP = 3.5;
       public static final double THETA_KD = 0.1;
 
       public static final double DRIVE_MAX_VELOCITY = 5.0;
@@ -214,11 +214,11 @@ public final class Constants {
       public static final double THETA_MAX_VELOCITY = 11.2;
       public static final double THETA_MAX_ACCELERATION = 14.0;
 
-      public static final double DRIVE_TOLERANCE = 0.02;
-      public static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);
+      public static final double DRIVE_TOLERANCE = 0.10;
+      public static final double THETA_TOLERANCE = Units.degreesToRadians(5.0);
       public static final double SETPOINT_MIN_VELOCITY = -0.5;
       public static final double MIN_DISTANCE_VELOCITY_CORRECTION = 0.01;
-      public static final double LOOKAHEAD_SECS = 0.1;
+      public static final double LOOKAHEAD_SECS = 0.30;
 
       private FollowPointConstants() {}
     }

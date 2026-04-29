@@ -14,7 +14,7 @@ public final class ChoreoVars {
 
 
     public static final class Poses {
-        public static final Pose2d beforBamp = new Pose2d(3, 5.6, Rotation2d.fromRadians(0));
+        public static final Pose2d beforBamp = new Pose2d(3, 5.6, Rotation2d.fromRadians(2.3736478));
     }
 }
 // spotless:on

@@ -42,8 +42,8 @@ public class VisionConstants {
 
   // 标准差基线，基于 1 米距离且只有 1 个标签
   // （会根据距离与标签数量自动调整）
-  public static double linearStdDevBaseline = 0.02 * 8.0; // 单位：米
-  public static double angularStdDevBaseline = 0.06 * 6.0; // 单位：弧度
+  public static double linearStdDevBaseline = 0.02 * 5.0; // 单位：米
+  public static double angularStdDevBaseline = 0.06 * 5.0; // 单位：弧度
 
   // 每个摄像头的标准差乘数
   // （可根据需求调整以提高某些摄像头的权重）
