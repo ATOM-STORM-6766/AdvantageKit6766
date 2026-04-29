@@ -124,7 +124,7 @@ public class RobotControl {
         .pov(90)
         .whileTrue(
             AutoDriveCommands.followPoint(drive, FieldConstants.Position.blink)
-                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(20)))
+                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
@@ -138,7 +138,7 @@ public class RobotControl {
         .whileTrue(
             AutoDriveCommands.followPoint(
                     drive, AllianceFlipUtil.mirror(FieldConstants.Position.blink))
-                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(20)))
+                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
