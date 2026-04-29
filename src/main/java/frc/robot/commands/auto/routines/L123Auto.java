@@ -42,7 +42,9 @@ public final class L123Auto {
         Commands.race(
             GamePieceCommands.feedAndStow(intake, feeder, 0.5),
             ShootingCommands.autoAimShot(
-                container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 3)),
+                container,
+                () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
+                3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // L2
@@ -55,7 +57,9 @@ public final class L123Auto {
         Commands.race(
             GamePieceCommands.feedAndStow(intake, feeder, 0.5),
             ShootingCommands.autoAimShot(
-                container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 3)),
+                container,
+                () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
+                3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // L3

@@ -14,7 +14,7 @@ public class FieldConstants {
   public static final double fieldWidth = aprilTagLayout.getFieldWidth();
   public static final double fieldLength = aprilTagLayout.getFieldLength();
 
-  public static class Hub {
+  public static class Position {
 
     // Dimensions
     public static final double width = Units.inchesToMeters(47.0);
@@ -24,7 +24,7 @@ public class FieldConstants {
     public static final double innerHeight = Units.inchesToMeters(56.5);
 
     // Relevant reference points on alliance blue side
-    public static final Translation3d topCenterPoint =
+    public static final Translation3d hubCenterPoint =
         new Translation3d(
             aprilTagLayout.getTagPose(26).get().getX() + width / 2.0, fieldWidth / 2.0, height);
 
@@ -38,6 +38,8 @@ public class FieldConstants {
             2.792485475540161,
             1.834878921508789,
             Rotation2d.fromRadians(0.8832554013068488).rotateBy(Rotation2d.kPi));
+
+    public static final Pose2d trench = aprilTagLayout.getTagPose(22).get().toPose2d();
   }
 
   public static AprilTagFieldLayout getAprilTagLayout() {

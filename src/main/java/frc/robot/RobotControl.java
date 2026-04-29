@@ -14,6 +14,7 @@ import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoDriveCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GamePieceCommands;
+import frc.robot.commands.MoveToTrench;
 import frc.robot.commands.PassCommand;
 import frc.robot.commands.TuningCommand;
 import frc.robot.subsystems.drive.Drive;
@@ -98,7 +99,7 @@ public class RobotControl {
                 .andThen(
                     AimCommand.autoAimAtTarget(
                         robotContainer,
-                        () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint),
+                        () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
                         () -> -controller.getLeftY(),
                         () -> -controller.getLeftX())))
         .onFalse(
@@ -123,28 +124,51 @@ public class RobotControl {
     controller
         .pov(90)
         .whileTrue(
-            AutoDriveCommands.followPoint(drive, FieldConstants.Hub.blink)
+            AutoDriveCommands.followPoint(drive, FieldConstants.Position.blink)
                 .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(20)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
                         AimCommand.noMoveShootAtTarget(
                             robotContainer,
-                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
+                            () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint)))))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     controller
         .pov(270)
         .whileTrue(
-            AutoDriveCommands.followPoint(drive, AllianceFlipUtil.mirror(FieldConstants.Hub.blink))
+            AutoDriveCommands.followPoint(
+                    drive, AllianceFlipUtil.mirror(FieldConstants.Position.blink))
                 .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(20)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
                         AimCommand.noMoveShootAtTarget(
                             robotContainer,
-                            () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
+                            () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint)))))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+
+    controller
+        .leftTrigger()
+        .whileTrue(
+            MoveToTrench.createLeft(drive)
+                .andThen(
+                    DriveCommands.joystickDrive(
+                        drive,
+                        () -> -controller.getLeftY(),
+                        () -> 0.0,
+                        () -> -controller.getRightX())));
+
+    controller
+        .rightTrigger()
+        .whileTrue(
+            MoveToTrench.createRight(drive)
+                .andThen(
+                    DriveCommands.joystickDrive(
+                        drive,
+                        () -> -controller.getLeftY(),
+                        () -> 0.0,
+                        () -> -controller.getRightX())));
   }
 
   private void configureOperatorBindings() {
@@ -171,7 +195,7 @@ public class RobotControl {
             PassCommand.passAtTarget(
                 robotContainer,
                 () -> {
-                  var target = new Translation3d(FieldConstants.Hub.passPoint);
+                  var target = new Translation3d(FieldConstants.Position.passPoint);
                   target = AllianceFlipUtil.apply(target);
 
                   target =

@@ -40,7 +40,9 @@ public final class BLV3Auto {
         Commands.race(
             GamePieceCommands.feedAndStow(intake, feeder, 0.5),
             ShootingCommands.autoAimShot(
-                container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 3)),
+                container,
+                () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
+                3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // Seg 2 (~1.1s): short transit to upper-left; redeploy intake on the way
@@ -58,7 +60,9 @@ public final class BLV3Auto {
         Commands.race(
             GamePieceCommands.feedAndStow(intake, feeder, 0.5),
             ShootingCommands.autoAimShot(
-                container, () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint), 3)),
+                container,
+                () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
+                3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),
 
         // Seg 5 (~2.8s): drive to final parking position
