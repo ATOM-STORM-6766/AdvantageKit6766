@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoDriveCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.FollowPoint;
 import frc.robot.commands.GamePieceCommands;
 import frc.robot.commands.PassCommand;
 import frc.robot.commands.TuningCommand;
@@ -72,20 +71,6 @@ public class RobotControl {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-    controller
-        .leftBumper()
-        .whileTrue(
-            DriveCommands.joystickRobotDrive(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> -controller.getRightX() * 0.9));
-
-    controller
-        .rightTrigger()
-        .whileTrue(
-            DriveCommands.snapToNearest30Degrees(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
     controller.back().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
@@ -136,20 +121,6 @@ public class RobotControl {
 
     // 配置需要自动对准或定点移动的驾驶绑定。
     controller
-        .b()
-        .whileTrue(
-            new FollowPoint(drive, () -> AllianceFlipUtil.apply(FieldConstants.Hub.tower))
-                .onlyIf(
-                    () ->
-                        drive
-                                .getPose()
-                                .getTranslation()
-                                .getDistance(
-                                    AllianceFlipUtil.apply(
-                                        FieldConstants.Hub.tower.getTranslation()))
-                            < 1.6));
-
-    controller
         .pov(90)
         .whileTrue(
             AutoDriveCommands.followPoint(drive, FieldConstants.Hub.blink)
@@ -161,6 +132,7 @@ public class RobotControl {
                             robotContainer,
                             () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint)))))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
+
     controller
         .pov(270)
         .whileTrue(
