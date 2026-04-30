@@ -34,28 +34,28 @@ public record ChoreoTraj(
     public static final ChoreoTraj L2 = new ChoreoTraj(
         "L2",
         OptionalInt.empty(),
-        6.71109,
+        6.7217,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
     );
     public static final ChoreoTraj L2$0 = new ChoreoTraj(
         "L2",
         OptionalInt.of(0),
-        1.10036,
+        1.09381,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
         new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj L2$1 = new ChoreoTraj(
         "L2",
         OptionalInt.of(1),
-        4.496379999999999,
+        4.513529999999999,
         new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0)),
         new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365))
     );
     public static final ChoreoTraj L2$2 = new ChoreoTraj(
         "L2",
         OptionalInt.of(2),
-        1.1143500000000008,
+        1.1143600000000005,
         new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365)),
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
     );
