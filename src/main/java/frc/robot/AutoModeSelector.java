@@ -18,7 +18,7 @@ public class AutoModeSelector {
   private final Drive drive;
   private AutoChooser autoChooser = new AutoChooser();
   private static final LoggedTunableBoolean shouldMirror =
-      new LoggedTunableBoolean("shouldMirror", false);
+      new LoggedTunableBoolean("shouldMirror", true);
 
   private AutoFactory autoFactory;
   private boolean isMirror = false;
