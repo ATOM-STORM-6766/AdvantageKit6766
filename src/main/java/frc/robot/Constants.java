@@ -225,7 +225,7 @@ public final class Constants {
 
     public static class MoveToTrenchConstants {
       // 平移：参考 TrajectoryFollow(0.8) 与 FollowPoint(5.0) 之间，带前馈结构可适当偏高
-      public static final double DRIVE_KP = 1.5;
+      public static final double DRIVE_KP = 3.5;
       public static final double DRIVE_KD = 0.0;
 
       // 旋转：KP 参考 JoystickAngleHold(2.0) 与 FollowPoint(5.0) 取中间值
@@ -241,8 +241,8 @@ public final class Constants {
       public static final double THETA_MAX_VELOCITY = 11.2; // rad/s，原 8.73
       public static final double THETA_MAX_ACCELERATION = 14.0; // rad/s²，原 8.0
 
-      public static final double DRIVE_TOLERANCE = 0.01;
-      public static final double THETA_TOLERANCE = Units.degreesToRadians(1.0);
+      public static final double DRIVE_TOLERANCE = 0.10;
+      public static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);
       public static final double SETPOINT_MIN_VELOCITY = -0.5;
       public static final double MIN_DISTANCE_VELOCITY_CORRECTION = 0.01;
 
