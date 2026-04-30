@@ -70,15 +70,17 @@ public final class Constants {
     config.hoodPitchRadiansMap.put(3.00, Rotation2d.fromDegrees(22.0));
     config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(25.0));
     config.hoodPitchRadiansMap.put(4.00, Rotation2d.fromDegrees(31.0));
+    config.hoodPitchRadiansMap.put(10.00, Rotation2d.fromDegrees(40.0));
 
-    config.flywheelRpsMap.put(1.50, 26.8 + 0.5);
-    config.flywheelRpsMap.put(1.80, 28.0 + 0.5);
-    config.flywheelRpsMap.put(2.10, 30.0 + 0.5);
-    config.flywheelRpsMap.put(2.40, 30.0 + 0.5);
-    config.flywheelRpsMap.put(2.70, 31.0 + 0.5);
-    config.flywheelRpsMap.put(3.00, 32.0 + 0.5);
-    config.flywheelRpsMap.put(3.50, 34.0 + 0.5);
-    config.flywheelRpsMap.put(4.00, 34.0 + 0.5);
+    config.flywheelRpsMap.put(1.50, 26.8);
+    config.flywheelRpsMap.put(1.80, 28.0);
+    config.flywheelRpsMap.put(2.10, 30.0);
+    config.flywheelRpsMap.put(2.40, 30.0);
+    config.flywheelRpsMap.put(2.70, 31.0);
+    config.flywheelRpsMap.put(3.00, 32.0);
+    config.flywheelRpsMap.put(3.50, 34.0);
+    config.flywheelRpsMap.put(4.00, 34.0);
+    config.flywheelRpsMap.put(10.00, 45.0);
 
     config.timeOfFlightSecondsMap.put(1.50, 0.95);
     config.timeOfFlightSecondsMap.put(1.90, 0.98);
@@ -90,10 +92,11 @@ public final class Constants {
     config.timeOfFlightSecondsMap.put(4.30, 1.35);
     config.timeOfFlightSecondsMap.put(4.70, 1.35);
     config.timeOfFlightSecondsMap.put(5.10, 1.36);
+    config.timeOfFlightSecondsMap.put(10.00, 1.50);
 
     // TODO 必须与实际的插值表范围相匹配
     config.minRange = 1.5;
-    config.maxRange = 5.1;
+    config.maxRange = 10.0;
 
     return config;
   }
