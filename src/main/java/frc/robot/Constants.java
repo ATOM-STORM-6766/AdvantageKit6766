@@ -80,7 +80,7 @@ public final class Constants {
     config.flywheelRpsMap.put(3.00, 32.0);
     config.flywheelRpsMap.put(3.50, 34.0);
     config.flywheelRpsMap.put(4.00, 34.0);
-    config.flywheelRpsMap.put(10.00, 50.0);
+    config.flywheelRpsMap.put(10.00, 55.0);
 
     config.timeOfFlightSecondsMap.put(1.50, 0.95);
     config.timeOfFlightSecondsMap.put(1.90, 0.98);
