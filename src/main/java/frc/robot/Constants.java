@@ -70,7 +70,7 @@ public final class Constants {
     config.hoodPitchRadiansMap.put(3.00, Rotation2d.fromDegrees(22.0));
     config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(25.0));
     config.hoodPitchRadiansMap.put(4.00, Rotation2d.fromDegrees(31.0));
-    config.hoodPitchRadiansMap.put(10.00, Rotation2d.fromDegrees(40.0));
+    config.hoodPitchRadiansMap.put(10.00, Rotation2d.fromDegrees(42.0));
 
     config.flywheelRpsMap.put(1.50, 26.8);
     config.flywheelRpsMap.put(1.80, 28.0);
@@ -80,7 +80,7 @@ public final class Constants {
     config.flywheelRpsMap.put(3.00, 32.0);
     config.flywheelRpsMap.put(3.50, 34.0);
     config.flywheelRpsMap.put(4.00, 34.0);
-    config.flywheelRpsMap.put(10.00, 45.0);
+    config.flywheelRpsMap.put(10.00, 50.0);
 
     config.timeOfFlightSecondsMap.put(1.50, 0.95);
     config.timeOfFlightSecondsMap.put(1.90, 0.98);

@@ -109,7 +109,11 @@ public class MoveToTrench extends Command {
 
     Pose2d currentPose = RobotState.getInstance().getRobotPose();
     Pose2d targetPose =
-        new Pose2d(drive.getPose().getX(), target.get().getY(), target.get().getRotation());
+        new Pose2d(
+            drive.getPose().getX(),
+            target.get().getY(),
+            Rotation2d.fromRotations(
+                Math.round(drive.getPose().getRotation().getRotations() * 2.0) / 2.0));
 
     Pose2d poseError = currentPose.relativeTo(targetPose);
     driveErrorAbs = poseError.getTranslation().getNorm();
