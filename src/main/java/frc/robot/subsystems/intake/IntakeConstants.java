@@ -27,7 +27,7 @@ public class IntakeConstants {
   public static final Angle kIntakeMinPosition = Rotations.of(kIntakeMinMechanismRotations);
   public static final Angle kIntakeMaxPosition = Rotations.of(kIntakeMaxMechanismRotations);
 
-  public static final double kSlowStowVelocityRPS = 5.5;
+  public static final double kSlowStowVelocityRPS = 4.5;
   public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.01));
 
   public static final double kCalibrationVoltage = -0.8;

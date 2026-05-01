@@ -36,7 +36,7 @@ public final class GamePieceCommands {
     return Commands.parallel(
             feeder.setFeederVelocityCommand(
                 () -> RotationsPerSecond.of(95), () -> RotationsPerSecond.of(68)),
-            Commands.waitSeconds(0.3).andThen(intake.setSlowStowCommand()),
+            Commands.waitSeconds(0.5).andThen(intake.setSlowStowCommand()),
             intake.setIntakeVelocityCommand(() -> Volts.of(5.0)))
         .beforeStarting(Commands.waitSeconds(delaySeconds))
         .withName("Feed And Stow");
