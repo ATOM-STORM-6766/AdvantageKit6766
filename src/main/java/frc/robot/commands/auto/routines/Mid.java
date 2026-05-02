@@ -33,6 +33,7 @@ public final class Mid {
 
         // L1
         FollowTrajectory.create(autoFactory, drive, l1, 0, shouldMirror),
+        FollowTrajectory.create(autoFactory, drive, l1, 1, shouldMirror),
         // Shot 1
         AutoDriveCommands.zeroChassisSpeeds(drive),
         Commands.race(
@@ -42,6 +43,6 @@ public final class Mid {
                 () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
                 3)),
         ShootingCommands.stopShooting(flywheel, feeder, intake),
-        FollowTrajectory.create(autoFactory, drive, l1, 1, shouldMirror));
+        FollowTrajectory.create(autoFactory, drive, l1, 2, shouldMirror));
   }
 }

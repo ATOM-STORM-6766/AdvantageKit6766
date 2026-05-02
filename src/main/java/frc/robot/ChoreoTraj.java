@@ -181,21 +181,28 @@ public record ChoreoTraj(
     public static final ChoreoTraj MID = new ChoreoTraj(
         "MID",
         OptionalInt.empty(),
-        4.30027,
-        new Pose2d(3.37299, 3.99191, Rotation2d.fromRadians(2.44346)),
+        4.31828,
+        new Pose2d(3.44318, 3.95677, Rotation2d.fromRadians(2.44346)),
         new Pose2d(0.99021, 7.38369, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj MID$0 = new ChoreoTraj(
         "MID",
         OptionalInt.of(0),
-        3.44343,
-        new Pose2d(3.37299, 3.99191, Rotation2d.fromRadians(2.44346)),
-        new Pose2d(0.92812, 6.95681, Rotation2d.fromRadians(2.47191))
+        0.93102,
+        new Pose2d(3.44318, 3.95677, Rotation2d.fromRadians(2.44346)),
+        new Pose2d(1.5, 5, Rotation2d.fromRadians(2.26893))
     );
     public static final ChoreoTraj MID$1 = new ChoreoTraj(
         "MID",
         OptionalInt.of(1),
-        0.85684,
+        2.53043,
+        new Pose2d(1.5, 5, Rotation2d.fromRadians(2.26893)),
+        new Pose2d(0.92812, 6.95681, Rotation2d.fromRadians(2.47191))
+    );
+    public static final ChoreoTraj MID$2 = new ChoreoTraj(
+        "MID",
+        OptionalInt.of(2),
+        0.8568299999999995,
         new Pose2d(0.92812, 6.95681, Rotation2d.fromRadians(2.47191)),
         new Pose2d(0.99021, 7.38369, Rotation2d.fromRadians(0))
     );
@@ -229,7 +236,8 @@ public record ChoreoTraj(
         Map.entry("L3", L3),
         Map.entry("MID", MID),
         Map.entry("MID$0", MID$0),
-        Map.entry("MID$1", MID$1)
+        Map.entry("MID$1", MID$1),
+        Map.entry("MID$2", MID$2)
     );
 
     /**
