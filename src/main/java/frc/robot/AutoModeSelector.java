@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.auto.routines.BLV2Auto;
 import frc.robot.commands.auto.routines.BLV3Auto;
-import frc.robot.commands.auto.routines.L123Auto;
+import frc.robot.commands.auto.routines.Mid;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.LoggedTunableBoolean;
@@ -18,7 +18,7 @@ public class AutoModeSelector {
   private final Drive drive;
   private AutoChooser autoChooser = new AutoChooser();
   private static final LoggedTunableBoolean shouldMirror =
-      new LoggedTunableBoolean("shouldMirror", true);
+      new LoggedTunableBoolean("shouldMirror", false);
 
   private AutoFactory autoFactory;
   private boolean isMirror = false;
@@ -71,13 +71,12 @@ public class AutoModeSelector {
         mirrorName("BL_V2"), () -> BLV2Auto.create(autoFactory, robotContainer, isMirror));
     autoChooser.addCmd(
         mirrorName("BL_V3"), () -> BLV3Auto.create(autoFactory, robotContainer, isMirror));
-    autoChooser.addCmd(
-        mirrorName("L123"), () -> L123Auto.create(autoFactory, robotContainer, isMirror));
+    autoChooser.addCmd(mirrorName("Mid"), () -> Mid.create(autoFactory, robotContainer, isMirror));
 
     SmartDashboard.putData("Auto Choices", autoChooser);
     Logger.recordOutput("Robot/Auto/ChooserReady", true);
 
-    autoChooser.select(isMirror ? "L123 (mirrored)" : "L123");
+    autoChooser.select(isMirror ? "Mid (mirrored)" : "Mid");
   }
 
   public Command selectedCommand() {
