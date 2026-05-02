@@ -125,51 +125,51 @@ public record ChoreoTraj(
     public static final ChoreoTraj L1 = new ChoreoTraj(
         "L1",
         OptionalInt.empty(),
-        4.22465,
+        4.0438,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj L1$0 = new ChoreoTraj(
         "L1",
         OptionalInt.of(0),
-        3.10749,
+        2.92647,
         new Pose2d(4.47127, 7.6249, Rotation2d.fromRadians(-1.5708)),
-        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365))
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj L1$1 = new ChoreoTraj(
         "L1",
         OptionalInt.of(1),
-        1.1171599999999997,
-        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
+        1.11733,
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(0)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj L2 = new ChoreoTraj(
         "L2",
         OptionalInt.empty(),
-        6.88799,
+        6.853,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
     );
     public static final ChoreoTraj L2$0 = new ChoreoTraj(
         "L2",
         OptionalInt.of(0),
-        1.09363,
+        1.10034,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
         new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0))
     );
     public static final ChoreoTraj L2$1 = new ChoreoTraj(
         "L2",
         OptionalInt.of(1),
-        4.68001,
+        4.63831,
         new Pose2d(3.3, 7.46568, Rotation2d.fromRadians(0)),
-        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365))
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(1.5708))
     );
     public static final ChoreoTraj L2$2 = new ChoreoTraj(
         "L2",
         OptionalInt.of(2),
         1.11435,
-        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(2.37365)),
-        new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37365))
+        new Pose2d(6.2, 5.6, Rotation2d.fromRadians(1.5708)),
+        new Pose2d(3, 5.6, Rotation2d.fromRadians(1.5708))
     );
     public static final ChoreoTraj L3 = new ChoreoTraj(
         "L3",
@@ -177,6 +177,13 @@ public record ChoreoTraj(
         1.06801,
         new Pose2d(3, 5.6, Rotation2d.fromRadians(2.37295)),
         new Pose2d(2.83279, 7.21147, Rotation2d.fromRadians(0))
+    );
+    public static final ChoreoTraj MID = new ChoreoTraj(
+        "MID",
+        OptionalInt.empty(),
+        4.27135,
+        new Pose2d(3.37299, 3.99191, Rotation2d.fromRadians(2.44346)),
+        new Pose2d(0.99021, 7.38369, Rotation2d.fromRadians(0))
     );
 
     /**
@@ -205,7 +212,8 @@ public record ChoreoTraj(
         Map.entry("L2$0", L2$0),
         Map.entry("L2$1", L2$1),
         Map.entry("L2$2", L2$2),
-        Map.entry("L3", L3)
+        Map.entry("L3", L3),
+        Map.entry("MID", MID)
     );
 
     /**
