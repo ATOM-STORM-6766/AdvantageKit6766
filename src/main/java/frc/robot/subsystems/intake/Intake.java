@@ -70,24 +70,25 @@ public class Intake extends SubsystemBase {
 
   /** 检测碰撞，返回是否触发了碰撞保护 */
   private boolean checkCollisionProtection() {
-    // 仅在初始化完成后启用
-    if (state != State.INITIALIZED) return false;
+    // // 仅在初始化完成后启用
+    // if (state != State.INITIALIZED) return false;
 
-    if (inputs.intakePositionRotation.lte(Position.COLLISION.getSetpoint())) {
-      return false;
-    }
+    // if (inputs.intakePositionRotation.lte(Position.COLLISION.getSetpoint())) {
+    //   return false;
+    // }
 
-    boolean velocityNegative =
-        inputs.positionVelocity.in(RadiansPerSecond) <= IntakeConstants.kCollisionVelocityThreshold;
+    // boolean velocityNegative =
+    //     inputs.positionVelocity.in(RadiansPerSecond) <=
+    // IntakeConstants.kCollisionVelocityThreshold;
 
-    boolean torquePositiveHigh =
-        inputs.positionTorqueAmps.in(Amps) >= IntakeConstants.kCollisionCurrentThreshold;
+    // boolean torquePositiveHigh =
+    //     inputs.positionTorqueAmps.in(Amps) >= IntakeConstants.kCollisionCurrentThreshold;
 
-    boolean isCollision = collisionDebouncer.calculate(velocityNegative && torquePositiveHigh);
+    // boolean isCollision = collisionDebouncer.calculate(velocityNegative && torquePositiveHigh);
 
-    if (isCollision) {
-      return true;
-    }
+    // if (isCollision) {
+    //   return true;
+    // }
 
     return false;
   }
@@ -138,12 +139,17 @@ public class Intake extends SubsystemBase {
           if (collisionDetected) {
             setIntakePositionCollisionImpl(Position.COLLISION.getSetpoint());
           } else {
-            setIntakePositionImpl(targetPosition.getSetpoint());
+            setIntakePositionWithVelocityImpl(
+                targetPosition.getSetpoint(), IntakeConstants.kOutVelocityRPS);
           }
         };
     return once
-        ? Commands.runOnce(action).withName("Intake Set Position Once")
-        : Commands.run(action).withName("Intake Set Position Repeat");
+        ? Commands.runOnce(action)
+            .until(() -> isAtPosition(targetPosition.getSetpoint()))
+            .withName("Intake Set Position Once")
+        : Commands.run(action)
+            .until(() -> isAtPosition(targetPosition.getSetpoint()))
+            .withName("Intake Set Position Repeat");
   }
 
   private Command defaultPositionCommand() {

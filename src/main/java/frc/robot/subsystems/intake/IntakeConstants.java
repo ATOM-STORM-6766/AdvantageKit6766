@@ -17,7 +17,7 @@ public class IntakeConstants {
   public static final int rollerFollowerMotorID = 28;
 
   // Gear ratio: motor rotations per output rotation
-  public static final double kPositionGearRatio = 66.0 / 14.0 * 24.0 / 20.0;
+  public static final double kPositionGearRatio = 56.0 / 12.0;
 
   public static final double kPositionGearDiameter = 0.0254;
   public static final double kPositionMetersPerMechanismRotation = Math.PI * kPositionGearDiameter;
@@ -27,7 +27,8 @@ public class IntakeConstants {
   public static final Angle kIntakeMinPosition = Rotations.of(kIntakeMinMechanismRotations);
   public static final Angle kIntakeMaxPosition = Rotations.of(kIntakeMaxMechanismRotations);
 
-  public static final double kSlowStowVelocityRPS = 4.5;
+  public static final double kSlowStowVelocityRPS = 5.5;
+  public static final double kOutVelocityRPS = 5.5;
   public static final Angle kPositionTolerance = distanceToRotation(Meters.of(0.01));
 
   public static final double kCalibrationVoltage = -0.8;
@@ -53,6 +54,7 @@ public class IntakeConstants {
     var config = new TalonFXConfiguration();
 
     // Motor output
+
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
@@ -70,7 +72,7 @@ public class IntakeConstants {
     var config = new TalonFXConfiguration();
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kIntakeMaxMechanismRotations;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
@@ -103,7 +105,7 @@ public class IntakeConstants {
     config.MotionMagic.MotionMagicCruiseVelocity = 18;
 
     if (RobotBase.isReal()) {
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 8.0;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 40.0;
       config.TorqueCurrent.PeakReverseTorqueCurrent = -40.0;
 
       config.CurrentLimits.SupplyCurrentLimit = 40.0;

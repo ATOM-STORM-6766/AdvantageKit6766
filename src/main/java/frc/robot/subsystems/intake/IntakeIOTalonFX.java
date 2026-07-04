@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -33,8 +32,8 @@ public class IntakeIOTalonFX implements IntakeIO {
   private final StatusSignal<Voltage> voltageSignal;
   private final StatusSignal<Voltage> voltageFollowerSignal;
 
-  private final MotionMagicTorqueCurrentFOC positionControl =
-      new MotionMagicTorqueCurrentFOC(0.0).withUseTimesync(true).withSlot(0);
+  private final PositionTorqueCurrentFOC positionControl =
+      new PositionTorqueCurrentFOC(0.0).withUseTimesync(true).withSlot(0);
 
   private final PositionTorqueCurrentFOC positionCollisionControl =
       new PositionTorqueCurrentFOC(0.0).withUseTimesync(true).withSlot(2);
