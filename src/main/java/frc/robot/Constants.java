@@ -229,7 +229,7 @@ public final class Constants {
     public static class MoveToTrenchConstants {
       // 平移：参考 TrajectoryFollow(0.8) 与 FollowPoint(5.0) 之间，带前馈结构可适当偏高
       public static final double DRIVE_KP = 3.5;
-      public static final double DRIVE_KD = 0.0;
+      public static final double DRIVE_KD = 0.15; // 微分阻尼，抑制长距离过冲
 
       // 旋转：KP 参考 JoystickAngleHold(2.0) 与 FollowPoint(5.0) 取中间值
       //        KD 对齐 JoystickAngleHold(0.1)，原值 0.5 会放大陀螺噪声

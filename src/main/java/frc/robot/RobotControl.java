@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimCommand;
-import frc.robot.commands.AutoDriveCommands;
+import frc.robot.commands.BlinkToTrench;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GamePieceCommands;
 import frc.robot.commands.MoveToTrench;
@@ -123,7 +123,7 @@ public class RobotControl {
     controller
         .pov(90)
         .whileTrue(
-            AutoDriveCommands.followPoint(drive, FieldConstants.Position.blink)
+            BlinkToTrench.createRight(drive)
                 .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
                 .andThen(
                     Commands.parallel(
@@ -136,9 +136,8 @@ public class RobotControl {
     controller
         .pov(270)
         .whileTrue(
-            AutoDriveCommands.followPoint(
-                    drive, AllianceFlipUtil.mirror(FieldConstants.Position.blink))
-                .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
+            BlinkToTrench.createLeft(drive)
+                // .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
                 .andThen(
                     Commands.parallel(
                         Commands.run(drive::stopWithX, drive),
@@ -172,18 +171,19 @@ public class RobotControl {
 
   private void configureOperatorBindings() {
     // operator
-    //     .triangle()
-    //     .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
-    //     .onFalse(
-    //         Commands.parallel(
-    //             intake.stopCommand(),
-    //             flywheel.stopCommand(),
-    //             feeder.stopCommand(),
-    //             hood.positionSetpointCommand(() -> Degrees.of(15))));
+    // .triangle()
+    // .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
+    // .onFalse(
+    // Commands.parallel(
+    // intake.stopCommand(),
+    // flywheel.stopCommand(),
+    // feeder.stopCommand(),
+    // hood.positionSetpointCommand(() -> Degrees.of(15))));
 
     operator.circle().onTrue(TuningCommand.tuningIntakeSlowStow(intake));
 
-    // operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake, Intake.Position.DEPLOYED));
+    // operator.L1().whileTrue(TuningCommand.tuningIntakeSetPos(intake,
+    // Intake.Position.DEPLOYED));
 
     // operator.R1().whileTrue(TuningCommand.tuningIntakeRoll(intake)).onFalse(intake.stopCommand());
 

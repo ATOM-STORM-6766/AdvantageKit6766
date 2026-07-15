@@ -10,7 +10,7 @@ import edu.wpi.first.math.util.Units;
 
 public class FieldConstants {
   public static AprilTagFieldLayout aprilTagLayout = // TODO: 更新为正确的布局
-      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
   public static final double fieldWidth = aprilTagLayout.getFieldWidth();
   public static final double fieldLength = aprilTagLayout.getFieldLength();
 
@@ -34,10 +34,7 @@ public class FieldConstants {
         new Pose2d(1.58, aprilTagLayout.getTagPose(31).get().getY(), Rotation2d.k180deg);
 
     public static final Pose2d blink =
-        new Pose2d(
-            2.792485475540161,
-            1.834878921508789,
-            Rotation2d.fromRadians(0.8832554013068488).rotateBy(Rotation2d.kPi));
+        new Pose2d(4.143232, 7.251716, Rotation2d.fromRadians(1.716116612234964));
 
     public static final Pose2d trench = aprilTagLayout.getTagPose(22).get().toPose2d();
   }
