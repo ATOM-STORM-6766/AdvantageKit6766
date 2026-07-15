@@ -43,11 +43,11 @@ public class Flywheel extends SubsystemBase {
               boolean at0 =
                   Math.abs(inputs.velocity0.in(RotationsPerSecond) - targetRps) < toleranceRps;
               boolean at1 =
-                  Math.abs(inputs.velocity1.in(RotationsPerSecond)) - targetRps < toleranceRps;
+                  Math.abs(inputs.velocity1.in(RotationsPerSecond) - targetRps) < toleranceRps;
               boolean at2 =
-                  Math.abs(inputs.velocity2.in(RotationsPerSecond)) - targetRps < toleranceRps;
+                  Math.abs(inputs.velocity2.in(RotationsPerSecond) - targetRps) < toleranceRps;
               boolean at3 =
-                  Math.abs(inputs.velocity3.in(RotationsPerSecond)) - targetRps < toleranceRps;
+                  Math.abs(inputs.velocity3.in(RotationsPerSecond) - targetRps) < toleranceRps;
 
               Logger.recordOutput("Flywheel/API/waitForVelocity", at0 && at1 && at2 && at3);
 

@@ -111,7 +111,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj hbluesteal_left = new ChoreoTraj(
         "hbluesteal_left",
         OptionalInt.empty(),
-        11.81782,
+        11.14534,
         new Pose2d(4.4596, 7.6243, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.86849, 5.51317, Rotation2d.fromRadians(2.26893))
     );
