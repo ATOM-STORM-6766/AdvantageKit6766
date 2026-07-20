@@ -1,5 +1,8 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
@@ -26,7 +29,7 @@ public class PassCommand {
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
 
             // 启动飞轮到指定速度
-            container.getFlywheel().setVelocity(container.getPassSubsystem()::getFlywheelVelocity))
+            container.getFlywheel().setVelocity(() -> RotationsPerSecond.of(50)))
         .withName("Prepare Pass");
   }
 
@@ -46,7 +49,7 @@ public class PassCommand {
             // 准备自动瞄准时的底盘和 Hood 旋转和飞轮速度
             prepare(
                 container,
-                container.getPassSubsystem()::getHoodPitch,
+                () -> Degree.of(45),
                 container.getPassSubsystem()::getRobotYawRad,
                 xSupplier,
                 ySupplier))

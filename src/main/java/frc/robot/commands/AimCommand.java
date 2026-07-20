@@ -35,8 +35,8 @@ public class AimCommand {
     return Commands.parallel(
             DriveCommands.joystickDriveAtAngle(
                 container.getDrive(),
-                () -> xSupplier.getAsDouble() * 0.6,
-                () -> ySupplier.getAsDouble() * 0.6,
+                () -> xSupplier.getAsDouble() * 0.8,
+                () -> ySupplier.getAsDouble() * 0.8,
                 robotYaw),
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
             container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity)
@@ -70,7 +70,8 @@ public class AimCommand {
                             container.getAimSubsystem()::getFlywheelVelocity,
                             FlywheelConstants.kVelocityToleranceRps))
                 .andThen(
-                    GamePieceCommands.feedAndStow(container.getIntake(), container.getFeeder(), 0)))
+                    GamePieceCommands.feedAndStow(
+                        container.getIntake(), container.getFeeder(), container.getFlywheel(), 0)))
         .withName("Prepare Aim No Move");
   }
 

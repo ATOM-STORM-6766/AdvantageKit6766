@@ -40,7 +40,7 @@ public final class L123Auto {
         // Shot 1
         AutoDriveCommands.zeroChassisSpeeds(drive),
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 0.5),
+            GamePieceCommands.feedAndStow(intake, feeder, flywheel, 0.5),
             ShootingCommands.autoAimShot(
                 container,
                 () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
@@ -56,7 +56,7 @@ public final class L123Auto {
         // Shot 2
         AutoDriveCommands.zeroChassisSpeeds(drive),
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 0.5),
+            GamePieceCommands.feedAndStow(intake, feeder, flywheel, 0.5),
             ShootingCommands.autoAimShot(
                 container,
                 () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),

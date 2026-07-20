@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
 
@@ -28,15 +29,16 @@ public final class GamePieceCommands {
     return Commands.parallel(
             intake.setIntakeVelocityCommand(() -> Volts.of(-10)),
             feeder.setFeederVelocityCommand(
-                () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(-40)))
+                () -> RotationsPerSecond.of(-90), () -> RotationsPerSecond.of(-40), null))
         .withName("Reverse Feed");
   }
 
-  public static Command feedAndStow(Intake intake, Feeder feeder, double delaySeconds) {
+  public static Command feedAndStow(
+      Intake intake, Feeder feeder, Flywheel flywheel, double delaySeconds) {
     return Commands.parallel(
             feeder.setFeederVelocityCommand(
-                () -> RotationsPerSecond.of(95), () -> RotationsPerSecond.of(68)),
-            Commands.waitSeconds(0.5).andThen(intake.setSlowStowCommand()),
+                () -> RotationsPerSecond.of(90), () -> RotationsPerSecond.of(75), flywheel),
+            Commands.waitSeconds(0.35).andThen(intake.setSlowStowCommand()),
             intake.setIntakeVelocityCommand(() -> Volts.of(5.0)))
         .beforeStarting(Commands.waitSeconds(delaySeconds))
         .withName("Feed And Stow");
@@ -46,7 +48,7 @@ public final class GamePieceCommands {
     return Commands.parallel(
             feeder
                 .setFeederVelocityCommand(
-                    () -> RotationsPerSecond.of(-20.0), () -> RotationsPerSecond.of(-80.0))
+                    () -> RotationsPerSecond.of(-20.0), () -> RotationsPerSecond.of(-80.0), null)
                 .withTimeout(1)
                 .andThen(feeder.stopCommand()),
             intake.stopCommand())

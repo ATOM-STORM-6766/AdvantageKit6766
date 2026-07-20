@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -111,7 +112,7 @@ public class RobotControl {
     controller
         .x()
         .or(operator.square())
-        .whileTrue(GamePieceCommands.feedAndStow(intake, feeder, 0))
+        .whileTrue(GamePieceCommands.feedAndStow(intake, feeder, flywheel, 0))
         .onFalse(GamePieceCommands.clearAndStopFeed(intake, feeder));
 
     controller
@@ -170,15 +171,31 @@ public class RobotControl {
   }
 
   private void configureOperatorBindings() {
-    // operator
-    // .triangle()
-    // .whileTrue(TuningCommand.tuningShoot(feeder, flywheel, hood, intake))
-    // .onFalse(
-    // Commands.parallel(
-    // intake.stopCommand(),
-    // flywheel.stopCommand(),
-    // feeder.stopCommand(),
-    // hood.positionSetpointCommand(() -> Degrees.of(15))));
+    operator
+        .triangle()
+        .whileTrue(
+            Commands.parallel(
+                Commands.startEnd(
+                    () ->
+                        robotContainer
+                            .getAimSubsystem()
+                            .setTargetSupplier(
+                                () ->
+                                    AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint)),
+                    robotContainer.getAimSubsystem()::clearTargetSupplier,
+                    robotContainer.getAimSubsystem()),
+                TuningCommand.tuningShootAtPosition(
+                    flywheel,
+                    hood,
+                    feeder,
+                    drive,
+                    robotContainer.getAimSubsystem()::getRobotYawRad,
+                    5)))
+        .onFalse(
+            Commands.parallel(
+                flywheel.stopCommand(),
+                feeder.stopCommand(),
+                hood.positionSetpointCommand(() -> Degrees.of(15))));
 
     operator.circle().onTrue(TuningCommand.tuningIntakeSlowStow(intake));
 

@@ -27,7 +27,7 @@ public final class BLV2Auto {
 
     return Commands.sequence(
         GamePieceCommands.resetMechanisms(intake, hood),
-        GamePieceCommands.runIntake(intake, true),
+        Commands.waitSeconds(0.3).andThen(GamePieceCommands.runIntake(intake, true)),
         AutoDriveCommands.resetOdometry(drive, trj.initialPoseBlue(), shouldMirror),
 
         // Seg 0 (~3.4s): sweep right side to collect notes
@@ -38,7 +38,7 @@ public final class BLV2Auto {
 
         // First shot
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 0.5),
+            GamePieceCommands.feedAndStow(intake, feeder, flywheel, 0.5),
             ShootingCommands.autoAimShot(
                 container,
                 () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),
@@ -58,7 +58,7 @@ public final class BLV2Auto {
 
         // Second shot
         Commands.race(
-            GamePieceCommands.feedAndStow(intake, feeder, 0.5),
+            GamePieceCommands.feedAndStow(intake, feeder, flywheel, 0.5),
             ShootingCommands.autoAimShot(
                 container,
                 () -> AllianceFlipUtil.apply(FieldConstants.Position.hubCenterPoint),

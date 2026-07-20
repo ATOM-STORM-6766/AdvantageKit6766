@@ -70,17 +70,15 @@ public final class Constants {
     config.hoodPitchRadiansMap.put(3.00, Rotation2d.fromDegrees(22.0));
     config.hoodPitchRadiansMap.put(3.50, Rotation2d.fromDegrees(25.0));
     config.hoodPitchRadiansMap.put(4.00, Rotation2d.fromDegrees(31.0));
-    config.hoodPitchRadiansMap.put(10.00, Rotation2d.fromDegrees(42.0));
 
-    config.flywheelRpsMap.put(1.50, 26.8);
-    config.flywheelRpsMap.put(1.80, 28.0);
-    config.flywheelRpsMap.put(2.10, 30.0);
-    config.flywheelRpsMap.put(2.40, 30.0);
-    config.flywheelRpsMap.put(2.70, 31.0);
-    config.flywheelRpsMap.put(3.00, 32.0);
-    config.flywheelRpsMap.put(3.50, 34.0);
-    config.flywheelRpsMap.put(4.00, 34.0);
-    config.flywheelRpsMap.put(10.00, 55.0);
+    config.flywheelRpsMap.put(1.50, 26.8 + 0.5);
+    config.flywheelRpsMap.put(1.80, 28.0 + 0.5);
+    config.flywheelRpsMap.put(2.10, 30.0 + 0.5);
+    config.flywheelRpsMap.put(2.40, 30.0 + 0.5);
+    config.flywheelRpsMap.put(2.70, 31.0 + 0.5);
+    config.flywheelRpsMap.put(3.00, 32.0 + 0.5);
+    config.flywheelRpsMap.put(3.50, 34.0 + 0.5);
+    config.flywheelRpsMap.put(4.00, 34.0 + 0.5);
 
     config.timeOfFlightSecondsMap.put(1.50, 0.95);
     config.timeOfFlightSecondsMap.put(1.90, 0.98);
@@ -92,11 +90,10 @@ public final class Constants {
     config.timeOfFlightSecondsMap.put(4.30, 1.35);
     config.timeOfFlightSecondsMap.put(4.70, 1.35);
     config.timeOfFlightSecondsMap.put(5.10, 1.36);
-    config.timeOfFlightSecondsMap.put(10.00, 1.50);
 
     // TODO 必须与实际的插值表范围相匹配
     config.minRange = 1.5;
-    config.maxRange = 10.0;
+    config.maxRange = 4.0;
 
     return config;
   }
@@ -177,11 +174,11 @@ public final class Constants {
     }
 
     public static class JoystickAngleHold {
-      public static final double KP = 2.0;
+      public static final double KP = 2.5;
       public static final double KI = 0.0;
       public static final double KD = 0.1;
       public static final double MAX_VELOCITY = 13.200;
-      public static final double MAX_ACCELERATION = 36.366 / 2.0;
+      public static final double MAX_ACCELERATION = 36.366 * 1.5; // rad/s²，原 36.366，增加以改善陀螺噪声抖动
       public static final double TOLERANCE_RAD = Units.degreesToRadians(2.0);
 
       public static final double FF_KS = 0.0;
@@ -232,7 +229,7 @@ public final class Constants {
       public static final double DRIVE_KD = 0.15; // 微分阻尼，抑制长距离过冲
 
       // 旋转：KP 参考 JoystickAngleHold(2.0) 与 FollowPoint(5.0) 取中间值
-      //        KD 对齐 JoystickAngleHold(0.1)，原值 0.5 会放大陀螺噪声
+      // KD 对齐 JoystickAngleHold(0.1)，原值 0.5 会放大陀螺噪声
       public static final double THETA_KP = 3.0;
       public static final double THETA_KD = 0.1;
 

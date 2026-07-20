@@ -2,6 +2,7 @@ package frc.robot.subsystems.flywheel;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,6 +14,8 @@ public class Flywheel extends SubsystemBase {
   private final FlywheelInputsAutoLogged inputs = new FlywheelInputsAutoLogged();
   private final FlywheelIO io;
   private AngularVelocity targetVelocity = RotationsPerSecond.of(0);
+
+  private final Debouncer feedBoostDebouncer = new Debouncer(0.06, Debouncer.DebounceType.kFalling);
 
   public Flywheel() {
     this.io = FlywheelIO.getIO();
@@ -26,7 +29,10 @@ public class Flywheel extends SubsystemBase {
 
   public Command setVelocity(Supplier<AngularVelocity> velocitySupplier) {
     return run(() -> {
-          AngularVelocity velocity = velocitySupplier.get();
+          AngularVelocity velocity =
+              velocitySupplier
+                  .get()
+                  .plus(RotationsPerSecond.of(feedBoostDebouncer.calculate(false) ? 0.5 : 0.0));
           setVelocityImpl(velocity);
         })
         .withName("Flywheel Velocity Control");
@@ -34,6 +40,11 @@ public class Flywheel extends SubsystemBase {
 
   public Command stopCommand() {
     return runOnce(() -> io.stop()).withName("Flywheel Stop");
+  }
+
+  /** 触发飞轮送球速度提升（+0.5 rps，持续 0.06s） */
+  public void triggerFeedBoost() {
+    feedBoostDebouncer.calculate(true);
   }
 
   public Command waitForVelocity(Supplier<AngularVelocity> velocitySupplier, double toleranceRps) {
