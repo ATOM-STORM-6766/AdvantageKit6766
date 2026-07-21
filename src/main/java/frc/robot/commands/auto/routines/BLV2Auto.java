@@ -26,9 +26,10 @@ public final class BLV2Auto {
     var intake = container.getIntake();
 
     return Commands.sequence(
-        GamePieceCommands.resetMechanisms(intake, hood),
-        Commands.waitSeconds(0.3).andThen(GamePieceCommands.runIntake(intake, true)),
-        AutoDriveCommands.resetOdometry(drive, trj.initialPoseBlue(), shouldMirror),
+        AutoDriveCommands.resetOdometry(drive, trj.initialPoseBlue(), shouldMirror)
+            .alongWith(
+                GamePieceCommands.resetMechanisms(intake, hood)
+                    .andThen(GamePieceCommands.runIntake(intake, true))),
 
         // Seg 0 (~3.4s): sweep right side to collect notes
         FollowTrajectory.create(autoFactory, drive, trj, 0, shouldMirror),

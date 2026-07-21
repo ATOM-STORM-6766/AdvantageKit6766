@@ -29,7 +29,7 @@ public class PassCommand {
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
 
             // 启动飞轮到指定速度
-            container.getFlywheel().setVelocity(() -> RotationsPerSecond.of(50)))
+            container.getFlywheel().setVelocity(() -> RotationsPerSecond.of(35)))
         .withName("Prepare Pass");
   }
 
@@ -49,7 +49,7 @@ public class PassCommand {
             // 准备自动瞄准时的底盘和 Hood 旋转和飞轮速度
             prepare(
                 container,
-                () -> Degree.of(45),
+                () -> Degree.of(44),
                 container.getPassSubsystem()::getRobotYawRad,
                 xSupplier,
                 ySupplier))

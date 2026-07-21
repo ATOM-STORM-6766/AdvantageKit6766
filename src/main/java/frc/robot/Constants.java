@@ -209,8 +209,8 @@ public final class Constants {
       public static final double THETA_KP = 3.5;
       public static final double THETA_KD = 0.1;
 
-      public static final double DRIVE_MAX_VELOCITY = 5.0;
-      public static final double DRIVE_MAX_ACCELERATION = 8.0;
+      public static final double DRIVE_MAX_VELOCITY = 6.0;
+      public static final double DRIVE_MAX_ACCELERATION = 9.0;
       public static final double THETA_MAX_VELOCITY = 11.2;
       public static final double THETA_MAX_ACCELERATION = 14.0;
 

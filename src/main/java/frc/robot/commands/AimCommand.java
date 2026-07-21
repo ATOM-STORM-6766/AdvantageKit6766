@@ -34,10 +34,12 @@ public class AimCommand {
       DoubleSupplier ySupplier) {
     return Commands.parallel(
             DriveCommands.joystickDriveAtAngle(
-                container.getDrive(),
-                () -> xSupplier.getAsDouble() * 0.8,
-                () -> ySupplier.getAsDouble() * 0.8,
-                robotYaw),
+                    container.getDrive(),
+                    () -> xSupplier.getAsDouble() * 0.8,
+                    () -> ySupplier.getAsDouble() * 0.8,
+                    robotYaw)
+                .until(() -> isRobotAtTargetAngle(container))
+                .andThen(Commands.runOnce(container.getDrive()::stopWithX)),
             container.getHood().positionSetpointCommand(hoodPitchSupplier),
             container.getFlywheel().setVelocity(container.getAimSubsystem()::getFlywheelVelocity)
             // Commands.waitUntil(() -> isRobotAtTargetAngle(container))

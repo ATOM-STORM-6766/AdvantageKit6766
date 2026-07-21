@@ -29,9 +29,10 @@ public final class L123Auto {
     var intake = container.getIntake();
 
     return Commands.sequence(
-        GamePieceCommands.resetMechanisms(intake, hood),
-        GamePieceCommands.runIntake(intake, true),
-        AutoDriveCommands.resetOdometry(drive, l1.initialPoseBlue(), shouldMirror),
+        AutoDriveCommands.resetOdometry(drive, l1.initialPoseBlue(), shouldMirror)
+            .alongWith(
+                GamePieceCommands.resetMechanisms(intake, hood)
+                    .andThen(GamePieceCommands.runIntake(intake, true))),
 
         // L1
         FollowTrajectory.create(autoFactory, drive, l1, 0, shouldMirror),

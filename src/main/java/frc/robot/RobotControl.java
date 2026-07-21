@@ -122,7 +122,8 @@ public class RobotControl {
 
     // 配置需要自动对准或定点移动的驾驶绑定。
     controller
-        .pov(90)
+        .rightTrigger()
+        .and(controller.b())
         .whileTrue(
             BlinkToTrench.createRight(drive)
                 .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
@@ -135,7 +136,8 @@ public class RobotControl {
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
 
     controller
-        .pov(270)
+        .leftTrigger()
+        .and(controller.b())
         .whileTrue(
             BlinkToTrench.createLeft(drive)
                 // .raceWith(flywheel.setVelocity(() -> RotationsPerSecond.of(31)))
@@ -149,6 +151,7 @@ public class RobotControl {
 
     controller
         .leftTrigger()
+        .and(controller.b().negate())
         .whileTrue(
             MoveToTrench.createLeft(drive)
                 .andThen(
@@ -160,6 +163,7 @@ public class RobotControl {
 
     controller
         .rightTrigger()
+        .and(controller.b().negate())
         .whileTrue(
             MoveToTrench.createRight(drive)
                 .andThen(
