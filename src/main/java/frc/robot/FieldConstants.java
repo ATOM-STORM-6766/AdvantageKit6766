@@ -4,7 +4,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
@@ -28,7 +27,7 @@ public class FieldConstants {
         new Translation3d(
             aprilTagLayout.getTagPose(26).get().getX() + width / 2.0, fieldWidth / 2.0, height);
 
-    public static final Translation2d passPoint = new Translation2d(1.7, 6.3);
+    public static final Translation3d passPoint = new Translation3d(1.7, 6.3, 0.0);
 
     public static final Pose2d tower =
         new Pose2d(1.58, aprilTagLayout.getTagPose(31).get().getY(), Rotation2d.k180deg);

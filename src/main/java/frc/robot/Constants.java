@@ -47,6 +47,16 @@ public final class Constants {
   private static ShooterConfig createPassConfig() {
     ShooterConfig config = createShooterConfig();
     config.restrictToAllianceForward = false;
+    config.hoodPitchRadiansMap.clear();
+    config.flywheelRpsMap.clear();
+
+    config.hoodPitchRadiansMap.put(1.50, Rotation2d.fromDegrees(44.0));
+
+    config.flywheelRpsMap.put(1.50, 35.0);
+
+    // TODO 必须与实际的插值表范围相匹配
+    config.minRange = 1.5;
+    config.maxRange = 4.0;
     return config;
   }
 
@@ -77,6 +87,7 @@ public final class Constants {
     config.flywheelRpsMap.put(2.40, 30.0 + 0.5);
     config.flywheelRpsMap.put(2.70, 31.0 + 0.5);
     config.flywheelRpsMap.put(3.00, 32.0 + 0.5);
+    config.flywheelRpsMap.put(3.20, 33.3 + 1.5);
     config.flywheelRpsMap.put(3.50, 34.0 + 0.5);
     config.flywheelRpsMap.put(4.00, 34.0 + 0.5);
 

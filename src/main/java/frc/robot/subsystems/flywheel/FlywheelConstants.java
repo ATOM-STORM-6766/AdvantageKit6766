@@ -33,11 +33,11 @@ public class FlywheelConstants {
     config.Slot0.kV = 0.1;
 
     config.MotionMagic.MotionMagicCruiseVelocity = 100.0;
-    config.MotionMagic.MotionMagicAcceleration = 2000.0;
+    config.MotionMagic.MotionMagicAcceleration = 200.0; // ~0.5s to full speed
 
     if (RobotBase.isReal()) {
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = 70.0;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -70.0;
       config.CurrentLimits.SupplyCurrentLimit = 40.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = false;
     }

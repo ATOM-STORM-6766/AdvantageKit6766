@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -217,7 +216,7 @@ public class RobotControl {
             PassCommand.passAtTarget(
                 robotContainer,
                 () -> {
-                  var target = new Translation3d(FieldConstants.Position.passPoint);
+                  var target = FieldConstants.Position.passPoint;
                   target = AllianceFlipUtil.apply(target);
 
                   target =
@@ -228,7 +227,7 @@ public class RobotControl {
 
                   return target;
                 },
-                () -> -controller.getLeftY(),
+                () -> 0.0,
                 () -> -controller.getLeftX()))
         .onFalse(Commands.parallel(flywheel.stopCommand(), feeder.stopCommand()));
   }

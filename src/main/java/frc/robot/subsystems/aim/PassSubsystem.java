@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.util.GenericShooterResolver;
-import frc.robot.util.GenericShooterResolver.ShooterConfig;
 import frc.robot.util.GenericShooterResolver.ShooterInput;
 import frc.robot.util.GenericShooterResolver.ShooterSetpoint;
 import java.util.function.Supplier;
@@ -38,6 +37,7 @@ public class PassSubsystem extends SubsystemBase {
   public void periodic() {
     if (targetSupplier == null) {
       latestSetpoint = ShooterSetpoint.invalid();
+      RobotState.getInstance().setAimSetpoint(latestSetpoint);
       return;
     }
 
@@ -45,17 +45,16 @@ public class PassSubsystem extends SubsystemBase {
     var robotPose = RobotState.getInstance().getRobotPose();
     var robotSpeeds = RobotState.getInstance().getFieldRelativeSpeeds();
 
-    ShooterConfig passConfig = Constants.PASS_CONFIG;
-
     ShooterInput input =
         new ShooterInput(
             robotPose,
             robotSpeeds,
             target,
             lookaheadSeconds -> RobotState.getInstance().getRobotPose(lookaheadSeconds));
-    ShooterSetpoint setpoint = GenericShooterResolver.resolve(input, passConfig);
+    ShooterSetpoint setpoint = GenericShooterResolver.resolve(input, Constants.PASS_CONFIG);
 
     latestSetpoint = setpoint;
+    RobotState.getInstance().setAimSetpoint(setpoint);
 
     Logger.recordOutput("Pass/SetpointValid", setpoint.isValid);
     Logger.recordOutput("Pass/ActualTarget", new Pose3d(target, new Rotation3d()));
@@ -101,6 +100,6 @@ public class PassSubsystem extends SubsystemBase {
     s.robotYaw = Degrees.of(0.0);
     s.robotYawRate = RadiansPerSecond.of(0.0);
     s.flywheelRps = RotationsPerSecond.of(0.0);
-    return s;
+    return ShooterSetpoint.invalid();
   }
 }

@@ -75,7 +75,7 @@ public class AutoModeSelector {
     SmartDashboard.putData("Auto Choices", autoChooser);
     Logger.recordOutput("Robot/Auto/ChooserReady", true);
 
-    autoChooser.select(isMirror ? "Mid (mirrored)" : "Mid");
+    autoChooser.select(isMirror ? "L123 (mirrored)" : "L123");
   }
 
   public Command selectedCommand() {
